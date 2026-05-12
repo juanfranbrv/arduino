@@ -5,6 +5,12 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useQuery } from "convex/react";
 import { useState } from "react";
+import { HugeiconsIcon } from "@hugeicons/react";
+import {
+  DashboardSquareEditIcon,
+  Login03Icon,
+  Logout03Icon,
+} from "@hugeicons/core-free-icons";
 
 import { authClient } from "@/lib/auth-client";
 import { UserHeaderProfile } from "@/components/user-header-profile";
@@ -50,14 +56,13 @@ export function SiteHeader() {
 
         <nav className="flex flex-wrap items-center gap-1 rounded-xl bg-[var(--color-canvas-white)] p-1 text-sm font-medium text-[var(--color-graphite)]">
           {!hasSession ? (
-            <>
-              <Link className="rounded-xl px-3 py-2 hover:bg-white" href="/fichas">
-                Unidades
-              </Link>
-              <Link className="rounded-xl px-3 py-2 hover:bg-white" href="/login">
-                Entrar
-              </Link>
-            </>
+            <Link
+              className="inline-flex items-center gap-2 rounded-xl px-3 py-2 hover:bg-white"
+              href="/login"
+            >
+              <HugeiconsIcon icon={Login03Icon} size={18} strokeWidth={1.7} />
+              <span>Entrar</span>
+            </Link>
           ) : sessionPending || navStatus === undefined ? (
             <span className="rounded-xl px-3 py-2 text-[var(--color-steel-gray)]">
               Comprobando...
@@ -65,13 +70,29 @@ export function SiteHeader() {
           ) : (
             <>
               {hasTeacherAccess ? (
-                <Link className="rounded-xl px-3 py-2 hover:bg-white" href="/profesor">
-                  Panel de control
+                <Link
+                  className="inline-flex items-center gap-2 rounded-xl px-3 py-2 hover:bg-white"
+                  href="/profesor"
+                >
+                  <HugeiconsIcon
+                    icon={DashboardSquareEditIcon}
+                    size={18}
+                    strokeWidth={1.7}
+                  />
+                  <span>Panel de control</span>
                 </Link>
               ) : null}
               {hasStudentAccess ? (
-                <Link className="rounded-xl px-3 py-2 hover:bg-white" href="/alumno">
-                  Mis fichas
+                <Link
+                  className="inline-flex items-center gap-2 rounded-xl px-3 py-2 hover:bg-white"
+                  href="/alumno"
+                >
+                  <HugeiconsIcon
+                    icon={DashboardSquareEditIcon}
+                    size={18}
+                    strokeWidth={1.7}
+                  />
+                  <span>Mis fichas</span>
                 </Link>
               ) : hasTeacherAccess ? null : (
                 <Link className="rounded-xl px-3 py-2 hover:bg-white" href="/registro">
@@ -79,12 +100,13 @@ export function SiteHeader() {
                 </Link>
               )}
               <button
-                className="rounded-xl px-3 py-2 hover:bg-white"
+                className="inline-flex items-center gap-2 rounded-xl px-3 py-2 hover:bg-white"
                 type="button"
                 onClick={signOut}
                 disabled={pendingSignOut}
               >
-                {pendingSignOut ? "Cerrando..." : "Salir"}
+                <HugeiconsIcon icon={Logout03Icon} size={18} strokeWidth={1.7} />
+                <span>{pendingSignOut ? "Cerrando..." : "Salir"}</span>
               </button>
             </>
           )}
