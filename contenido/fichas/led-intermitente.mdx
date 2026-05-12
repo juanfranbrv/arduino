@@ -1,0 +1,63 @@
+---
+title: LED intermitente
+slug: led-intermitente
+level: iniciacion
+duration: 55 min
+status: published
+prerequisites: []
+summary: Aprende a montar y programar un LED externo para entender salidas digitales, polaridad, resistencia y tiempos de parpadeo.
+coverImage: /worksheet-placeholder.svg
+preview:
+  - Montaje basico en protoboard con LED y resistencia.
+  - Primer programa de salida digital con Arduino.
+  - Experimentacion con ritmos de parpadeo.
+materials:
+  - Arduino Uno
+  - Protoboard
+  - LED
+  - Resistencia 220 ohm
+  - Cables dupont
+---
+
+En esta ficha vas a montar un circuito sencillo con un LED externo y programarlo para que parpadee. La validacion se hace en clase: el profesor comprobará visualmente el montaje y el comportamiento del circuito.
+
+## Objetivo
+
+Comprender la relacion entre un pin digital, una resistencia y un LED. Al terminar, el alumno debe poder explicar por que el LED necesita resistencia y modificar el tiempo de parpadeo.
+
+## Materiales
+
+- Arduino Uno
+- Protoboard
+- LED
+- Resistencia de 220 ohm
+- Cables dupont
+
+<Activity id="act-01" title="Montar el circuito" validation="El LED esta conectado en serie con la resistencia y respeta la polaridad." />
+
+Conecta el anodo del LED al pin 10 a traves de la resistencia. Conecta el catodo a GND. Antes de alimentar el circuito, revisa que la pata larga del LED queda hacia el pin digital.
+
+<Activity id="act-02" title="Subir el programa" validation="El LED parpadea con un intervalo regular de un segundo." />
+
+```cpp
+const int PIN_LED = 10;
+
+void setup() {
+  pinMode(PIN_LED, OUTPUT);
+}
+
+void loop() {
+  digitalWrite(PIN_LED, HIGH);
+  delay(1000);
+  digitalWrite(PIN_LED, LOW);
+  delay(1000);
+}
+```
+
+<Activity id="act-03" title="Modificar el ritmo" validation="El alumno cambia los tiempos y demuestra un parpadeo mas rapido o mas lento." />
+
+Cambia los valores de `delay()` y observa el resultado. Prueba con 250 ms, 500 ms y 2000 ms.
+
+## Cierre
+
+Explica al profesor que hace `pinMode`, que significan `HIGH` y `LOW`, y por que no conviene conectar un LED directamente al pin sin resistencia.

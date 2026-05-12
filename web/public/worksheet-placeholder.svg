@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 620" role="img" aria-labelledby="title desc">
+  <title id="title">Placeholder de imagen para ficha Arduino</title>
+  <desc id="desc">Imagen temporal para representar una ficha educativa de Arduino.</desc>
+  <rect width="900" height="620" fill="#f4f4f5"/>
+  <rect x="80" y="80" width="740" height="460" rx="48" fill="#ffffff" stroke="#d4d4d8" stroke-width="4"/>
+  <rect x="130" y="135" width="270" height="320" rx="34" fill="#09090b"/>
+  <rect x="165" y="175" width="200" height="230" rx="18" fill="#27272a"/>
+  <circle cx="192" cy="202" r="13" fill="#ffffff"/>
+  <circle cx="338" cy="202" r="13" fill="#ffffff"/>
+  <text x="265" y="320" text-anchor="middle" fill="#ffffff" font-family="Arial, sans-serif" font-size="44" font-weight="700">UNO</text>
+  <rect x="485" y="145" width="250" height="220" rx="24" fill="#ececee" stroke="#a1a1aa" stroke-width="4"/>
+  <g stroke="#d4d4d8" stroke-width="2">
+    <path d="M515 185H705"/><path d="M515 225H705"/><path d="M515 265H705"/><path d="M515 305H705"/>
+    <path d="M540 165V345"/><path d="M580 165V345"/><path d="M620 165V345"/><path d="M660 165V345"/><path d="M700 165V345"/>
+  </g>
+  <path d="M365 250C440 250 440 210 535 210" fill="none" stroke="#ff5a00" stroke-width="10" stroke-linecap="round"/>
+  <path d="M365 350C440 350 440 320 535 320" fill="none" stroke="#09090b" stroke-width="10" stroke-linecap="round"/>
+  <circle cx="625" cy="250" r="35" fill="#fe45e2" stroke="#09090b" stroke-width="7"/>
+  <path d="M602 275H648" stroke="#09090b" stroke-width="7" stroke-linecap="round"/>
+  <text x="450" y="500" text-anchor="middle" fill="#09090b" font-family="Arial, sans-serif" font-size="38" font-weight="700">Ficha Arduino</text>
+  <text x="450" y="545" text-anchor="middle" fill="#52525b" font-family="Arial, sans-serif" font-size="24">Imagen temporal de actividad</text>
+</svg>
