@@ -1,0 +1,11 @@
+{
+  "name": "arduino",
+  "private": true,
+  "scripts": {
+    "postinstall": "npm install --prefix web",
+    "build": "npm run build --prefix web",
+    "vercel-build": "npm run build",
+    "lint": "npm run lint --prefix web",
+    "test": "npm run test --prefix web"
+  }
+}
