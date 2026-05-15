@@ -2,29 +2,35 @@ import { notFound } from "next/navigation";
 
 import { RestrictedAccess } from "@/components/restricted-access";
 import { StudentWorksheetShell } from "@/components/student-worksheet-shell";
+import type { ActivityVisualStatus } from "@/components/activity-callout";
 import { fetchAuthQuery, isAuthenticated } from "@/lib/auth-server";
 import { convexApi } from "@/lib/convex-api";
 import { getWorksheetStudentStatus } from "@/lib/worksheet-status";
 import {
-  getPublishedWorksheet,
-  getPublishedWorksheets,
+  getPublishedWorksheetFromCatalog,
+  getPublishedWorksheetsFromCatalog,
 } from "@/lib/worksheets";
 
 export const dynamic = "force-dynamic";
 
-export function generateStaticParams() {
-  return getPublishedWorksheets().map((worksheet) => ({
+export async function generateStaticParams() {
+  const worksheets = await getPublishedWorksheetsFromCatalog();
+
+  return worksheets.map((worksheet) => ({
     slug: worksheet.slug,
   }));
 }
 
 export default async function StudentWorksheetPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>;
+  searchParams?: Promise<{ demoEstados?: string }>;
 }) {
   const { slug } = await params;
-  const worksheet = getPublishedWorksheet(slug);
+  const resolvedSearchParams = searchParams ? await searchParams : {};
+  const worksheet = await getPublishedWorksheetFromCatalog(slug);
 
   if (!worksheet) {
     notFound();
@@ -42,7 +48,7 @@ export default async function StudentWorksheetPage({
   const currentWorksheetEntry = dashboard.worksheets.find((item) => item.slug === slug);
 
   for (const item of dashboard.worksheets) {
-    const publishedWorksheet = getPublishedWorksheet(item.slug);
+    const publishedWorksheet = await getPublishedWorksheetFromCatalog(item.slug);
     if (!publishedWorksheet) {
       continue;
     }
@@ -55,7 +61,11 @@ export default async function StudentWorksheetPage({
       }));
 
     const status = getWorksheetStudentStatus(
-      publishedWorksheet,
+      {
+        slug: item.slug,
+        prerequisites: item.prerequisites,
+        activities: publishedWorksheet.activities,
+      },
       evaluations,
       completedWorksheetSlugs,
     );
@@ -73,12 +83,33 @@ export default async function StudentWorksheetPage({
           status: evaluation.status,
         }))
     : [];
+  const prerequisiteTitles = currentWorksheetEntry
+    ? dashboard.worksheets
+        .filter((item) => currentWorksheetEntry.prerequisites.includes(item.slug))
+        .map((item) => item.title)
+    : [];
+  const unlocked = currentWorksheetEntry
+    ? currentWorksheetEntry.prerequisites.every((slug) =>
+        completedWorksheetSlugs.includes(slug),
+      )
+    : true;
+  const demoActivityStates: Record<string, ActivityVisualStatus> | undefined =
+    resolvedSearchParams.demoEstados === "1"
+      ? {
+          "act-01": "completed",
+          "act-02": "closed_incomplete",
+          "act-03": "pending",
+          "act-04": "locked",
+        }
+      : undefined;
 
   return (
     <StudentWorksheetShell
       worksheet={worksheet}
       fallbackEvaluations={currentEvaluations}
-      completedWorksheetSlugs={completedWorksheetSlugs}
+      unlocked={unlocked}
+      prerequisiteTitles={prerequisiteTitles}
+      demoActivityStates={demoActivityStates}
     />
   );
 }

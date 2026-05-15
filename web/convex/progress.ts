@@ -5,6 +5,59 @@ import { mutation, query, type MutationCtx, type QueryCtx } from "./_generated/s
 import { getCurrentUserOrThrow, requireTeacher } from "./users";
 
 type ProgressCtx = QueryCtx | MutationCtx;
+type ResolvedStatus = "completed" | "closed_incomplete";
+
+function getCurrentActivityId(
+  activityIds: string[],
+  evaluations: Array<{ activityId: string; status: ResolvedStatus }>,
+) {
+  const evaluationById = new Map(
+    evaluations.map((evaluation) => [evaluation.activityId, evaluation.status]),
+  );
+
+  for (const activityId of activityIds) {
+    const savedStatus = evaluationById.get(activityId);
+
+    if (savedStatus === "completed" || savedStatus === "closed_incomplete") {
+      continue;
+    }
+
+    return activityId;
+  }
+
+  return null;
+}
+
+function canUpdateActivityInOrder(
+  activityIds: string[],
+  evaluations: Array<{ activityId: string; status: ResolvedStatus }>,
+  activityId: string,
+) {
+  return getCurrentActivityId(activityIds, evaluations) === activityId;
+}
+
+function canResetResolvedActivity(
+  activityIds: string[],
+  evaluations: Array<{ activityId: string; status: ResolvedStatus }>,
+  activityId: string,
+) {
+  const evaluationById = new Map(
+    evaluations.map((evaluation) => [evaluation.activityId, evaluation.status]),
+  );
+  let lastResolvedActivityId: string | null = null;
+
+  for (const activityIdInOrder of activityIds) {
+    const evaluation = evaluationById.get(activityIdInOrder);
+
+    if (!evaluation) {
+      break;
+    }
+
+    lastResolvedActivityId = activityIdInOrder;
+  }
+
+  return lastResolvedActivityId === activityId;
+}
 
 async function listEvaluationsWithLegacyFallback(
   ctx: ProgressCtx,
@@ -104,6 +157,10 @@ export const setActivityStatus = mutation({
   },
   handler: async (ctx, args) => {
     const teacher = await requireTeacher(ctx);
+    const worksheetActivities = await ctx.db
+      .query("worksheetActivities")
+      .withIndex("by_worksheet", (q) => q.eq("worksheetId", args.worksheetId))
+      .collect();
     const existingEvaluation = await ctx.db
       .query("activityEvaluations")
       .withIndex("by_student_worksheet_activity", (q) =>
@@ -123,8 +180,33 @@ export const setActivityStatus = mutation({
           .eq("activityId", args.activityId),
       )
       .unique();
+    const allEvaluations = await listEvaluationsWithLegacyFallback(
+      ctx,
+      args.studentId,
+      args.worksheetId,
+    );
+    const otherEvaluations = allEvaluations
+      .filter((evaluation) => evaluation.activityId !== args.activityId)
+      .map((evaluation) => ({
+        activityId: evaluation.activityId,
+        status: evaluation.status,
+      }));
+    const orderedActivityIds = worksheetActivities
+      .sort((a, b) => a.order - b.order)
+      .map((activity) => activity.activityId);
 
     if (args.status === "pending") {
+      const currentEvaluations = allEvaluations.map((evaluation) => ({
+        activityId: evaluation.activityId,
+        status: evaluation.status,
+      }));
+
+      if (
+        !canResetResolvedActivity(orderedActivityIds, currentEvaluations, args.activityId)
+      ) {
+        throw new Error("Solo puedes deshacer la ultima actividad resuelta.");
+      }
+
       if (existingEvaluation) {
         await ctx.db.delete(existingEvaluation._id);
       }
@@ -132,6 +214,10 @@ export const setActivityStatus = mutation({
         await ctx.db.delete(legacyCompletion._id);
       }
       return null;
+    }
+
+    if (!canUpdateActivityInOrder(orderedActivityIds, otherEvaluations, args.activityId)) {
+      throw new Error("Solo puedes marcar la actividad actual del alumno.");
     }
 
     if (existingEvaluation) {

@@ -1,6 +1,8 @@
 import fs from "node:fs";
 import path from "node:path";
 
+import { ConvexHttpClient } from "convex/browser";
+import { makeFunctionReference } from "convex/server";
 import matter from "gray-matter";
 import { z } from "zod";
 
@@ -13,6 +15,7 @@ export type WorksheetActivity = {
 };
 
 export type Worksheet = {
+  unitNumber?: number;
   slug: string;
   title: string;
   level: string;
@@ -35,6 +38,7 @@ export type WorksheetProgress = {
 };
 
 const worksheetFrontmatterSchema = z.object({
+  unitNumber: z.number().int().positive().optional(),
   title: z.string().min(1),
   slug: z.string().min(1),
   level: z.string().min(1),
@@ -49,6 +53,17 @@ const worksheetFrontmatterSchema = z.object({
 
 const contentRoot = path.resolve(process.cwd(), "..", "contenido");
 const worksheetRoot = path.join(contentRoot, "fichas");
+const listPublishedWorksheetsRef = makeFunctionReference<
+  "query",
+  Record<string, never>,
+  Array<{
+    slug: string;
+    title: string;
+    level: string;
+    status: WorksheetStatus;
+    prerequisites: string[];
+  }>
+>("worksheets:listPublished");
 
 export function parseWorksheetSource(source: string, sourcePath: string): Worksheet {
   const parsed = matter(source);
@@ -63,7 +78,7 @@ export function parseWorksheetSource(source: string, sourcePath: string): Worksh
 }
 
 export function getWorksheetPrerequisites(worksheet: Worksheet): Worksheet[] {
-  const worksheets = getPublishedWorksheets();
+  const worksheets = getAllWorksheets();
   const bySlug = new Map(worksheets.map((item) => [item.slug, item]));
 
   return worksheet.prerequisites
@@ -83,11 +98,60 @@ export function isWorksheetUnlocked(
 export function getPublishedWorksheets(): Worksheet[] {
   return readWorksheets()
     .filter((worksheet) => worksheet.status === "published")
-    .sort((a, b) => a.slug.localeCompare(b.slug, "es"));
+    .sort(compareWorksheets);
 }
 
 export function getPublishedWorksheet(slug: string): Worksheet | null {
   return getPublishedWorksheets().find((worksheet) => worksheet.slug === slug) ?? null;
+}
+
+export function getAllWorksheets(): Worksheet[] {
+  return readWorksheets().sort(compareWorksheets);
+}
+
+export function getWorksheetBySlug(slug: string): Worksheet | null {
+  return getAllWorksheets().find((worksheet) => worksheet.slug === slug) ?? null;
+}
+
+export async function getPublishedWorksheetsFromCatalog(): Promise<Worksheet[]> {
+  const localWorksheets = getAllWorksheets();
+  const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
+
+  if (!convexUrl) {
+    return localWorksheets.filter((worksheet) => worksheet.status === "published");
+  }
+
+  try {
+    const client = new ConvexHttpClient(convexUrl);
+    const remoteWorksheets = await client.query(listPublishedWorksheetsRef, {});
+    const localBySlug = new Map(localWorksheets.map((worksheet) => [worksheet.slug, worksheet]));
+
+    return remoteWorksheets
+      .map((worksheet) => {
+        const local = localBySlug.get(worksheet.slug);
+
+        if (!local) {
+          return null;
+        }
+
+        return {
+          ...local,
+          title: worksheet.title,
+          level: worksheet.level,
+          status: worksheet.status,
+          prerequisites: worksheet.prerequisites,
+        };
+      })
+      .filter((worksheet): worksheet is Worksheet => Boolean(worksheet));
+  } catch {
+    return localWorksheets.filter((worksheet) => worksheet.status === "published");
+  }
+}
+
+export async function getPublishedWorksheetFromCatalog(slug: string): Promise<Worksheet | null> {
+  const worksheets = await getPublishedWorksheetsFromCatalog();
+
+  return worksheets.find((worksheet) => worksheet.slug === slug) ?? null;
 }
 
 export function calculateWorksheetProgress(
@@ -121,8 +185,16 @@ function readWorksheets(): Worksheet[] {
     });
 }
 
+function compareWorksheets(a: Worksheet, b: Worksheet) {
+  return (
+    (a.unitNumber ?? Number.MAX_SAFE_INTEGER) -
+      (b.unitNumber ?? Number.MAX_SAFE_INTEGER) ||
+    a.slug.localeCompare(b.slug, "es")
+  );
+}
+
 function extractActivities(body: string): WorksheetActivity[] {
-  const activityTags = body.matchAll(/<Activity\s+([\s\S]*?)\/>/g);
+  const activityTags = body.matchAll(/<Activity\s+([^>]*?)(?:\/>|>[\s\S]*?<\/Activity>)/g);
 
   return Array.from(activityTags).map((tag) => {
     const props = parseProps(tag[1]);

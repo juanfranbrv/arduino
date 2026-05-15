@@ -45,7 +45,7 @@ export function StudentDashboard({
   if (!session?.user) {
     return (
       <section className="subtle-card p-5 text-[var(--color-graphite)]">
-        Entra con tu cuenta para ver tus fichas y su estado.
+        Entra con tu cuenta para ver tus unidades y su estado.
       </section>
     );
   }
@@ -53,7 +53,7 @@ export function StudentDashboard({
   if (dashboard === undefined) {
     return (
       <section className="subtle-card p-5 text-[var(--color-graphite)]">
-        Cargando fichas...
+        Cargando unidades...
       </section>
     );
   }
@@ -66,7 +66,9 @@ export function StudentDashboard({
     );
   }
 
-  const worksheetMetaBySlug = new Map(worksheets.map((worksheet) => [worksheet.slug, worksheet]));
+  const localWorksheetBySlug = new Map(
+    worksheets.map((worksheet) => [worksheet.slug, worksheet]),
+  );
   const evaluationsByWorksheet = new Map<string, ActivityEvaluation[]>();
   for (const evaluation of dashboard.evaluations) {
     const list = evaluationsByWorksheet.get(evaluation.worksheetId) ?? [];
@@ -76,26 +78,41 @@ export function StudentDashboard({
 
   const completedWorksheetSlugs: string[] = [];
   const cards = dashboard.worksheets
-    .map((item) => {
-      const meta = worksheetMetaBySlug.get(item.slug);
-      if (!meta) {
+    .map((convexWorksheet) => {
+      const localWorksheet = localWorksheetBySlug.get(convexWorksheet.slug);
+
+      if (!localWorksheet) {
         return null;
       }
-      const evaluations = evaluationsByWorksheet.get(item._id) ?? [];
-      const worksheetStatus = getWorksheetStudentStatus(meta, evaluations, completedWorksheetSlugs);
+
+      const evaluations = convexWorksheet
+      ? (evaluationsByWorksheet.get(convexWorksheet._id) ?? [])
+      : [];
+      const worksheetStatus = getWorksheetStudentStatus(
+        {
+          slug: convexWorksheet.slug,
+          prerequisites: convexWorksheet.prerequisites,
+          activities: localWorksheet.activities,
+        },
+        evaluations,
+        completedWorksheetSlugs,
+      );
+
       if (worksheetStatus === "completed") {
-        completedWorksheetSlugs.push(item.slug);
+        completedWorksheetSlugs.push(convexWorksheet.slug);
       }
-      return { ...meta, worksheetStatus, evaluations };
+
+      return {
+        ...localWorksheet,
+        title: convexWorksheet.title,
+        level: convexWorksheet.level,
+        duration: convexWorksheet.duration,
+        prerequisites: convexWorksheet.prerequisites,
+        worksheetStatus,
+        evaluations,
+      };
     })
-    .filter(
-      (
-        worksheet,
-      ): worksheet is WorksheetCard & {
-        worksheetStatus: ReturnType<typeof getWorksheetStudentStatus>;
-        evaluations: ActivityEvaluation[];
-      } => worksheet !== null,
-    );
+    .filter((worksheet): worksheet is NonNullable<typeof worksheet> => Boolean(worksheet));
 
   return (
     <section className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
@@ -103,7 +120,7 @@ export function StudentDashboard({
         <Link
           key={worksheet.slug}
           href={`/alumno/fichas/${worksheet.slug}`}
-          className="surface-card overflow-hidden"
+          className="surface-card flex h-full flex-col overflow-hidden bg-white"
         >
           <div className="relative aspect-[4/3] bg-[var(--color-canvas-white)]">
             <Image
@@ -114,7 +131,7 @@ export function StudentDashboard({
               sizes="(min-width: 1280px) 30vw, (min-width: 640px) 50vw, 100vw"
             />
           </div>
-          <div className="grid gap-3 p-6">
+          <div className="grid flex-1 content-start gap-3 bg-white p-6">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <p className="eyebrow">{worksheet.level}</p>
               <span className="badge bg-white">

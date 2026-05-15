@@ -110,7 +110,7 @@ export function StudentRegisterForm() {
   if (navStatus.hasStudentProfile) {
     return (
       <p className="text-sm leading-[1.56] text-[var(--color-graphite)]">
-        Redirigiendo a mis fichas...
+        Redirigiendo a mis unidades...
       </p>
     );
   }

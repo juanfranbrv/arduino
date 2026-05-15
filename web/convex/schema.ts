@@ -33,8 +33,11 @@ export default defineSchema({
   worksheets: defineTable({
     slug: v.string(),
     title: v.string(),
+    coverImage: v.optional(v.string()),
+    coverImageStorageId: v.optional(v.id("_storage")),
     level: v.string(),
     duration: v.string(),
+    position: v.optional(v.number()),
     status: v.union(v.literal("draft"), v.literal("published"), v.literal("archived")),
     prerequisites: v.array(v.string()),
     activityIds: v.array(v.string()),

@@ -3,6 +3,15 @@ import { v } from "convex/values";
 import { query } from "./_generated/server";
 import { getCurrentUser } from "./users";
 
+function sortWorksheets<T extends { position?: number; slug: string }>(worksheets: T[]) {
+  return worksheets.sort(
+    (a, b) =>
+      (a.position ?? Number.MAX_SAFE_INTEGER) -
+        (b.position ?? Number.MAX_SAFE_INTEGER) ||
+      a.slug.localeCompare(b.slug, "es"),
+  );
+}
+
 export const teacherDashboard = query({
   args: {
     groupId: v.optional(v.id("groups")),
@@ -28,22 +37,26 @@ export const teacherDashboard = query({
       .query("groups")
       .filter((q) => q.eq(q.field("createdBy"), teacher._id))
       .collect();
+    const sortedGroups = groups.sort((a, b) => a.name.localeCompare(b.name, "es"));
     const selectedGroup = args.groupId
-      ? groups.find((group) => group._id === args.groupId)
-      : groups[0];
-    const worksheets = await ctx.db
-      .query("worksheets")
-      .filter((q) => q.eq(q.field("status"), "published"))
-      .collect();
+      ? sortedGroups.find((group) => group._id === args.groupId)
+      : sortedGroups[0];
+    const worksheets = (await ctx.db.query("worksheets").collect()).filter(
+      (worksheet) => worksheet.status !== "archived",
+    );
+    const sortedWorksheets = sortWorksheets(worksheets).map((worksheet, index) => ({
+      ...worksheet,
+      position: worksheet.position ?? index,
+    }));
     const selectedWorksheet = args.worksheetId
-      ? worksheets.find((worksheet) => worksheet._id === args.worksheetId)
-      : worksheets[0];
+      ? sortedWorksheets.find((worksheet) => worksheet._id === args.worksheetId)
+      : sortedWorksheets[0];
 
     if (!selectedGroup || !selectedWorksheet) {
       return {
         isTeacher: true,
-        groups,
-        worksheets,
+        groups: sortedGroups,
+        worksheets: sortedWorksheets,
         selectedGroup: null,
         selectedWorksheet: null,
         students: [],
@@ -56,6 +69,9 @@ export const teacherDashboard = query({
       .query("students")
       .withIndex("by_group", (q) => q.eq("groupId", selectedGroup._id))
       .collect();
+    const sortedStudents = students.sort((a, b) =>
+      a.displayName.localeCompare(b.displayName, "es"),
+    );
     const activities = await ctx.db
       .query("worksheetActivities")
       .withIndex("by_worksheet", (q) =>
@@ -64,7 +80,7 @@ export const teacherDashboard = query({
       .collect();
     const evaluations = (
       await Promise.all(
-        students.map((student) =>
+        sortedStudents.map((student) =>
           ctx.db
             .query("activityEvaluations")
             .withIndex("by_student_worksheet", (q) =>
@@ -78,7 +94,7 @@ export const teacherDashboard = query({
     ).flat();
     const legacyCompletions = (
       await Promise.all(
-        students.map((student) =>
+        sortedStudents.map((student) =>
           ctx.db
             .query("activityCompletions")
             .withIndex("by_student_worksheet", (q) =>
@@ -119,11 +135,31 @@ export const teacherDashboard = query({
 
     return {
       isTeacher: true,
-      groups,
-      worksheets,
+      groups: sortedGroups.map((group) => ({
+        _id: group._id,
+        name: group.name,
+      })),
+      worksheets: sortedWorksheets.map((worksheet) => ({
+        _id: worksheet._id,
+        slug: worksheet.slug,
+        title: worksheet.title,
+        status: worksheet.status,
+        position: worksheet.position,
+      })),
       selectedGroup,
-      selectedWorksheet,
-      students,
+      selectedWorksheet: selectedWorksheet
+        ? {
+            _id: selectedWorksheet._id,
+            slug: selectedWorksheet.slug,
+            title: selectedWorksheet.title,
+            status: selectedWorksheet.status,
+            position: selectedWorksheet.position,
+          }
+        : null,
+      students: sortedStudents.map((student) => ({
+        _id: student._id,
+        displayName: student.displayName,
+      })),
       activities: activities.sort((a, b) => a.order - b.order),
       evaluations: mergedEvaluations,
     };
@@ -151,6 +187,10 @@ export const studentDashboard = query({
       .query("worksheets")
       .filter((q) => q.eq(q.field("status"), "published"))
       .collect();
+    const sortedWorksheets = sortWorksheets(worksheets).map((worksheet, index) => ({
+      ...worksheet,
+      position: worksheet.position ?? index,
+    }));
 
     if (!student) {
       return {
@@ -162,7 +202,7 @@ export const studentDashboard = query({
 
     const evaluations = (
       await Promise.all(
-        worksheets.map((worksheet) =>
+        sortedWorksheets.map((worksheet) =>
           ctx.db
             .query("activityEvaluations")
             .withIndex("by_student_worksheet", (q) =>
@@ -175,7 +215,7 @@ export const studentDashboard = query({
 
     const legacyCompletions = (
       await Promise.all(
-        worksheets.map((worksheet) =>
+        sortedWorksheets.map((worksheet) =>
           ctx.db
             .query("activityCompletions")
             .withIndex("by_student_worksheet", (q) =>
@@ -220,7 +260,7 @@ export const studentDashboard = query({
         displayName: student.displayName,
         groupId: student.groupId,
       },
-      worksheets: worksheets.sort((a, b) => a.slug.localeCompare(b.slug, "es")),
+      worksheets: sortedWorksheets,
       evaluations: mergedEvaluations,
     };
   },

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   calculateWorksheetProgress,
+  getAllWorksheets,
   isWorksheetUnlocked,
   parseWorksheetSource,
 } from "./worksheets";
@@ -103,5 +104,69 @@ prerequisites:
     expect(isWorksheetUnlocked(baseWorksheet, [])).toBe(true);
     expect(isWorksheetUnlocked(dependentWorksheet, [])).toBe(false);
     expect(isWorksheetUnlocked(dependentWorksheet, ["base"])).toBe(true);
+  });
+});
+
+describe("local worksheet catalog", () => {
+  it("contains the eight numbered Arduino units in order", () => {
+    const worksheets = getAllWorksheets();
+
+    expect(
+      worksheets.map((worksheet) => ({
+        unitNumber: worksheet.unitNumber,
+        title: worksheet.title,
+        slug: worksheet.slug,
+        activities: worksheet.activities.length,
+      })),
+    ).toEqual([
+      {
+        unitNumber: 1,
+        title: "Unidad 1 - Explorar el pack",
+        slug: "unidad-01-explorar-el-pack",
+        activities: 0,
+      },
+      {
+        unitNumber: 2,
+        title: "Unidad 2 - LEDs: del simulador a la protoboard",
+        slug: "unidad-02-leds-simulador-protoboard",
+        activities: 0,
+      },
+      {
+        unitNumber: 3,
+        title: "Unidad 3 - LEDs en paralelo, serie y resistencia",
+        slug: "unidad-03-leds-paralelo-serie-resistencia",
+        activities: 0,
+      },
+      {
+        unitNumber: 4,
+        title: "Unidad 4 - Led RGB",
+        slug: "unidad-04-led-rgb",
+        activities: 0,
+      },
+      {
+        unitNumber: 5,
+        title: "Unidad 5 - Pulsador de 4 patas",
+        slug: "pulsadores-led",
+        activities: 6,
+      },
+      {
+        unitNumber: 6,
+        title: "Unidad 6 - Zumbador activo",
+        slug: "zumbador-activo",
+        activities: 4,
+      },
+      {
+        unitNumber: 7,
+        title: "Unidad 7 - Zumbador pasivo",
+        slug: "unidad-07-zumbador-pasivo",
+        activities: 0,
+      },
+      {
+        unitNumber: 8,
+        title: "Unidad 8 - Tilt",
+        slug: "unidad-08-tilt",
+        activities: 0,
+      },
+    ]);
   });
 });

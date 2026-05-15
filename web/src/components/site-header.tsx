@@ -92,7 +92,7 @@ export function SiteHeader() {
                     size={18}
                     strokeWidth={1.7}
                   />
-                  <span>Mis fichas</span>
+                  <span>Mis unidades</span>
                 </Link>
               ) : hasTeacherAccess ? null : (
                 <Link className="rounded-xl px-3 py-2 hover:bg-white" href="/registro">

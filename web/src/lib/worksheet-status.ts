@@ -7,6 +7,8 @@ export type WorksheetStudentStatus =
   | "completed"
   | "closed_incomplete";
 
+export type WorksheetPublicationStatus = "draft" | "published" | "archived";
+
 export type ActivityEvaluation = {
   activityId: string;
   status: ActivityStatus;
@@ -23,7 +25,7 @@ export function getActivityStatusLabel(status: ActivityStatus) {
     case "completed":
       return "Completada";
     case "closed_incomplete":
-      return "Cerrada incompleta";
+      return "Omitida";
     default:
       return "Sin marcar";
   }
@@ -40,7 +42,18 @@ export function getWorksheetStatusLabel(status: WorksheetStudentStatus) {
     case "completed":
       return "Completada";
     case "closed_incomplete":
-      return "Cerrada incompleta";
+      return "Omitida";
+  }
+}
+
+export function getWorksheetPublicationStatusLabel(status: WorksheetPublicationStatus) {
+  switch (status) {
+    case "draft":
+      return "Borrador";
+    case "published":
+      return "Publicada";
+    case "archived":
+      return "Archivada";
   }
 }
 

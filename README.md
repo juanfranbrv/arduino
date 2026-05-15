@@ -5,13 +5,59 @@ Repositorio publico del portal de clase. Solo esta carpeta debe publicarse en Gi
 ## Estructura
 
 - `web/`: aplicacion Next.js para Vercel.
-- `contenido/fichas/`: fichas MDX publicadas.
+- `contenido/fichas/`: unidades MDX publicadas.
 - `contenido/borradores/`: borradores generados por IA antes de publicar.
-- `contenido/imagenes/`: imagenes propias asociadas a fichas.
+- `contenido/imagenes/`: imagenes propias asociadas a unidades.
 - `contenido/presentaciones/`: materiales futuros.
 - `contenido/cuestionarios/`: cuestionarios futuros.
 
 La carpeta `../PRIVADO/` queda fuera de este repositorio y no debe publicarse.
+
+## Skill De Autor
+
+El skill unico para crear contenido didactico se llama `creador-de-unidades` y vive en `../.agents/skills/creador-de-unidades`.
+
+Sirve para crear, revisar o publicar unidades de Arduino en `contenido/fichas/`. Aunque la carpeta siga llamandose `fichas` por compatibilidad tecnica, a nivel editorial trabajamos con `unidades`.
+
+### Como invocarlo
+
+Si ya tienes un guion de actividades:
+
+```text
+Usa el skill creador-de-unidades.
+Quiero una unidad nueva sobre [tema].
+Slug: [slug]
+Nivel: [nivel]
+Duracion: [duracion]
+Materiales: [materiales]
+Guion de actividades:
+1. ...
+2. ...
+3. ...
+```
+
+Si no tienes guion:
+
+```text
+Usa el skill creador-de-unidades.
+Quiero una unidad nueva sobre [tema].
+No tengo guion: generalo tu primero.
+```
+
+### Flujo Esperado
+
+1. Si no queda claro si hay guion, el skill debe preguntar si ya existe o si debe generarlo.
+2. Si no hay guion, primero propone un borrador corto de actividades.
+3. Cada actividad del borrador debe incluir titulo, objetivo, foco tecnico o de montaje, y que comprobaria el profesor.
+4. Solo despues de revisar ese borrador se redacta la unidad completa en MDX.
+
+### Fuentes Prioritarias
+
+El skill debe consultar las fuentes privadas en este orden:
+
+1. `../PRIVADO/REFERENCIA`
+2. El PDF principal de ELEGOO dentro de `../PRIVADO/ELEGOO`
+3. `../PRIVADO/LIBROS` como apoyo secundario, sin saturar la unidad final
 
 ## Desarrollo
 
@@ -48,7 +94,7 @@ npx auth generate --config ./convex/betterAuth/auth.ts --output ./convex/betterA
 
 Despues, configura `NEXT_PUBLIC_CONVEX_URL` y `NEXT_PUBLIC_CONVEX_SITE_URL` en `.env.local` y en Vercel.
 
-Para cargar las fichas MDX publicadas en Convex:
+Para cargar las unidades MDX publicadas en Convex:
 
 ```bash
 cd web

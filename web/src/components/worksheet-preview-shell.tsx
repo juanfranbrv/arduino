@@ -9,7 +9,7 @@ export function WorksheetPreviewShell({ worksheet }: { worksheet: Worksheet }) {
   const prerequisites = getWorksheetPrerequisites(worksheet);
 
   return (
-    <main className="mx-auto w-full max-w-5xl flex-1 px-5 py-10 sm:px-8">
+    <main className="mx-auto w-full max-w-6xl flex-1 px-5 py-10 sm:px-8">
       <div className="mb-4">
         <Link href="/fichas" className="text-sm font-medium text-[var(--color-deep-gray)]">
           Volver a unidades

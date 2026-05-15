@@ -1,10 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import { getPublishedWorksheets } from "@/lib/worksheets";
+import { getPublishedWorksheetsFromCatalog } from "@/lib/worksheets";
 
-export default function WorksheetsPage() {
-  const worksheets = getPublishedWorksheets();
+export default async function WorksheetsPage() {
+  const worksheets = await getPublishedWorksheetsFromCatalog();
 
   return (
     <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-8 px-5 py-12 sm:px-8">
@@ -22,7 +22,7 @@ export default function WorksheetsPage() {
           <Link
             key={worksheet.slug}
             href={`/fichas/${worksheet.slug}`}
-            className="surface-card overflow-hidden"
+            className="surface-card flex h-full flex-col overflow-hidden bg-white"
           >
             <div className="relative aspect-[16/9] bg-[var(--color-canvas-white)]">
               <Image
@@ -33,7 +33,7 @@ export default function WorksheetsPage() {
                 sizes="(min-width: 768px) 50vw, 100vw"
               />
             </div>
-            <div className="grid gap-4 p-7">
+            <div className="grid flex-1 content-start gap-4 bg-white p-7">
               <div className="flex flex-wrap gap-2">
                 <span className="badge bg-white">{worksheet.level}</span>
                 <span className="badge bg-white">{worksheet.duration}</span>

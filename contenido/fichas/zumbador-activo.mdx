@@ -1,0 +1,175 @@
+---
+unitNumber: 6
+title: Unidad 6 - Zumbador activo
+slug: zumbador-activo
+level: iniciacion
+duration: 55 min
+status: draft
+prerequisites: []
+summary: "Un zumbador activo es una salida sonora muy simple: al recibir corriente emite un pitido fijo. Sirve para avisos, timbres, alarmas y confirmaciones de botones, y convierte un montaje de Arduino en un sistema que puede alertar sin depender solo de luces."
+coverImage: /worksheets/zumbador-activo-cover.png
+preview:
+  - Conexion directa a 5V para entender como suena un zumbador activo.
+  - Pitido intermitente desde el pin 8 con un programa muy corto.
+  - Alarma simple con zumbador, LED y pulsador.
+materials:
+  - Arduino Uno o Elegoo Mega
+  - Protoboard
+  - Zumbador activo
+  - LED
+  - Resistencia de 220 ohm
+  - Pulsador
+  - Cables dupont
+---
+
+![Infografia sobre zumbador activo y pasivo](/fichas/zumbador-activo/zumbador-activo-infografia.png)
+
+Fisicamente, un zumbador produce sonido porque una pieza interna vibra muy deprisa y empuja el aire que tiene alrededor. En el zumbador activo esa vibracion la provoca un pequeño circuito interno: al recibir corriente, genera por si mismo una frecuencia fija y la convierte en un pitido.
+
+<Activity id="act-01" title="Conectar el zumbador activo a 5V" validation="El zumbador suena de forma continua al alimentar el circuito y deja de sonar al desconectarlo.">
+
+Esta primera actividad es completamente electrica: no necesitas programa.
+
+Coloca el zumbador activo en la protoboard e identifica sus patas:
+
+- La pata `+` suele ser la larga o estar marcada.
+- La pata `-` suele ser la corta.
+
+Haz este montaje:
+
+- pata `+` del zumbador a `5V`
+- pata `-` del zumbador a `GND`
+
+Al conectar la placa por USB, el zumbador debe sonar de forma continua.
+
+<KeyConcept title="Activo no significa mas fuerte, sino mas simple">
+El zumbador activo lleva un oscilador interno. No hace falta generar notas ni frecuencias: cuando recibe corriente, suena.
+</KeyConcept>
+
+<WatchOut>
+Si no suena, revisa la polaridad. En muchos casos el problema es simplemente que el zumbador esta al reves.
+</WatchOut>
+
+</Activity>
+
+<Activity id="act-02" title="Programar un sonido intermitente en el pin 8" validation="El zumbador alterna sonido y silencio con un ritmo estable controlado por el programa.">
+
+Ahora el zumbador ya no va a ir a `5V` directo. Conectalo asi:
+
+- pata `+` del zumbador al pin `8`
+- pata `-` del zumbador a `GND`
+
+Sube este programa:
+
+```cpp
+const int PIN_BUZZER = 8;
+
+void setup() {
+  pinMode(PIN_BUZZER, OUTPUT);
+}
+
+void loop() {
+  digitalWrite(PIN_BUZZER, HIGH);
+  delay(200);
+  digitalWrite(PIN_BUZZER, LOW);
+  delay(800);
+}
+```
+
+El zumbador hace un pitido corto y despues queda en silencio antes de repetir.
+
+<KeyConcept title="Arduino lo controla igual que un LED">
+Para un zumbador activo, `HIGH` significa sonido y `LOW` significa silencio. Se trabaja como una salida digital normal.
+</KeyConcept>
+
+Prueba a cambiar los tiempos:
+
+- `delay(200)` y `delay(800)` para un aviso corto
+- `delay(500)` y `delay(500)` para un ritmo regular
+- `delay(50)` y `delay(50)` para una alarma mas rapida
+
+</Activity>
+
+<Activity id="act-03" title="Añadir un LED al mismo circuito" validation="El LED y el zumbador se activan y desactivan a la vez con el mismo ritmo.">
+
+Mantén el zumbador en el pin `8` y añade un LED externo:
+
+- anodo del LED al pin `10` pasando por una resistencia de `220 ohm`
+- catodo del LED a `GND`
+
+Sube este programa:
+
+```cpp
+const int PIN_BUZZER = 8;
+const int PIN_LED = 10;
+
+void setup() {
+  pinMode(PIN_BUZZER, OUTPUT);
+  pinMode(PIN_LED, OUTPUT);
+}
+
+void loop() {
+  digitalWrite(PIN_BUZZER, HIGH);
+  digitalWrite(PIN_LED, HIGH);
+  delay(200);
+
+  digitalWrite(PIN_BUZZER, LOW);
+  digitalWrite(PIN_LED, LOW);
+  delay(800);
+}
+```
+
+Ahora tienes una alarma basica con señal sonora y señal luminosa.
+
+<WatchOut>
+El LED necesita resistencia. El zumbador activo no se monta igual que el LED: no copies esa parte del circuito sin revisar el esquema.
+</WatchOut>
+
+<OptionalChallenge>
+Cambia el programa para que el LED parpadee mas rapido que el zumbador. Asi veras que dos salidas pueden seguir ritmos distintos dentro del mismo `loop()`.
+</OptionalChallenge>
+
+</Activity>
+
+<Activity id="act-04" title="Usar un pulsador para activar zumbador y LED" validation="Mientras el pulsador esta presionado, el zumbador suena y el LED se enciende; al soltar, ambos se apagan.">
+
+Mantén el montaje de la actividad anterior y añade un pulsador:
+
+- un lado del pulsador al pin `2`
+- el otro lado del pulsador a `GND`
+
+En esta actividad vas a usar `INPUT_PULLUP`, asi que no necesitas resistencia externa para el boton.
+
+```cpp
+const int PIN_BUZZER = 8;
+const int PIN_LED = 10;
+const int PIN_BOTON = 2;
+
+void setup() {
+  pinMode(PIN_BUZZER, OUTPUT);
+  pinMode(PIN_LED, OUTPUT);
+  pinMode(PIN_BOTON, INPUT_PULLUP);
+}
+
+void loop() {
+  if (digitalRead(PIN_BOTON) == LOW) {
+    digitalWrite(PIN_BUZZER, HIGH);
+    digitalWrite(PIN_LED, HIGH);
+  } else {
+    digitalWrite(PIN_BUZZER, LOW);
+    digitalWrite(PIN_LED, LOW);
+  }
+}
+```
+
+<KeyConcept title="Con INPUT_PULLUP la lectura va invertida">
+Cuando el boton esta suelto, el pin lee `HIGH`. Cuando pulsas y conectas a `GND`, el pin lee `LOW`.
+</KeyConcept>
+
+Si todo esta bien montado, al pulsar se enciende el LED y el zumbador suena al mismo tiempo.
+
+<OptionalChallenge>
+Haz que al pulsar el boton el zumbador no suene continuo, sino con pitidos cortos mientras mantienes el boton apretado.
+</OptionalChallenge>
+
+</Activity>

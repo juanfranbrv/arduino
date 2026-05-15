@@ -3,10 +3,10 @@ import Link from "next/link";
 import { ArrowUpRight, Play, Phone } from "lucide-react";
 
 import { AcademyContactForm } from "@/components/academy-contact-form";
-import { getPublishedWorksheets } from "@/lib/worksheets";
+import { getPublishedWorksheetsFromCatalog } from "@/lib/worksheets";
 
-export default function Home() {
-  const worksheets = getPublishedWorksheets();
+export default async function Home() {
+  const worksheets = await getPublishedWorksheetsFromCatalog();
   const featuredWorksheets = worksheets.slice(0, 6);
   const year = new Date().getFullYear();
 
@@ -36,8 +36,8 @@ export default function Home() {
           <div className="hidden lg:flex lg:justify-end">
             <div className="surface-card relative aspect-square w-full max-w-[24rem] overflow-hidden">
               <Image
-                src="/worksheet-placeholder.svg"
-                alt="Vista previa temporal de unidad"
+                src="/home-arduino-hero.png"
+                alt="Montaje de Arduino con protoboard, cables y componentes electrónicos"
                 fill
                 className="object-cover"
                 sizes="24rem"
@@ -62,19 +62,21 @@ export default function Home() {
               <Link
                 key={worksheet.slug}
                 href={`/fichas/${worksheet.slug}`}
-                className="surface-card group overflow-hidden"
+                className="surface-card home-worksheet-card group flex h-full flex-col overflow-hidden bg-white"
               >
-                <div className="relative aspect-[4/3] bg-[var(--color-canvas-white)]">
-                  <Image
-                    src={worksheet.coverImage ?? "/worksheet-placeholder.svg"}
-                    alt={`Imagen de ${worksheet.title}`}
-                    fill
-                    className="object-cover transition duration-300 group-hover:scale-[1.02]"
-                    sizes="(min-width: 1280px) 30vw, (min-width: 640px) 50vw, 100vw"
-                    priority={index < 2}
-                  />
+                <div className="relative aspect-[4/3] overflow-hidden bg-white">
+                  <div className="absolute -left-2 -right-2 -top-2 bottom-0">
+                    <Image
+                      src={worksheet.coverImage ?? "/worksheet-placeholder.svg"}
+                      alt={`Imagen de ${worksheet.title}`}
+                      fill
+                      className="object-cover"
+                      sizes="(min-width: 1280px) 30vw, (min-width: 640px) 50vw, 100vw"
+                      priority={index < 2}
+                    />
+                  </div>
                 </div>
-                <div className="grid gap-3 p-6">
+                <div className="grid flex-1 content-start gap-3 bg-white p-6">
                   <p className="eyebrow">{worksheet.level}</p>
                   <h2 className="text-lg font-medium leading-[1.35] text-[var(--color-midnight-ink)] text-pretty">
                     {worksheet.title}
