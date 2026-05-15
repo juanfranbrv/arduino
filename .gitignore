@@ -10,5 +10,8 @@ web/convex/_generated/
 web/convex/**/_generated/
 web/convex/.env.local
 
+node_modules/
+.vercel/
+
 .DS_Store
 Thumbs.db
