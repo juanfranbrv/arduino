@@ -1,0 +1,225 @@
+---
+unitNumber: 7
+title: Sensor de inclinación
+slug: tilt
+level: iniciacion
+duration: 55 min
+status: published
+prerequisites:
+  - pulsadores-led
+  - zumbador-activo
+summary: "El sensor de inclinación funciona como un interruptor que cambia de estado cuando se mueve o se inclina. En esta unidad se usa primero como parte de un circuito eléctrico y después como entrada digital para crear avisos luminosos, sonoros y una alarma con memoria."
+coverImage: /worksheets/tilt-cover.png
+preview:
+  - Circuito puro con sensor de inclinación y LED verde de estado correcto.
+  - Aviso con LED rojo y zumbador cuando el sensor cambia de posicion.
+  - Indicador estable/inclinado con LED verde, LED rojo y pitidos.
+  - Testigo azul que queda encendido si el montaje se ha movido.
+materials:
+  - Arduino Uno o Elegoo Mega
+  - Protoboard
+  - Sensor de inclinación o ball switch
+  - LED verde
+  - LED rojo
+  - LED azul
+  - 3 resistencias de 220 ohm
+  - Zumbador activo
+  - Cables dupont
+---
+
+Un sensor de inclinación es un interruptor sensible a la posición. Dentro tiene una pieza conductora que toca o deja de tocar los contactos al moverlo. Por eso puede servir para detectar si una maqueta está recta, si una caja se ha movido o si un objeto ha recibido un golpe.
+
+En esta ficha el sensor se usa de dos formas: primero como parte de un circuito sin programa y después como una entrada digital que Arduino lee con `digitalRead()`.
+
+<WatchOut>
+El comportamiento exacto depende de cómo está colocado el sensor. Antes de fijarlo en la protoboard, prueba qué posición consideras "estable" y cuál consideras "inclinado". Si funciona al revés, gira el sensor o invierte la condición del programa.
+</WatchOut>
+
+<Activity id="act-01" title="Montar un aviso verde sin programación" validation="El LED verde permanece encendido cuando el sensor esta en la posición estable y se apaga al inclinarlo.">
+
+Esta primera actividad es puro circuito. Arduino solo entrega alimentación con `5V` y `GND`; no hay código.
+
+Monta el sensor de inclinación como si fuera un interruptor en serie con el LED verde:
+
+- `5V` al sensor de inclinación
+- otra pata del sensor a una resistencia de `220 ohm`
+- resistencia al ánodo del LED verde
+- cátodo del LED verde a `GND`
+
+Coloca el sensor hasta que el LED verde quede encendido cuando el montaje está estable. Al inclinarlo, el circuito se abre y el LED se apaga.
+
+<KeyConcept title="Un sensor también puede ser un interruptor">
+En este montaje no hay lectura digital. Si el sensor cierra el circuito, circula corriente y el LED se enciende. Si el sensor abre el circuito, deja de circular corriente y el LED se apaga.
+</KeyConcept>
+
+<OptionalChallenge>
+Cambia el orden del sensor, la resistencia y el LED dentro del circuito en serie. Comprueba si el resultado eléctrico sigue siendo el mismo.
+</OptionalChallenge>
+
+</Activity>
+
+<Activity id="act-02" title="Activar LED rojo y zumbador al inclinar" validation="Al inclinar el sensor, el LED rojo se enciende y el zumbador hace pitidos intermitentes; en posicion estable, ambos quedan apagados.">
+
+Ahora Arduino lee el sensor como entrada digital. Usa `INPUT_PULLUP`, igual que con un pulsador: el sensor conecta el pin a `GND` cuando está cerrado.
+
+Conecta el sensor:
+
+- una pata del sensor al pin `2`
+- la otra pata del sensor a `GND`
+
+Conecta las salidas:
+
+- ánodo del LED rojo al pin `10` pasando por una resistencia de `220 ohm`
+- cátodo del LED rojo a `GND`
+- pata `+` del zumbador activo al pin `8`
+- pata `-` del zumbador activo a `GND`
+
+Sube este programa:
+
+```cpp
+const int PIN_SENSOR = 2;
+const int PIN_LED_ROJO = 10;
+const int PIN_BUZZER = 8;
+
+void setup() {
+  pinMode(PIN_SENSOR, INPUT_PULLUP);
+  pinMode(PIN_LED_ROJO, OUTPUT);
+  pinMode(PIN_BUZZER, OUTPUT);
+}
+
+void loop() {
+  int lecturaSensor = digitalRead(PIN_SENSOR);
+  bool inclinado = lecturaSensor == HIGH;
+
+  if (inclinado) {
+    digitalWrite(PIN_LED_ROJO, HIGH);
+    digitalWrite(PIN_BUZZER, HIGH);
+    delay(150);
+    digitalWrite(PIN_BUZZER, LOW);
+    delay(350);
+  } else {
+    digitalWrite(PIN_LED_ROJO, LOW);
+    digitalWrite(PIN_BUZZER, LOW);
+  }
+}
+```
+
+<KeyConcept title="INPUT_PULLUP invierte la lectura">
+Con este montaje, cuando el sensor esta cerrado el pin lee `LOW`. Cuando el sensor se abre al inclinarse, la resistencia interna de Arduino deja el pin en `HIGH`.
+</KeyConcept>
+
+<WatchOut>
+Si la alarma suena cuando el sensor está estable, cambia `bool inclinado = lecturaSensor == HIGH;` por `bool inclinado = lecturaSensor == LOW;`.
+</WatchOut>
+
+</Activity>
+
+<Activity id="act-03" title="Mostrar estable o inclinado con dos LED" validation="El LED verde indica posicion estable; al inclinar el sensor se apaga el verde, se enciende el rojo y suena el zumbador.">
+
+Este montaje separa claramente los dos estados:
+
+- estado estable: LED verde encendido
+- estado inclinado: LED rojo encendido y zumbador con pitidos
+
+Mantiene el sensor en el pin `2`, el LED rojo en el pin `10` y el zumbador en el pin `8`. Añade un LED verde:
+
+- ánodo del LED verde al pin `9` pasando por una resistencia de `220 ohm`
+- cátodo del LED verde a `GND`
+
+Sube este programa:
+
+```cpp
+const int PIN_SENSOR = 2;
+const int PIN_BUZZER = 8;
+const int PIN_LED_VERDE = 9;
+const int PIN_LED_ROJO = 10;
+
+void setup() {
+  pinMode(PIN_SENSOR, INPUT_PULLUP);
+  pinMode(PIN_BUZZER, OUTPUT);
+  pinMode(PIN_LED_VERDE, OUTPUT);
+  pinMode(PIN_LED_ROJO, OUTPUT);
+}
+
+void loop() {
+  bool inclinado = digitalRead(PIN_SENSOR) == HIGH;
+
+  if (inclinado) {
+    digitalWrite(PIN_LED_VERDE, LOW);
+    digitalWrite(PIN_LED_ROJO, HIGH);
+
+    digitalWrite(PIN_BUZZER, HIGH);
+    delay(150);
+    digitalWrite(PIN_BUZZER, LOW);
+    delay(350);
+  } else {
+    digitalWrite(PIN_LED_VERDE, HIGH);
+    digitalWrite(PIN_LED_ROJO, LOW);
+    digitalWrite(PIN_BUZZER, LOW);
+  }
+}
+```
+
+<KeyConcept title="Un sensor puede decidir varias salidas">
+La misma lectura del sensor controla tres salidas distintas: LED verde, LED rojo y zumbador. El programa convierte un cambio físico en una señal visual y sonora.
+</KeyConcept>
+
+<OptionalChallenge>
+Cambia los tiempos del pitido para que la alarma sea más rápida. Prueba `delay(80)` y `delay(120)`.
+</OptionalChallenge>
+
+</Activity>
+
+<Activity id="act-04" title="Crear un testigo de movimiento" validation="El LED verde se apaga al inclinar el sensor y el LED azul queda encendido aunque el sensor vuelva a la posición estable.">
+
+Una alarma real no solo avisa en el momento. También puede dejar una marca de que algo ha pasado. En esta actividad el LED azul funciona como testigo: si el montaje se inclina una vez, queda encendido.
+
+Usa el sensor en el pin `2` y el LED verde en el pin `9`. Sustituye el LED rojo por un LED azul o añade uno nuevo:
+
+- ánodo del LED azul al pin `11` pasando por una resistencia de `220 ohm`
+- cátodo del LED azul a `GND`
+
+Sube este programa:
+
+```cpp
+const int PIN_SENSOR = 2;
+const int PIN_LED_VERDE = 9;
+const int PIN_LED_AZUL = 11;
+
+bool movimientoDetectado = false;
+
+void setup() {
+  pinMode(PIN_SENSOR, INPUT_PULLUP);
+  pinMode(PIN_LED_VERDE, OUTPUT);
+  pinMode(PIN_LED_AZUL, OUTPUT);
+}
+
+void loop() {
+  bool inclinado = digitalRead(PIN_SENSOR) == HIGH;
+
+  if (inclinado) {
+    movimientoDetectado = true;
+    digitalWrite(PIN_LED_VERDE, LOW);
+  } else {
+    digitalWrite(PIN_LED_VERDE, HIGH);
+  }
+
+  if (movimientoDetectado) {
+    digitalWrite(PIN_LED_AZUL, HIGH);
+  } else {
+    digitalWrite(PIN_LED_AZUL, LOW);
+  }
+}
+```
+
+Al principio, el LED verde indica que todo está correcto. Si el sensor se inclina, el verde se apaga y el azul se enciende. Aunque devuelvas el sensor a su posición estable, el azul sigue encendido porque la variable `movimientoDetectado` guarda lo ocurrido.
+
+<KeyConcept title="Una variable puede guardar memoria">
+`movimientoDetectado` empieza en `false`. Cuando el sensor se inclina, pasa a `true` y ya no vuelve a `false` dentro del programa. Ese valor guardado crea el testigo.
+</KeyConcept>
+
+<OptionalChallenge>
+Añade un pulsador de reinicio en el pin `7` con `INPUT_PULLUP`. Al pulsarlo, `movimientoDetectado` debe volver a `false` y el LED azul debe apagarse.
+</OptionalChallenge>
+
+</Activity>

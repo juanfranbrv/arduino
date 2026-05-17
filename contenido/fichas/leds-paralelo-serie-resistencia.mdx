@@ -1,0 +1,238 @@
+---
+unitNumber: 2
+title: LEDs en paralelo, serie y resistencia
+slug: leds-paralelo-serie-resistencia
+level: iniciacion
+duration: 90 min
+status: published
+prerequisites:
+  - explorar-el-pack
+summary: "Comparación práctica de tres LED conectados a 5V: serie, paralelo con resistencia compartida y montaje correcto con una resistencia por LED."
+coverImage: /worksheets/leds-paralelo-serie-resistencia-cover.png
+preview:
+  - Tres LED en serie a 5V para comprobar que no hay tensión suficiente.
+  - Tres LED en paralelo con una sola resistencia para ver sus límites.
+  - Tres LED en paralelo, cada uno con su resistencia, como montaje correcto.
+materials:
+  - Arduino Uno o Elegoo Mega
+  - Protoboard
+  - 3 LED de 5 mm
+  - 3 resistencias de 220 ohm
+  - Resistencia de 47 ohm o 100 ohm para pruebas en simulador
+  - Cables dupont
+---
+
+Un LED no se conecta solo "a una pila": necesita polaridad correcta y corriente limitada. Cuando aparecen varios LED en el mismo montaje, la forma de conectarlos cambia completamente el resultado.
+
+En esta unidad se comparan tres configuraciones alimentadas desde el pin `5V` de Arduino: serie, paralelo con una sola resistencia y paralelo con una resistencia por LED. Arduino actúa como fuente de alimentación; no hace falta escribir código.
+
+<KeyConcept title="Serie y paralelo no reparten lo mismo">
+En serie, la misma corriente atraviesa todos los componentes, pero la tensión se reparte entre ellos. En paralelo, todos los LED reciben la misma tensión, pero la corriente se reparte por varios caminos.
+</KeyConcept>
+
+![Comparación entre tres LED en serie y tres LED en paralelo](/fichas/leds-paralelo-serie-resistencia/serie-vs-paralelo.png)
+
+<Activity id="act-01" title="Probar tres LED en serie en Tinkercad" validation="En la simulación, los tres LED conectados en serie a 5V con una sola resistencia no se encienden correctamente o quedan muy débiles.">
+
+Monta en Tinkercad tres LED en serie con una sola resistencia. La corriente solo tiene un camino: sale de `5V`, atraviesa la resistencia, pasa por los tres LED uno detrás de otro y vuelve a `GND`.
+
+Usa tres LED del mismo color, por ejemplo rojos, y una resistencia de `220 ohm`.
+
+```text
+5V -> resistencia 220 ohm -> LED 1 -> LED 2 -> LED 3 -> GND
+```
+
+Antes de iniciar la simulación, revisa la polaridad:
+
+- la pata larga de cada LED es el ánodo, el lado positivo
+- la pata corta es el cátodo, el lado negativo
+- el cátodo de un LED conecta con el ánodo del siguiente
+
+Pulsa `Iniciar simulación`. Lo normal es que no se enciendan bien. Tres LED rojos necesitan aproximadamente `2V + 2V + 2V`, es decir, unos `6V` solo para los LED. Como Arduino entrega `5V`, no queda tensión suficiente para que el circuito funcione correctamente.
+
+```text
+R = (5V - 2V - 2V - 2V) / 0,02A
+R = -1V / 0,02A
+```
+
+Ese resultado negativo no significa que la resistencia esté mal calculada: significa que el montaje no puede funcionar bien a `5V`.
+
+<WatchOut>
+Si un LED está al revés en una cadena en serie, corta el paso de corriente y apaga todo el circuito.
+</WatchOut>
+
+</Activity>
+
+<Activity id="act-02" title="Montar tres LED en serie con Arduino" validation="En la protoboard real, el alumno reproduce el montaje en serie a 5V y comprueba que el resultado coincide con el simulador.">
+
+Ahora repite el montaje en la protoboard real. Arduino sigue funcionando solo como fuente de alimentación: se usa `5V` y `GND`, no pines digitales.
+
+1. Desconecta el USB antes de montar.
+2. Coloca tres LED en la protoboard.
+3. Conecta la resistencia de `220 ohm` entre `5V` y el ánodo del primer LED.
+4. Encadena los LED: cátodo del primero al ánodo del segundo, cátodo del segundo al ánodo del tercero.
+5. Conecta el cátodo del tercer LED a `GND`.
+6. Conecta el USB y observa el resultado.
+
+```text
+5V -> resistencia 220 ohm -> LED 1 -> LED 2 -> LED 3 -> GND
+```
+
+El resultado debe parecerse al de Tinkercad: apagados o con un brillo muy pobre. Esta actividad no busca "hacerlo bonito", sino comprobar una limitación real: con `5V` no hay tensión suficiente para tres LED en serie.
+
+<KeyConcept title="La serie suma caídas de tensión">
+Cada LED necesita parte de la tensión disponible. En una cadena en serie esas caídas se acumulan. Si la suma supera la alimentación, el circuito deja de funcionar como esperas.
+</KeyConcept>
+
+</Activity>
+
+<Activity id="act-03" title="Probar tres LED en paralelo en Tinkercad" validation="En la simulación, los tres LED en paralelo se encienden con una sola resistencia compartida, pero el alumno identifica que la corriente total pasa por esa resistencia.">
+
+En paralelo, los tres LED no van uno detrás de otro. Todos comparten el mismo punto positivo y el mismo retorno a `GND`.
+
+Monta en Tinkercad un paralelo con una sola resistencia compartida. Para que se vea claro en el simulador, usa una resistencia de `47 ohm` o `100 ohm`.
+
+```text
+5V -> resistencia -> punto común positivo
+
+punto común positivo -> LED 1 -> GND
+punto común positivo -> LED 2 -> GND
+punto común positivo -> LED 3 -> GND
+```
+
+Pulsa `Iniciar simulación`. Los tres LED pueden encenderse porque cada uno recibe la tensión de `5V` entre su ánodo y su cátodo.
+
+La diferencia importante está en la corriente: la resistencia compartida no limita un LED, limita la suma de los tres caminos.
+
+```text
+I_total = I_LED1 + I_LED2 + I_LED3
+```
+
+Si los tres LED fueran idénticos y cada uno necesitara `20 mA`, la corriente total sería de unos `60 mA`. Por eso en las fichas antiguas aparece una resistencia cercana a `47 ohm`:
+
+```text
+R = (5V - 2V) / 0,060A = 50 ohm
+```
+
+<OptionalChallenge>
+Desconecta uno de los LED en Tinkercad. Observa si los otros siguen encendidos y piensa qué ocurre con la corriente que antes pasaba por el LED desconectado.
+</OptionalChallenge>
+
+</Activity>
+
+<Activity id="act-04" title="Montar tres LED en paralelo con Arduino" validation="En la protoboard real, los tres LED conectados en paralelo a 5V con una sola resistencia se encienden, aunque el alumno observa que no es el montaje más seguro ni más equilibrado.">
+
+Repite el paralelo en la protoboard real, pero hazlo con más prudencia que en el simulador. Usa una resistencia de `220 ohm` como resistencia compartida para limitar la corriente total de forma conservadora. Puede que el brillo sea menor, y eso forma parte de la comparación.
+
+1. Desconecta el USB.
+2. Coloca tres LED en la protoboard con todos los ánodos orientados hacia el mismo lado.
+3. Une los tres ánodos a un mismo punto positivo de la protoboard.
+4. Coloca una resistencia de `220 ohm` entre el pin `5V` y ese punto positivo común.
+5. Conecta los tres cátodos al carril de `GND`.
+6. Conecta el carril de `GND` al pin `GND` del Arduino.
+7. Conecta el USB y observa el brillo.
+
+```text
+5V -> resistencia 220 ohm -> ánodos comunes
+
+LED 1 -> GND
+LED 2 -> GND
+LED 3 -> GND
+```
+
+El paralelo con una sola resistencia funciona mejor que la serie a `5V`, pero no es el montaje recomendado para proyectos reales. Si los LED no son exactamente iguales, uno puede conducir más corriente que otro. Si un LED se desconecta o falla, la corriente disponible se reparte de otra manera entre los restantes.
+
+<WatchOut>
+No sustituyas la resistencia compartida por un cable. Tres LED en paralelo sin resistencia pueden dañarse y también pueden forzar la alimentación.
+</WatchOut>
+
+</Activity>
+
+<Activity id="act-05" title="Montar tres LED con tres resistencias en Tinkercad" validation="En Tinkercad, cada LED tiene su propia resistencia de 220 ohm y los tres se encienden correctamente desde 5V.">
+
+Este es el método correcto para alimentar varios LED desde `5V`: cada LED tiene su propio camino y su propia resistencia. Los tres caminos están en paralelo, pero la corriente de cada LED se limita por separado.
+
+![Montaje correcto de tres LED con una resistencia por LED](/fichas/leds-paralelo-serie-resistencia/montaje-correcto-tres-led.png)
+
+Monta en Tinkercad tres ramas independientes:
+
+```text
+5V -> resistencia 220 ohm -> LED 1 -> GND
+5V -> resistencia 220 ohm -> LED 2 -> GND
+5V -> resistencia 220 ohm -> LED 3 -> GND
+```
+
+Pasos:
+
+1. Coloca tres LED en la protoboard virtual.
+2. Conecta el pin `5V` al carril positivo de la protoboard.
+3. Conecta el pin `GND` al carril negativo.
+4. Para cada LED, coloca una resistencia de `220 ohm` antes del ánodo.
+5. Conecta el cátodo de cada LED al carril de `GND`.
+6. Inicia la simulación.
+
+Los tres LED se encienden de forma más predecible. Si quitas un LED, los otros dos siguen con su propia resistencia y no dependen de él.
+
+<KeyConcept title="Una resistencia por LED">
+La resistencia no protege "el circuito entero" de forma mágica. Protege la rama en la que está colocada. Por eso, si hay tres LED en paralelo, lo correcto es usar tres resistencias.
+</KeyConcept>
+
+</Activity>
+
+<Activity id="act-06" title="Montar tres LED con tres resistencias en Arduino" validation="En la protoboard real, los tres LED se alimentan desde 5V y cada uno tiene una resistencia de 220 ohm en serie.">
+
+Lleva el montaje correcto a la placa real. De nuevo, no hay código: el pin `5V` alimenta las tres ramas mientras el Arduino está conectado.
+
+1. Desconecta el USB.
+2. Conecta `5V` al carril positivo de la protoboard.
+3. Conecta `GND` al carril negativo.
+4. Coloca tres LED dejando espacio para sus resistencias.
+5. En cada rama, conecta el carril positivo a una resistencia de `220 ohm`.
+6. Conecta cada resistencia al ánodo de su LED.
+7. Conecta el cátodo de cada LED al carril de `GND`.
+8. Conecta el USB y comprueba que los tres LED se encienden.
+
+```text
+5V -> R1 220 ohm -> LED 1 -> GND
+5V -> R2 220 ohm -> LED 2 -> GND
+5V -> R3 220 ohm -> LED 3 -> GND
+```
+
+Compara los tres montajes de la unidad:
+
+<div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+  <table className="w-full border-collapse text-left text-sm">
+    <thead className="bg-slate-950 text-white">
+      <tr>
+        <th className="px-4 py-3 font-semibold">Montaje</th>
+        <th className="px-4 py-3 font-semibold">Resultado a 5V</th>
+        <th className="px-4 py-3 font-semibold">Problema principal</th>
+      </tr>
+    </thead>
+    <tbody className="divide-y divide-slate-200">
+      <tr className="bg-white">
+        <td className="px-4 py-3 font-medium text-slate-950">Tres LED en serie con una resistencia</td>
+        <td className="px-4 py-3 text-slate-700">No funciona bien</td>
+        <td className="px-4 py-3 text-slate-700">Falta tensión</td>
+      </tr>
+      <tr className="bg-slate-50">
+        <td className="px-4 py-3 font-medium text-slate-950">Tres LED en paralelo con una resistencia</td>
+        <td className="px-4 py-3 text-slate-700">Puede encender</td>
+        <td className="px-4 py-3 text-slate-700">La corriente no queda bien controlada por LED</td>
+      </tr>
+      <tr className="bg-cyan-50">
+        <td className="px-4 py-3 font-semibold text-cyan-950">Tres LED, cada uno con su resistencia</td>
+        <td className="px-4 py-3 font-semibold text-cyan-900">Funciona correctamente</td>
+        <td className="px-4 py-3 text-cyan-900">Requiere más resistencias, pero es el montaje recomendado</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+La tercera opción es la que se usa como base para proyectos más serios: luces de estado, indicadores, semáforos, paneles sencillos o cualquier montaje donde cada salida debe comportarse de forma fiable.
+
+<OptionalChallenge>
+Usa LED de colores distintos y compara el brillo. Los colores no siempre tienen la misma caída de tensión, y eso ayuda a entender por qué una resistencia compartida no es buena idea.
+</OptionalChallenge>
+
+</Activity>

@@ -33,14 +33,14 @@ export function CodeBlock({ children }: { children?: ReactNode }) {
   return (
     <div className="code-block">
       <div className="code-block__header">
-        <span>Codigo</span>
+        <span>Código</span>
         <div className="flex items-center">
           <button
             type="button"
             className="code-block__copy"
             onClick={copyCode}
-            aria-label="Copiar codigo"
-            title="Copiar codigo"
+            aria-label="Copiar código"
+            title="Copiar código"
           >
             {copied ? <Check aria-hidden="true" /> : <Copy aria-hidden="true" />}
           </button>

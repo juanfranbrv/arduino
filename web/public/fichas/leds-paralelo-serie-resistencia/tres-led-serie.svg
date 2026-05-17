@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800" role="img" aria-labelledby="title desc">
+  <title id="title">Tres LED conectados en serie</title>
+  <desc id="desc">Circuito esquemático con tres LED en serie, una resistencia compartida y alimentación de 5V.</desc>
+  <defs>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="10" stdDeviation="14" flood-color="#0f172a" flood-opacity="0.10"/>
+    </filter>
+    <style>
+      .bg { fill: #f4f1eb; }
+      .card { fill: #fffdfa; stroke: #ded8ce; stroke-width: 2; filter: url(#shadow); }
+      .title { font: 800 56px Arial, Helvetica, sans-serif; fill: #111827; }
+      .subtitle { font: 700 26px Arial, Helvetica, sans-serif; fill: #475569; }
+      .text { font: 700 24px Arial, Helvetica, sans-serif; fill: #334155; }
+      .small { font: 700 20px Arial, Helvetica, sans-serif; fill: #64748b; }
+      .pin { font: 800 28px Arial, Helvetica, sans-serif; fill: #fffdfa; }
+      .wire { fill: none; stroke: #263238; stroke-width: 10; stroke-linecap: round; stroke-linejoin: round; }
+      .positive { fill: none; stroke: #e85d50; stroke-width: 10; stroke-linecap: round; stroke-linejoin: round; }
+      .node { fill: #263238; stroke: #fffdfa; stroke-width: 4; }
+      .five { fill: #e85d50; }
+      .gnd { fill: #263238; }
+      .resistor { fill: #e3c99b; stroke: #8b5e34; stroke-width: 4; }
+      .band-a { stroke: #8b2f23; stroke-width: 7; }
+      .band-b { stroke: #111827; stroke-width: 7; }
+      .band-c { stroke: #c89b28; stroke-width: 7; }
+      .led { fill: #a7f3f0; stroke: #0f9da3; stroke-width: 5; opacity: 0.50; }
+      .led-mark { fill: #0f9da3; opacity: 0.55; }
+      .warn { fill: #fff7ed; stroke: #fb923c; stroke-width: 3; }
+    </style>
+  </defs>
+
+  <rect width="1200" height="800" class="bg"/>
+  <circle cx="600" cy="410" r="335" fill="#33c7c9" opacity="0.08"/>
+  <rect x="80" y="86" width="1040" height="628" rx="28" class="card"/>
+
+  <text x="130" y="168" class="title">SERIE</text>
+  <text x="130" y="212" class="subtitle">Un único camino: la tensión se reparte entre los LED.</text>
+
+  <rect x="160" y="348" width="104" height="58" rx="15" class="five"/>
+  <text x="190" y="386" class="pin">5V</text>
+
+  <path d="M264 377 H342" class="positive"/>
+
+  <g transform="translate(342 348)">
+    <rect x="0" y="0" width="132" height="58" rx="29" class="resistor"/>
+    <line x1="28" y1="5" x2="28" y2="53" class="band-a"/>
+    <line x1="66" y1="5" x2="66" y2="53" class="band-b"/>
+    <line x1="104" y1="5" x2="104" y2="53" class="band-c"/>
+    <text x="6" y="96" class="small">220 ohm</text>
+  </g>
+
+  <path d="M474 377 H555" class="positive"/>
+
+  <g transform="translate(610 377)">
+    <path d="M-55 0 H-34" class="positive"/>
+    <circle cx="0" cy="0" r="48" class="led"/>
+    <path d="M-22 -19 L20 0 L-22 19 Z" class="led-mark"/>
+    <line x1="25" y1="-24" x2="25" y2="24" stroke="#0f9da3" stroke-width="7" opacity="0.55"/>
+    <text x="-34" y="88" class="small">LED 1</text>
+  </g>
+
+  <path d="M658 377 H742" class="wire"/>
+
+  <g transform="translate(790 377)">
+    <circle cx="0" cy="0" r="48" class="led"/>
+    <path d="M-22 -19 L20 0 L-22 19 Z" class="led-mark"/>
+    <line x1="25" y1="-24" x2="25" y2="24" stroke="#0f9da3" stroke-width="7" opacity="0.55"/>
+    <text x="-34" y="88" class="small">LED 2</text>
+  </g>
+
+  <path d="M838 377 H922" class="wire"/>
+
+  <g transform="translate(970 377)">
+    <circle cx="0" cy="0" r="48" class="led"/>
+    <path d="M-22 -19 L20 0 L-22 19 Z" class="led-mark"/>
+    <line x1="25" y1="-24" x2="25" y2="24" stroke="#0f9da3" stroke-width="7" opacity="0.55"/>
+    <text x="-34" y="88" class="small">LED 3</text>
+  </g>
+
+  <path d="M1018 377 H1044 V560 H610 V425" class="wire"/>
+  <rect x="552" y="530" width="116" height="58" rx="15" class="gnd"/>
+  <text x="580" y="568" class="pin">GND</text>
+  <circle cx="610" cy="425" r="8" class="node"/>
+
+  <rect x="130" y="540" width="342" height="94" rx="18" class="warn"/>
+  <text x="158" y="580" class="text">Con 5V no alcanza</text>
+  <text x="158" y="614" class="small">Tres LED en serie suman sus caídas de tensión.</text>
+</svg>

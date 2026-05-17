@@ -24,7 +24,7 @@ export function TeacherSetupForm() {
       setMessage(
         error instanceof Error
           ? error.message
-          : "Primero entra con Google y despues usa el secreto de setup.",
+          : "Primero entra con Google y después usa el secreto de setup.",
       );
     } finally {
       setPending(false);

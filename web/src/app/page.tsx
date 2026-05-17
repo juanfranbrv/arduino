@@ -1,9 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowUpRight, Play, Phone } from "lucide-react";
+import { ArrowUpRight, Phone } from "lucide-react";
 
 import { AcademyContactForm } from "@/components/academy-contact-form";
-import { getPublishedWorksheetsFromCatalog } from "@/lib/worksheets";
+import {
+  getPublishedWorksheetsFromCatalog,
+  getWorksheetDisplayTitle,
+} from "@/lib/worksheets";
 
 export default async function Home() {
   const worksheets = await getPublishedWorksheetsFromCatalog();
@@ -79,7 +82,7 @@ export default async function Home() {
                 <div className="grid flex-1 content-start gap-3 bg-white p-6">
                   <p className="eyebrow">{worksheet.level}</p>
                   <h2 className="text-lg font-medium leading-[1.35] text-[var(--color-midnight-ink)] text-pretty">
-                    {worksheet.title}
+                    {getWorksheetDisplayTitle(worksheet)}
                   </h2>
                   <p className="text-sm leading-[1.56] text-[var(--color-graphite)]">
                     {worksheet.summary}
@@ -98,7 +101,7 @@ export default async function Home() {
       </section>
 
       <section className="bg-white">
-        <div className="mx-auto grid w-full max-w-6xl gap-8 px-5 py-14 sm:px-8 lg:grid-cols-[1.05fr_0.95fr]">
+        <div className="mx-auto grid w-full max-w-6xl gap-8 px-5 py-14 sm:px-8 lg:grid-cols-[0.9fr_1.1fr]">
           <div className="grid gap-5">
             <div className="grid gap-2">
               <p className="eyebrow">Qué es Arduino</p>
@@ -106,19 +109,25 @@ export default async function Home() {
                 Una base accesible para empezar en robótica
               </h2>
             </div>
-            <p className="max-w-2xl text-base leading-[1.62] text-[var(--color-graphite)] sm:text-lg">
+            <p className="max-w-xl text-base leading-[1.62] text-[var(--color-graphite)] sm:text-lg">
               Arduino permite construir proyectos reales combinando placa,
               sensores, componentes, movimiento y código. En clase se aprende
               montando, probando y entendiendo cómo una idea se convierte en un
               artefacto programable.
             </p>
-            <p className="max-w-2xl text-base leading-[1.62] text-[var(--color-graphite)] sm:text-lg">
+            <p className="max-w-xl text-base leading-[1.62] text-[var(--color-graphite)] sm:text-lg">
               La electrónica importa, pero como herramienta para llegar a algo
               más tangible: automatismos, mecanismos interactivos y primeros
               robots capaces de reaccionar, iluminarse, moverse o responder al
               entorno.
             </p>
-            <div className="flex flex-wrap gap-3">
+            <p className="max-w-xl text-base leading-[1.62] text-[var(--color-graphite)] sm:text-lg">
+              Los vídeos ayudan a ver rápido qué es Arduino, qué puede hacerse
+              con una placa y por qué resulta tan potente en la educación
+              tecnológica de un chaval: conecta la programación con objetos que
+              se tocan, se prueban y se mejoran.
+            </p>
+            <div className="flex flex-wrap items-start gap-3">
               <Link className="btn-secondary" href="/fichas">
                 Ver ejemplos de unidades
               </Link>
@@ -133,14 +142,14 @@ export default async function Home() {
             </div>
           </div>
 
-          <div className="grid gap-5 sm:grid-cols-2">
+          <div className="grid w-full gap-5">
             <PromoVideoCard
               title="Vídeo: sensores y respuesta"
-              description="Primeros proyectos donde la placa interpreta el entorno y activa una respuesta visible."
+              videoSrc="https://www.youtube-nocookie.com/embed/WYnGz3CFDjk"
             />
             <PromoVideoCard
               title="Vídeo: mecanismos programables"
-              description="Montajes guiados para pasar del circuito básico a artefactos y robots programables."
+              videoSrc="https://www.youtube-nocookie.com/embed/NMzRGKAEysM"
             />
           </div>
         </div>
@@ -205,37 +214,23 @@ export default async function Home() {
 
 function PromoVideoCard({
   title,
-  description,
+  videoSrc,
 }: {
   title: string;
-  description: string;
+  videoSrc: string;
 }) {
   return (
     <article className="surface-card overflow-hidden">
-      <div className="relative aspect-[4/3] bg-[var(--color-canvas-white)]">
-        <Image
-          src="/worksheet-placeholder.svg"
-          alt={title}
-          fill
-          className="object-cover"
-          sizes="(min-width: 1024px) 22vw, 100vw"
+      <div className="aspect-video bg-[var(--color-canvas-white)]">
+        <iframe
+          className="h-full w-full"
+          src={videoSrc}
+          title={title}
+          loading="lazy"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          referrerPolicy="strict-origin-when-cross-origin"
+          allowFullScreen
         />
-        <span className="absolute left-4 top-4 rounded-full bg-white px-3 py-1 text-xs font-medium text-[var(--color-midnight-ink)]">
-          Vídeo
-        </span>
-        <span className="absolute inset-0 flex items-center justify-center">
-          <span className="flex size-14 items-center justify-center rounded-full bg-white text-[var(--color-midnight-ink)] shadow-[var(--shadow-md)]">
-            <Play className="ml-1 size-6 fill-current" />
-          </span>
-        </span>
-      </div>
-      <div className="grid gap-2 p-6">
-        <h3 className="text-lg font-medium leading-[1.35] text-[var(--color-midnight-ink)]">
-          {title}
-        </h3>
-        <p className="text-sm leading-[1.56] text-[var(--color-graphite)]">
-          {description}
-        </p>
       </div>
     </article>
   );

@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   calculateWorksheetProgress,
   getAllWorksheets,
+  getWorksheetDisplayTitle,
   isWorksheetUnlocked,
   parseWorksheetSource,
 } from "./worksheets";
@@ -107,66 +108,271 @@ prerequisites:
   });
 });
 
-describe("local worksheet catalog", () => {
-  it("contains the eight numbered Arduino units in order", () => {
-    const worksheets = getAllWorksheets();
-
+describe("getWorksheetDisplayTitle", () => {
+  it("derives the visible unit number without storing it in the title", () => {
     expect(
-      worksheets.map((worksheet) => ({
-        unitNumber: worksheet.unitNumber,
-        title: worksheet.title,
-        slug: worksheet.slug,
-        activities: worksheet.activities.length,
-      })),
-    ).toEqual([
+      getWorksheetDisplayTitle({
+        title: "Servo",
+        unitNumber: 8,
+      }),
+    ).toBe("Unidad 8 - Servo");
+  });
+});
+
+describe("local worksheet catalog", () => {
+  it("contains stable Arduino unit slugs in course order", () => {
+    const worksheets = getAllWorksheets();
+    const worksheetSummaries = worksheets.map((worksheet) => ({
+      unitNumber: worksheet.unitNumber,
+      title: worksheet.title,
+      slug: worksheet.slug,
+      activities: worksheet.activities.length,
+      status: worksheet.status,
+    }));
+
+    expect(worksheetSummaries).toHaveLength(32);
+    expect(worksheetSummaries.map((worksheet) => worksheet.unitNumber)).toEqual(
+      Array.from({ length: 32 }, (_, index) => index + 1),
+    );
+    expect(
+      worksheetSummaries.every(
+        (worksheet) => !/^unidad-\d{2}-/.test(worksheet.slug),
+      ),
+    ).toBe(true);
+    expect(
+      worksheetSummaries.every(
+        (worksheet) => !/^Unidad\s+\d+\s+-\s+/.test(worksheet.title),
+      ),
+    ).toBe(true);
+
+    expect(worksheetSummaries.slice(0, 7)).toEqual([
       {
         unitNumber: 1,
-        title: "Unidad 1 - Explorar el pack",
-        slug: "unidad-01-explorar-el-pack",
-        activities: 0,
+        title: "Primeros pasos con Arduino",
+        slug: "explorar-el-pack",
+        activities: 5,
+        status: "published",
       },
       {
         unitNumber: 2,
-        title: "Unidad 2 - LEDs: del simulador a la protoboard",
-        slug: "unidad-02-leds-simulador-protoboard",
-        activities: 0,
+        title: "LEDs en paralelo, serie y resistencia",
+        slug: "leds-paralelo-serie-resistencia",
+        activities: 6,
+        status: "published",
       },
       {
         unitNumber: 3,
-        title: "Unidad 3 - LEDs en paralelo, serie y resistencia",
-        slug: "unidad-03-leds-paralelo-serie-resistencia",
+        title: "Led RGB",
+        slug: "led-rgb",
         activities: 0,
+        status: "draft",
       },
       {
         unitNumber: 4,
-        title: "Unidad 4 - Led RGB",
-        slug: "unidad-04-led-rgb",
-        activities: 0,
+        title: "Pulsador de 4 patas",
+        slug: "pulsadores-led",
+        activities: 6,
+        status: "published",
       },
       {
         unitNumber: 5,
-        title: "Unidad 5 - Pulsador de 4 patas",
-        slug: "pulsadores-led",
-        activities: 6,
+        title: "Zumbador activo",
+        slug: "zumbador-activo",
+        activities: 4,
+        status: "draft",
       },
       {
         unitNumber: 6,
-        title: "Unidad 6 - Zumbador activo",
-        slug: "zumbador-activo",
-        activities: 4,
+        title: "Zumbador pasivo",
+        slug: "zumbador-pasivo",
+        activities: 0,
+        status: "draft",
       },
       {
         unitNumber: 7,
-        title: "Unidad 7 - Zumbador pasivo",
-        slug: "unidad-07-zumbador-pasivo",
-        activities: 0,
+        title: "Sensor de inclinación",
+        slug: "tilt",
+        activities: 4,
+        status: "published",
       },
-      {
+    ]);
+
+    expect(worksheetSummaries.slice(7)).toEqual([
+      expect.objectContaining({
         unitNumber: 8,
-        title: "Unidad 8 - Tilt",
-        slug: "unidad-08-tilt",
+        title: "Servo",
+        slug: "servo",
         activities: 0,
-      },
+        status: "draft",
+      }),
+      expect.objectContaining({
+        unitNumber: 9,
+        title: "Módulo sensor ultrasónico",
+        slug: "sensor-ultrasonico",
+        activities: 0,
+        status: "draft",
+      }),
+      expect.objectContaining({
+        unitNumber: 10,
+        title: "Módulo conmutador de membrana",
+        slug: "teclado-membrana",
+        activities: 0,
+        status: "draft",
+      }),
+      expect.objectContaining({
+        unitNumber: 11,
+        title: "Sensor de humedad y temperatura DHT11",
+        slug: "dht11",
+        activities: 0,
+        status: "draft",
+      }),
+      expect.objectContaining({
+        unitNumber: 12,
+        title: "Módulo joystick analógico",
+        slug: "joystick-analogico",
+        activities: 0,
+        status: "draft",
+      }),
+      expect.objectContaining({
+        unitNumber: 13,
+        title: "Módulo receptor IR",
+        slug: "receptor-ir",
+        activities: 0,
+        status: "draft",
+      }),
+      expect.objectContaining({
+        unitNumber: 14,
+        title: "Matriz de puntos LED MAX7219",
+        slug: "matriz-led-max7219",
+        activities: 0,
+        status: "draft",
+      }),
+      expect.objectContaining({
+        unitNumber: 15,
+        title: "Módulo GY-521 / QMI8658",
+        slug: "acelerometro-giroscopio",
+        activities: 0,
+        status: "draft",
+      }),
+      expect.objectContaining({
+        unitNumber: 16,
+        title: "Sensor PIR HC-SR501",
+        slug: "pir-hc-sr501",
+        activities: 0,
+        status: "draft",
+      }),
+      expect.objectContaining({
+        unitNumber: 17,
+        title: "Módulo sensor de nivel de agua",
+        slug: "sensor-nivel-agua",
+        activities: 0,
+        status: "draft",
+      }),
+      expect.objectContaining({
+        unitNumber: 18,
+        title: "Módulo reloj en tiempo real",
+        slug: "rtc",
+        activities: 0,
+        status: "draft",
+      }),
+      expect.objectContaining({
+        unitNumber: 19,
+        title: "Módulo sensor de sonido",
+        slug: "sensor-sonido",
+        activities: 0,
+        status: "draft",
+      }),
+      expect.objectContaining({
+        unitNumber: 20,
+        title: "Módulo RC522 RFID",
+        slug: "rfid-rc522",
+        activities: 0,
+        status: "draft",
+      }),
+      expect.objectContaining({
+        unitNumber: 21,
+        title: "Pantalla LCD 1602",
+        slug: "lcd-1602",
+        activities: 0,
+        status: "draft",
+      }),
+      expect.objectContaining({
+        unitNumber: 22,
+        title: "Termómetro",
+        slug: "termometro",
+        activities: 0,
+        status: "draft",
+      }),
+      expect.objectContaining({
+        unitNumber: 23,
+        title: "Ocho LEDs con 74HC595",
+        slug: "74hc595-ocho-leds",
+        activities: 0,
+        status: "draft",
+      }),
+      expect.objectContaining({
+        unitNumber: 24,
+        title: "El Monitor Serie",
+        slug: "monitor-serie",
+        activities: 0,
+        status: "draft",
+      }),
+      expect.objectContaining({
+        unitNumber: 25,
+        title: "Fotocélula LDR",
+        slug: "fotocelula-ldr",
+        activities: 0,
+        status: "draft",
+      }),
+      expect.objectContaining({
+        unitNumber: 26,
+        title: "74HC595 y display de 7 segmentos",
+        slug: "display-7-segmentos",
+        activities: 0,
+        status: "draft",
+      }),
+      expect.objectContaining({
+        unitNumber: 27,
+        title: "Display de 7 segmentos de 4 dígitos",
+        slug: "display-7-segmentos-4-digitos",
+        activities: 0,
+        status: "draft",
+      }),
+      expect.objectContaining({
+        unitNumber: 28,
+        title: "Motor de corriente continua",
+        slug: "motor-dc",
+        activities: 0,
+        status: "draft",
+      }),
+      expect.objectContaining({
+        unitNumber: 29,
+        title: "Relé",
+        slug: "rele",
+        activities: 0,
+        status: "draft",
+      }),
+      expect.objectContaining({
+        unitNumber: 30,
+        title: "Motor paso a paso",
+        slug: "motor-paso-a-paso",
+        activities: 0,
+        status: "draft",
+      }),
+      expect.objectContaining({
+        unitNumber: 31,
+        title: "Control del motor paso a paso con mando a distancia",
+        slug: "stepper-ir",
+        activities: 0,
+        status: "draft",
+      }),
+      expect.objectContaining({
+        unitNumber: 32,
+        title: "Control del motor paso a paso con codificador rotatorio",
+        slug: "stepper-encoder",
+        activities: 0,
+        status: "draft",
+      }),
     ]);
   });
 });

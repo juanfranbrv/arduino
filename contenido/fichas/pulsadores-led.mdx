@@ -1,12 +1,12 @@
 ---
-unitNumber: 5
-title: Unidad 5 - Pulsador de 4 patas
+unitNumber: 4
+title: Pulsador de 4 patas
 slug: pulsadores-led
 level: iniciacion
 duration: 90 min
 status: published
 prerequisites: []
-summary: "Un pulsador de cuatro patas es un interruptor pequeño que permite a Arduino detectar una accion. La unidad conserva el trabajo con protoboard, lectura digital, monitor serie y control de un LED."
+summary: "Un pulsador de cuatro patas es un interruptor pequeño que permite a Arduino detectar una acción. La unidad conserva el trabajo con protoboard, lectura digital, monitor serie y control de un LED."
 coverImage: /worksheets/pulsadores-led-cover.png
 preview:
   - Circuito con pulsador antes de programar.
@@ -21,17 +21,17 @@ materials:
   - Cables dupont
 ---
 
-Los pulsadores del kit tienen 4 patas, pero electricamente funcionan como 2 conexiones. Dos patas ya estan unidas internamente entre si, y las otras dos tambien forman otro par. Al pulsar, el boton conecta esos dos lados.
+Los pulsadores del kit tienen 4 patas, pero eléctricamente funcionan como 2 conexiones. Dos patas ya están unidas internamente entre sí, y las otras dos también forman otro par. Al pulsar, el botón conecta esos dos lados.
 
-![Infografia del pulsador de 4 patas](/fichas/pulsadores-led/pulsador-4-patas-infografia.png)
+![Infografía del pulsador de 4 patas](/fichas/pulsadores-led/pulsador-4-patas-infografia.png)
 
-<Activity id="act-01" title="Montar un circuito puro con pulsador" validation="Entender que un pulsador puede abrir y cerrar un circuito sin programacion: el LED se enciende al pulsar y se apaga al soltar.">
+<Activity id="act-01" title="Montar un circuito puro con pulsador" validation="Entender que un pulsador puede abrir y cerrar un circuito sin programación: el LED se enciende al pulsar y se apaga al soltar.">
 
-En esta primera actividad no vas a programar. Monta un circuito electrico simple: `5V`, pulsador, resistencia y LED.
+En esta primera actividad no vas a programar. Monta un circuito eléctrico simple: `5V`, pulsador, resistencia y LED.
 
 ![Circuito puro con pulsador y LED](/fichas/pulsadores-led/circuito-puro.png)
 
-El Arduino aqui solo funciona como fuente de alimentacion: aporta `5V` y `GND`.
+El Arduino aquí solo funciona como fuente de alimentación: aporta `5V` y `GND`.
 
 <OptionalChallenge>
 Cambia el orden de pulsador, resistencia y LED dentro del circuito en serie. Comprueba si el LED sigue funcionando igual.
@@ -39,7 +39,7 @@ Cambia el orden de pulsador, resistencia y LED dentro del circuito en serie. Com
 
 </Activity>
 
-<Activity id="act-02" title="Leer un pulsador en el monitor serie" validation="Comprobar que Arduino puede leer un boton y mostrar en el monitor serie un valor estable que cambia al pulsar y soltar.">
+<Activity id="act-02" title="Leer un pulsador en el monitor serie" validation="Comprobar que Arduino puede leer un botón y mostrar en el monitor serie un valor estable que cambia al pulsar y soltar.">
 
 Ahora Arduino va a leer el pulsador. Conecta un lado del pulsador al pin `8` y el otro lado a `GND`.
 
@@ -50,19 +50,19 @@ El monitor serie es una ventana del Arduino IDE donde la placa puede escribir me
 
 Para usarlo, abre el monitor serie con el icono de la lupa o desde `Herramientas > Monitor Serie`. Comprueba que abajo aparece `9600 baudios`, el mismo valor que usa `Serial.begin(9600)`.
 
-- `Serial.begin(9600)` abre la comunicacion.
-- `Serial.print()` escribe sin saltar de linea.
-- `Serial.println()` escribe y salta a la linea siguiente.
+- `Serial.begin(9600)` abre la comunicación.
+- `Serial.print()` escribe sin saltar de línea.
+- `Serial.println()` escribe y salta a la línea siguiente.
 </KeyConcept>
 
 <KeyConcept title="Una entrada digital necesita un estado definido">
-Una entrada digital no debe quedar al aire. Si un pin no esta conectado a un estado claro, puede leer ruido y cambiar entre `0` y `1` sin que pulses nada.
+Una entrada digital no debe quedar al aire. Si un pin no está conectado a un estado claro, puede leer ruido y cambiar entre `0` y `1` sin que pulses nada.
 
-`INPUT_PULLUP` activa una resistencia interna que mantiene el pin en `HIGH` cuando el boton esta suelto. Al pulsar, conectas el pin a `GND` y la lectura pasa a `LOW`.
+`INPUT_PULLUP` activa una resistencia interna que mantiene el pin en `HIGH` cuando el botón está suelto. Al pulsar, conectas el pin a `GND` y la lectura pasa a `LOW`.
 </KeyConcept>
 
 <WatchOut>
-Con `INPUT_PULLUP`, la logica queda invertida: `LOW` significa pulsado.
+Con `INPUT_PULLUP`, la lógica queda invertida: `LOW` significa pulsado.
 </WatchOut>
 
 ```cpp
@@ -123,24 +123,24 @@ void loop() {
 }
 ```
 
-Pulsa el boton una vez. El LED se enciende y se queda asi porque el programa no contiene ninguna orden para apagarlo.
+Pulsa el botón una vez. El LED se enciende y se queda así porque el programa no contiene ninguna orden para apagarlo.
 
 <OptionalChallenge>
-Añade monitor serie para que el programa escriba `LED encendido` cuando detecte la pulsacion.
+Añade monitor serie para que el programa escriba `LED encendido` cuando detecte la pulsación.
 </OptionalChallenge>
 
 </Activity>
 
-<Activity id="act-04" title="Encender el LED solo mientras se pulsa" validation="Usar if y else para controlar los dos casos: LED encendido mientras el boton esta pulsado y apagado al soltarlo.">
+<Activity id="act-04" title="Encender el LED solo mientras se pulsa" validation="Usar if y else para controlar los dos casos: LED encendido mientras el botón está pulsado y apagado al soltarlo.">
 
-Ahora el LED solo debe estar encendido mientras mantienes pulsado el boton. Para eso necesitas decir que ocurre en los dos casos: pulsado y suelto.
+Ahora el LED solo debe estar encendido mientras mantienes pulsado el botón. Para eso necesitas decir qué ocurre en los dos casos: pulsado y suelto.
 
 <KeyConcept title="else define el otro caso">
-`else` define que debe ocurrir cuando la condicion del `if` no se cumple.
+`else` define que debe ocurrir cuando la condición del `if` no se cumple.
 </KeyConcept>
 
 <WatchOut>
-La condicion sigue siendo `digitalRead(PIN_BOTON) == LOW`, porque el boton usa `INPUT_PULLUP`.
+La condición sigue siendo `digitalRead(PIN_BOTON) == LOW`, porque el botón usa `INPUT_PULLUP`.
 </WatchOut>
 
 ```cpp
@@ -163,22 +163,22 @@ void loop() {
 }
 ```
 
-La diferencia con la actividad anterior esta en el `else`: ahora el programa tambien fuerza el apagado cuando el boton esta suelto.
+La diferencia con la actividad anterior está en el `else`: ahora el programa también fuerza el apagado cuando el botón está suelto.
 
 <OptionalChallenge>
-Invierte el comportamiento: el LED debe estar encendido cuando el boton esta suelto y apagarse mientras lo pulsas.
+Invierte el comportamiento: el LED debe estar encendido cuando el botón está suelto y apagarse mientras lo pulsas.
 </OptionalChallenge>
 
 </Activity>
 
-<Activity id="act-05" title="Controlar un LED con dos botones" validation="Separar dos ordenes de control: un boton enciende el LED y otro boton lo apaga.">
+<Activity id="act-05" title="Controlar un LED con dos botones" validation="Separar dos órdenes de control: un botón enciende el LED y otro botón lo apaga.">
 
 Vas a usar dos botones como si fueran mandos separados: uno para encender y otro para apagar.
 
 ![Dos pulsadores y un LED](/fichas/pulsadores-led/dos-botones-led.png)
 
 <WatchOut>
-Si pulsas los dos botones a la vez, manda el ultimo `if` que se ejecuta en el programa.
+Si pulsas los dos botones a la vez, manda el último `if` que se ejecuta en el programa.
 </WatchOut>
 
 ```cpp
@@ -205,38 +205,38 @@ void loop() {
 }
 ```
 
-Prueba que ocurre si pulsas los dos botones al mismo tiempo.
+Prueba qué ocurre si pulsas los dos botones al mismo tiempo.
 
 <OptionalChallenge>
-Tu tarea: pide a una IA que escriba una version con brillo de este programa.
+Tu tarea: pide a una IA que escriba una versión con brillo de este programa.
 
 Escribe este prompt en la IA:
 
-> Escribe un programa de Arduino para una placa Elegoo Mega R3 2560. Tengo dos pulsadores con INPUT_PULLUP en los pines 8 y 7, y un LED con resistencia en el pin 10, que es PWM en mi placa. Mientras se mantenga pulsado el boton del pin 8, quiero que suba el brillo del LED gradualmente con analogWrite. Mientras se mantenga pulsado el boton del pin 7, que baje. El brillo debe estar entre 0 y 255. Comenta el codigo en español y haz que el cambio no sea demasiado rapido.
+> Escribe un programa de Arduino para una placa Elegoo Mega R3 2560. Tengo dos pulsadores con INPUT_PULLUP en los pines 8 y 7, y un LED con resistencia en el pin 10, que es PWM en mi placa. Mientras se mantenga pulsado el botón del pin 8, quiero que suba el brillo del LED gradualmente con analogWrite. Mientras se mantenga pulsado el botón del pin 7, que baje. El brillo debe estar entre 0 y 255. Comenta el código en español y haz que el cambio no sea demasiado rápido.
 
-Antes de subir el codigo, leelo. Si no entiendes una linea, pregunta. La IA es una ayuda, no un sustituto de entender el programa.
+Antes de subir el código, léelo. Si no entiendes una línea, pregunta. La IA es una ayuda, no un sustituto de entender el programa.
 </OptionalChallenge>
 
 </Activity>
 
-<Activity id="act-06" title="Crear un boton con memoria" validation="Crear un interruptor con un solo boton detectando el cambio de suelto a pulsado y recordando el estado del LED.">
+<Activity id="act-06" title="Crear un botón con memoria" validation="Crear un interruptor con un solo botón detectando el cambio de suelto a pulsado y recordando el estado del LED.">
 
-Un solo boton puede funcionar como interruptor. Para conseguirlo, el programa necesita recordar si el LED esta encendido y detectar el instante exacto en que el boton pasa de suelto a pulsado.
+Un solo botón puede funcionar como interruptor. Para conseguirlo, el programa necesita recordar si el LED está encendido y detectar el instante exacto en que el botón pasa de suelto a pulsado.
 
 ![Un pulsador con memoria para alternar el LED](/fichas/pulsadores-led/toggle-led.png)
 
 <KeyConcept title="Detectar el cambio, no solo el estado">
-Para hacer un interruptor con memoria, no basta con saber si el boton esta pulsado. Hay que detectar el cambio: de `HIGH` a `LOW`.
+Para hacer un interruptor con memoria, no basta con saber si el botón está pulsado. Hay que detectar el cambio: de `HIGH` a `LOW`.
 
-Una variable `bool` puede recordar si el LED esta encendido (`true`) o apagado (`false`).
+Una variable `bool` puede recordar si el LED está encendido (`true`) o apagado (`false`).
 </KeyConcept>
 
 <WatchOut>
-El `loop()` se ejecuta muchas veces por segundo. Si cambias el LED mientras el boton sigue pulsado, el programa puede encenderlo y apagarlo demasiadas veces.
+El `loop()` se ejecuta muchas veces por segundo. Si cambias el LED mientras el botón sigue pulsado, el programa puede encenderlo y apagarlo demasiadas veces.
 </WatchOut>
 
 ```cpp
-// Ficha 05 - Actividad 6: un boton con memoria
+// Ficha 05 - Actividad 6: un botón con memoria
 
 const int PIN_BOTON = 8;
 const int PIN_LED   = 10;
@@ -266,11 +266,11 @@ Detalles importantes:
 
 - `bool` solo puede valer `true` o `false`.
 - `!ledEncendido` significa "lo contrario de ledEncendido".
-- `estadoAnterior` guarda como estaba el boton en la vuelta anterior del `loop()`.
+- `estadoAnterior` guarda cómo estaba el botón en la vuelta anterior del `loop()`.
 - `delay(50)` ayuda a evitar rebotes del pulsador.
 
 <OptionalChallenge>
-Añade un segundo LED. Debe tener siempre el estado contrario al primero: si uno esta encendido, el otro esta apagado.
+Añade un segundo LED. Debe tener siempre el estado contrario al primero: si uno está encendido, el otro está apagado.
 </OptionalChallenge>
 
 </Activity>

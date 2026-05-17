@@ -4,15 +4,40 @@ import { mutation, query } from "./_generated/server";
 import type { MutationCtx } from "./_generated/server";
 import type { Id } from "./_generated/dataModel";
 import { requireTeacher } from "./users";
+import { getWorksheetGraphOrder, sortWorksheets } from "./worksheetOrder";
 
-function sortWorksheets<T extends { position?: number; slug: string }>(worksheets: T[]) {
-  return worksheets.sort(
-    (a, b) =>
-      (a.position ?? Number.MAX_SAFE_INTEGER) -
-        (b.position ?? Number.MAX_SAFE_INTEGER) ||
-      a.slug.localeCompare(b.slug, "es"),
-  );
-}
+const legacyWorksheetSlugs: Record<string, string> = {
+  "explorar-el-pack": "unidad-01-explorar-el-pack",
+  "leds-paralelo-serie-resistencia": "unidad-02-leds-paralelo-serie-resistencia",
+  "led-rgb": "unidad-03-led-rgb",
+  "zumbador-pasivo": "unidad-06-zumbador-pasivo",
+  tilt: "unidad-07-tilt",
+  servo: "unidad-08-servo",
+  "sensor-ultrasonico": "unidad-09-sensor-ultrasonico",
+  "teclado-membrana": "unidad-10-teclado-membrana",
+  dht11: "unidad-11-dht11",
+  "joystick-analogico": "unidad-12-joystick-analogico",
+  "receptor-ir": "unidad-13-receptor-ir",
+  "matriz-led-max7219": "unidad-14-matriz-led-max7219",
+  "acelerometro-giroscopio": "unidad-15-acelerometro-giroscopio",
+  "pir-hc-sr501": "unidad-16-pir-hc-sr501",
+  "sensor-nivel-agua": "unidad-17-sensor-nivel-agua",
+  rtc: "unidad-18-rtc",
+  "sensor-sonido": "unidad-19-sensor-sonido",
+  "rfid-rc522": "unidad-20-rfid-rc522",
+  "lcd-1602": "unidad-21-lcd-1602",
+  termometro: "unidad-22-termometro",
+  "74hc595-ocho-leds": "unidad-23-74hc595-ocho-leds",
+  "monitor-serie": "unidad-24-monitor-serie",
+  "fotocelula-ldr": "unidad-25-fotocelula-ldr",
+  "display-7-segmentos": "unidad-26-display-7-segmentos",
+  "display-7-segmentos-4-digitos": "unidad-27-display-7-segmentos-4-digitos",
+  "motor-dc": "unidad-28-motor-dc",
+  rele: "unidad-29-rele",
+  "motor-paso-a-paso": "unidad-30-motor-paso-a-paso",
+  "stepper-ir": "unidad-31-stepper-ir",
+  "stepper-encoder": "unidad-32-stepper-encoder",
+};
 
 async function syncWorksheetGraph(
   ctx: MutationCtx,
@@ -22,14 +47,9 @@ async function syncWorksheetGraph(
     status: "draft" | "published" | "archived";
     position?: number;
   }>,
+  options: { preserveInputOrder?: boolean } = {},
 ) {
-  const active = sortWorksheets(
-    worksheets.filter((worksheet) => worksheet.status !== "archived"),
-  );
-  const archived = sortWorksheets(
-    worksheets.filter((worksheet) => worksheet.status === "archived"),
-  );
-  const sorted = [...active, ...archived];
+  const sorted = getWorksheetGraphOrder(worksheets, options);
   const previousPublishedSlugs: string[] = [];
 
   await Promise.all(
@@ -100,7 +120,7 @@ export const reorder = mutation({
     );
     const reordered = [...ordered, ...sortWorksheets(remaining)];
 
-    await syncWorksheetGraph(ctx, reordered);
+    await syncWorksheetGraph(ctx, reordered, { preserveInputOrder: true });
 
     return reordered.map((worksheet) => worksheet._id);
   },
@@ -138,7 +158,7 @@ export const updateMetadata = mutation({
       const title = args.title.trim();
 
       if (!title) {
-        throw new Error("El titulo no puede estar vacio.");
+        throw new Error("El título no puede estar vacío.");
       }
 
       patch.title = title;
@@ -182,10 +202,19 @@ export const upsertFromSeed = mutation({
       throw new Error("Secreto de seed no valido.");
     }
 
-    const existing = await ctx.db
+    const existingBySlug = await ctx.db
       .query("worksheets")
       .withIndex("by_slug", (q) => q.eq("slug", args.slug))
       .unique();
+    const legacySlug = legacyWorksheetSlugs[args.slug];
+    const existingByLegacySlug =
+      existingBySlug || !legacySlug
+        ? null
+        : await ctx.db
+            .query("worksheets")
+            .withIndex("by_slug", (q) => q.eq("slug", legacySlug))
+            .unique();
+    const existing = existingBySlug ?? existingByLegacySlug;
     const worksheetId = existing
       ? existing._id
       : await ctx.db.insert("worksheets", {
@@ -203,6 +232,7 @@ export const upsertFromSeed = mutation({
 
     if (existing) {
       await ctx.db.patch(existing._id, {
+        slug: args.slug,
         title: args.title,
         ...(args.coverImage ? { coverImage: args.coverImage } : {}),
         level: args.level,

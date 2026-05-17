@@ -2,7 +2,10 @@ import Link from "next/link";
 import Image from "next/image";
 import { LockKeyhole } from "lucide-react";
 
-import { getWorksheetPrerequisites } from "@/lib/worksheets";
+import {
+  getWorksheetDisplayTitle,
+  getWorksheetPrerequisites,
+} from "@/lib/worksheets";
 import type { Worksheet } from "@/lib/worksheets";
 
 export function WorksheetPreviewShell({ worksheet }: { worksheet: Worksheet }) {
@@ -25,7 +28,7 @@ export function WorksheetPreviewShell({ worksheet }: { worksheet: Worksheet }) {
               <span className="badge">Trabajo guiado</span>
             </div>
             <h1 className="text-[40px] font-semibold leading-[1.25] text-[var(--color-midnight-ink)] text-balance">
-              {worksheet.title}
+              {getWorksheetDisplayTitle(worksheet)}
             </h1>
             <p className="max-w-2xl text-lg leading-[1.62] text-[var(--color-graphite)]">
               {worksheet.summary}
@@ -86,7 +89,7 @@ export function WorksheetPreviewShell({ worksheet }: { worksheet: Worksheet }) {
                     className="font-semibold text-[var(--color-deep-gray)]"
                     href={`/fichas/${item.slug}`}
                   >
-                    {item.title}
+                    {getWorksheetDisplayTitle(item)}
                   </Link>
                 </li>
               ))}

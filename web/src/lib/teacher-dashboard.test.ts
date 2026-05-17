@@ -78,6 +78,13 @@ describe("teacher dashboard navigation", () => {
 
     expect(
       getTeacherWorksheetCoverImage(
+        "leds-paralelo-serie-resistencia",
+        "/worksheet-placeholder.svg",
+      ),
+    ).toBe("/worksheets/leds-paralelo-serie-resistencia-cover.png");
+
+    expect(
+      getTeacherWorksheetCoverImage(
         "zumbador-activo",
         "/fichas/zumbador-activo/zumbador-activo-infografia.png",
       ),
@@ -85,17 +92,24 @@ describe("teacher dashboard navigation", () => {
 
     expect(
       getTeacherWorksheetCoverImage(
-        "unidad-08-tilt",
+        "tilt",
         "/worksheet-placeholder.svg",
       ),
-    ).toBe("/worksheets/unidad-08-tilt-cover.png");
+    ).toBe("/worksheets/tilt-cover.png");
+
+    expect(
+      getTeacherWorksheetCoverImage(
+        "explorar-el-pack",
+        "/worksheet-placeholder.svg",
+      ),
+    ).toBe("/worksheets/explorar-el-pack-cover-v2.png");
   });
 
   it("keeps the remote cover for worksheets without a generated local cover", () => {
-    expect(getTeacherWorksheetCoverImage("unidad-07-zumbador-pasivo", "/custom.png")).toBe(
+    expect(getTeacherWorksheetCoverImage("zumbador-pasivo", "/custom.png")).toBe(
       "/custom.png",
     );
-    expect(getTeacherWorksheetCoverImage("unidad-07-zumbador-pasivo", undefined)).toBe(
+    expect(getTeacherWorksheetCoverImage("zumbador-pasivo", undefined)).toBe(
       "/worksheet-placeholder.svg",
     );
   });

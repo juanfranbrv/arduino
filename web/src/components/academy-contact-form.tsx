@@ -6,21 +6,49 @@ export function AcademyContactForm() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
+  const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    setStatus("sending");
 
-    const subject = encodeURIComponent("Solicitud de información sobre Portal Arduino");
-    const body = encodeURIComponent(
-      [
-        `Nombre: ${name}`,
-        `Email: ${email}`,
-        "",
-        message,
-      ].join("\n"),
+    const response = await fetch("/api/contact", {
+      body: JSON.stringify({ email, message, name }),
+      headers: { "Content-Type": "application/json" },
+      method: "POST",
+    });
+
+    if (!response.ok) {
+      setStatus("error");
+      return;
+    }
+
+    setName("");
+    setEmail("");
+    setMessage("");
+    setStatus("sent");
+  }
+
+  if (status === "sent") {
+    return (
+      <section className="surface-card grid min-h-[22rem] content-center gap-4 p-6 text-center">
+        <div className="grid gap-2">
+          <h3 className="text-2xl font-semibold leading-[1.28] text-[var(--color-midnight-ink)]">
+            Mensaje enviado.
+          </h3>
+          <p className="text-base leading-[1.62] text-[var(--color-graphite)]">
+            Hemos recibido tu solicitud y responderemos lo antes posible.
+          </p>
+        </div>
+        <button
+          className="justify-self-center text-sm font-medium text-[var(--color-midnight-ink)] underline underline-offset-4"
+          type="button"
+          onClick={() => setStatus("idle")}
+        >
+          Enviar otro mensaje
+        </button>
+      </section>
     );
-
-    window.location.href = `mailto:info@bauset.es?subject=${subject}&body=${body}`;
   }
 
   return (
@@ -66,8 +94,18 @@ export function AcademyContactForm() {
         />
       </div>
 
-      <button className="btn-primary justify-center" type="submit">
-        Enviar mensaje
+      {status === "error" ? (
+        <p className="text-sm font-medium text-[var(--color-midnight-ink)]">
+          No se ha podido enviar el mensaje. Inténtalo de nuevo.
+        </p>
+      ) : null}
+
+      <button
+        className="btn-primary justify-center"
+        disabled={status === "sending"}
+        type="submit"
+      >
+        {status === "sending" ? "Enviando..." : "Enviar mensaje"}
       </button>
     </form>
   );

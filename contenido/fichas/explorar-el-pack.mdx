@@ -1,0 +1,178 @@
+---
+unitNumber: 1
+title: Primeros pasos con Arduino
+slug: explorar-el-pack
+level: iniciacion
+duration: 90 min
+status: published
+prerequisites: []
+summary: "Primera toma de contacto con Arduino: identificar las piezas del kit, preparar el Arduino IDE, cargar Blink, crear una cuenta de Tinkercad y montar el primer LED externo con resistencia."
+coverImage: /worksheets/explorar-el-pack-cover-v2.png
+preview:
+  - Identificacion de la placa, la protoboard, los LED, las resistencias y los cables.
+  - Instalacion del Arduino IDE y seleccion de placa y puerto.
+  - Primer programa Blink con el LED integrado de la placa.
+  - Circuito de LED externo en Tinkercad con resistencia de 220 ohm.
+materials:
+  - Arduino Uno o Elegoo Mega
+  - Cable USB
+  - Ordenador con Arduino IDE
+  - Cuenta de Tinkercad
+  - Protoboard
+  - LED rojo
+  - Resistencia de 220 ohm
+  - Cables dupont
+---
+
+Arduino combina electrónica y programación en una placa pequeña que puede leer señales del mundo físico y controlar salidas. En esta primera unidad se prepara el entorno de trabajo y se hace el primer recorrido completo: reconocer componentes, cargar un programa y montar un LED externo protegido por una resistencia.
+
+<Activity id="act-01" title="Explorar el kit de Arduino" validation="El alumno identifica en su mesa la placa Arduino, la protoboard, varios LED, resistencias y cables dupont.">
+
+![Kit completo Elegoo Mega 2560](https://eu.elegoo.com/cdn/shop/files/elegoo-mega-2560-the-most-complete-starter-kit-compatible-with-arduino-ide-arduino-stem-kits-elegoo-shop-371228_7fe4d541-4105-4866-ad0a-b0a1ce34bb79.jpg?crop=center&v=1710985648&width=1220)
+
+<KeyConcept title="Arduino conecta código y mundo físico">
+El microcontrolador de la placa ejecuta un programa. Ese programa puede leer entradas, como botones o sensores, y controlar salidas, como LED, zumbadores o motores.
+</KeyConcept>
+
+Haz una comprobación rápida con el profesor: señala cada pieza y di para qué crees que sirve. No hace falta memorizarlo todo, pero sí distinguir la placa de la protoboard y un LED de una resistencia.
+
+</Activity>
+
+<Activity id="act-02" title="Preparar el Arduino IDE" validation="El Arduino IDE se abre correctamente y muestra una placa y un puerto seleccionados en el menu Herramientas.">
+
+Para programar Arduino se usa el Arduino IDE. Es el programa desde el que se escribe el código, se compila y se envía a la placa por USB.
+
+Instala y configura el entorno:
+
+1. Abre [arduino.cc/en/software](https://www.arduino.cc/en/software).
+2. Descarga la versión adecuada para tu sistema operativo.
+3. Instala el programa y abre el Arduino IDE.
+4. Conecta la placa Arduino al ordenador con el cable USB.
+5. En `Herramientas > Placa`, selecciona tu modelo, por ejemplo `Arduino Uno` o `Arduino Mega 2560`.
+6. En `Herramientas > Puerto`, selecciona el puerto donde aparece la placa.
+
+<WatchOut>
+Si no aparece ningún puerto, revisa el cable USB. Algunos cables solo cargan corriente y no transmiten datos.
+</WatchOut>
+
+Cuando el IDE detecta la placa, el equipo queda listo para subir programas.
+
+</Activity>
+
+<Activity id="act-03" title="Cargar Blink en el LED integrado" validation="El LED integrado marcado como L parpadea con un ritmo visible después de subir el programa.">
+
+Blink es el primer programa clásico de Arduino. Hace parpadear el LED integrado de la placa, normalmente marcado con la letra `L` y conectado internamente al pin digital `13`.
+
+No hace falta conectar ningún componente externo. Copia y sube este programa:
+
+![Placa Elegoo Mega 2560 con LED integrado](/fichas/explorar-el-pack/placa-elegoo-mega-2560.png)
+
+```cpp
+// Unidad 1 - Actividad 3: Blink
+// Hace parpadear el LED integrado de la placa una vez por segundo.
+
+void setup() {
+  pinMode(13, OUTPUT);
+}
+
+void loop() {
+  digitalWrite(13, HIGH);
+  delay(1000);
+  digitalWrite(13, LOW);
+  delay(1000);
+}
+```
+
+<KeyConcept title="Todo sketch tiene setup y loop">
+`setup()` se ejecuta una sola vez al arrancar la placa. `loop()` se repite continuamente mientras Arduino está encendido.
+</KeyConcept>
+
+Las instrucciones principales son:
+
+- `pinMode(13, OUTPUT)` prepara el pin 13 como salida.
+- `digitalWrite(..., HIGH)` enciende el LED.
+- `digitalWrite(..., LOW)` apaga el LED.
+- `delay(1000)` pausa el programa durante 1000 milisegundos, es decir, 1 segundo.
+
+Prueba cambios pequenos:
+
+- cambia los dos `delay(1000)` por `delay(100)`
+- prueba `delay(30)` y observa que el parpadeo casi no se distingue
+- usa tiempos distintos, por ejemplo `delay(200)` encendido y `delay(800)` apagado
+
+<OptionalChallenge>
+Abre el ejemplo oficial desde `Archivo > Ejemplos > 01.Basics > Blink` y compáralo con el programa anterior.
+</OptionalChallenge>
+
+</Activity>
+
+<Activity id="act-04" title="Crear un circuito en Tinkercad" validation="El alumno crea en Tinkercad un LED conectado sin resistencia, observa el fallo en la simulación y después corrige el circuito añadiendo una resistencia en serie.">
+
+Tinkercad permite simular circuitos desde el navegador. Es útil para probar conexiones antes de montarlas en la protoboard real y para detectar errores sin riesgo de dañar componentes.
+
+Prepara el simulador:
+
+1. Abre [tinkercad.com](https://www.tinkercad.com).
+2. Crea una cuenta o entra con tu cuenta de Google.
+3. Accede al panel principal.
+4. Entra en `Circuits`.
+5. Crea un circuito nuevo.
+6. Busca una placa `Arduino Uno` y arrástrala al área de trabajo.
+
+Primero, monta un circuito con un LED conectado directamente entre `5V` y `GND`, sin resistencia. Hazlo solo en Tinkercad y pulsa `Iniciar simulación`. El LED recibe demasiada corriente: en el simulador puede aparecer dañado, quemado o con una advertencia de sobrecorriente.
+
+Después, corrige el circuito añadiendo una resistencia de `220 ohm` en serie con el LED:
+
+- `5V` del Arduino a la resistencia
+- resistencia al ánodo del LED, la pata larga
+- cátodo del LED, la pata corta, a `GND`
+
+```text
+5V -> resistencia 220 ohm -> LED (+) -> LED (-) -> GND
+```
+
+Vuelve a iniciar la simulación. El LED se enciende correctamente porque la resistencia limita la corriente y evita que el componente se dañe.
+
+<WatchOut>
+La prueba sin resistencia solo debe hacerse en Tinkercad. En una placa real puede destruir el LED.
+</WatchOut>
+
+<KeyConcept title="El simulador no sustituye al montaje real">
+Tinkercad ayuda a ensayar ideas y revisar conexiones. Después, el mismo circuito debe poder explicarse y montarse con componentes reales.
+</KeyConcept>
+
+</Activity>
+
+<Activity id="act-05" title="Encender un LED externo con resistencia" validation="En Tinkercad, el LED externo se enciende al conectar 5V, resistencia, LED y GND en serie; la resistencia está ajustada a 220 ohm.">
+
+El LED integrado ya está preparado en la placa. Ahora el circuito usa un LED externo con una resistencia. La resistencia es obligatoria porque limita la corriente y protege el LED.
+
+Monta este circuito en Tinkercad:
+
+![Circuito LED basico con resistencia](/fichas/explorar-el-pack/circuito-led-basico.png)
+
+- `5V` del Arduino a una resistencia de `220 ohm`
+- resistencia al ánodo del LED, la pata larga
+- cátodo del LED, la pata corta, a `GND`
+
+```text
+5V -> resistencia 220 ohm -> LED (+) -> LED (-) -> GND
+```
+
+Pulsa `Iniciar simulación`. El LED se enciende sin programar nada porque el pin `5V` entrega tensión mientras la placa está alimentada.
+
+<KeyConcept title="El LED necesita polaridad y corriente limitada">
+El LED tiene ánodo y cátodo. Si se coloca al revés, no enciende. Si se conecta sin resistencia, puede quemarse por exceso de corriente.
+</KeyConcept>
+
+La resistencia puede ir antes o después del LED siempre que está en serie. En un circuito en serie circula la misma corriente por todos los componentes, así que lo importante no es el lado exacto, sino que la corriente tenga que atravesar también la resistencia.
+
+<WatchOut>
+La prueba sin resistencia solo debe hacerse en el simulador. En un montaje real puede destruir el LED.
+</WatchOut>
+
+<OptionalChallenge>
+En Tinkercad, cambia la resistencia de `220 ohm` por `1 kOhm` y compara el brillo. Después coloca la resistencia entre el cátodo del LED y `GND` para comprobar que el LED sigue protegido.
+</OptionalChallenge>
+
+</Activity>

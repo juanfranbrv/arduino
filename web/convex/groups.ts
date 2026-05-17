@@ -57,7 +57,7 @@ export const createGroup = mutation({
       .unique();
 
     if (existing) {
-      throw new Error("Ya existe un grupo con ese codigo.");
+      throw new Error("Ya existe un grupo con ese código.");
     }
 
     return await ctx.db.insert("groups", {

@@ -106,7 +106,7 @@ export function TeacherProgressConvexPanel() {
   if (sessionPending) {
     return (
       <section className="subtle-card p-5 text-[var(--color-graphite)]">
-        Comprobando sesion...
+        Comprobando sesión...
       </section>
     );
   }
@@ -219,7 +219,7 @@ export function TeacherProgressConvexPanel() {
 
       {!dashboard.students.length ? (
         <p className="subtle-card p-4 text-sm text-[var(--color-graphite)]">
-          Este grupo no tiene alumnos todavia.
+          Este grupo no tiene alumnos todavía.
         </p>
       ) : (
         <div className="grid gap-4 xl:grid-cols-[24rem_minmax(0,1fr)] xl:items-start">

@@ -6,6 +6,8 @@ import { makeFunctionReference } from "convex/server";
 import matter from "gray-matter";
 import { z } from "zod";
 
+export { getWorksheetBaseTitle, getWorksheetDisplayTitle } from "./worksheet-display";
+
 export type WorksheetStatus = "draft" | "published" | "archived";
 
 export type WorksheetActivity = {
@@ -45,7 +47,7 @@ const worksheetFrontmatterSchema = z.object({
   duration: z.string().min(1),
   status: z.enum(["draft", "published", "archived"]).default("draft"),
   prerequisites: z.array(z.string()).default([]),
-  summary: z.string().default("Ficha practica de Arduino para trabajar en clase."),
+  summary: z.string().default("Ficha práctica de Arduino para trabajar en clase."),
   coverImage: z.string().optional(),
   preview: z.array(z.string()).default([]),
   materials: z.array(z.string()).default([]),

@@ -109,7 +109,7 @@ export function TeacherGroupsPanel() {
 
   async function copyCode(code: string) {
     await navigator.clipboard.writeText(code);
-    setMessage(`Codigo ${code} copiado.`);
+    setMessage(`Código ${code} copiado.`);
   }
 
   async function moveStudent(studentId: string, displayName: string) {
@@ -227,7 +227,7 @@ export function TeacherGroupsPanel() {
             />
           </label>
           <label className="form-label">
-            Codigo
+            Código
             <input
               className="form-input uppercase"
               value={joinCode}
@@ -247,7 +247,7 @@ export function TeacherGroupsPanel() {
 
         <div className="grid gap-2">
           {sessionPending ? (
-            <p className="text-sm text-[var(--color-graphite)]">Comprobando sesion...</p>
+            <p className="text-sm text-[var(--color-graphite)]">Comprobando sesión...</p>
           ) : !session?.user ? (
             <p className="subtle-card p-4 text-sm text-[var(--color-graphite)]">
               Entra con tu cuenta de profesor para crear y ver grupos.
@@ -290,7 +290,7 @@ export function TeacherGroupsPanel() {
                     <p className="font-semibold text-[var(--color-midnight-ink)]">{group.name}</p>
                   )}
                   <p className="text-sm text-[var(--color-graphite)]">
-                    Codigo de grupo:{" "}
+                    Código de grupo:{" "}
                     <span className="font-semibold text-[var(--color-midnight-ink)]">
                       {group.joinCode}
                     </span>
@@ -336,7 +336,7 @@ export function TeacherGroupsPanel() {
             ))
           ) : (
             <p className="subtle-card p-4 text-sm text-[var(--color-graphite)]">
-              Todavia no hay grupos. Crea uno y comparte el codigo en clase.
+              Todavía no hay grupos. Crea uno y comparte el código en clase.
             </p>
           )}
         </div>
@@ -351,7 +351,7 @@ export function TeacherGroupsPanel() {
         </div>
 
         {sessionPending ? (
-          <p className="text-sm text-[var(--color-graphite)]">Comprobando sesion...</p>
+          <p className="text-sm text-[var(--color-graphite)]">Comprobando sesión...</p>
         ) : !session?.user ? (
           <p className="subtle-card p-4 text-sm text-[var(--color-graphite)]">
             Entra con tu cuenta de profesor para organizar alumnos.

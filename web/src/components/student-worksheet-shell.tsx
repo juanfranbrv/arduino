@@ -11,7 +11,7 @@ import {
   WatchOut,
 } from "@/components/worksheet-blocks";
 import type { ActivityEvaluation } from "@/lib/worksheet-status";
-import type { Worksheet } from "@/lib/worksheets";
+import { getWorksheetDisplayTitle, type Worksheet } from "@/lib/worksheets";
 import { getOrderedActivityStates } from "@/lib/teacher-progress";
 
 export function StudentWorksheetShell({
@@ -72,7 +72,7 @@ export function StudentWorksheetShell({
             </span>
           </div>
           <h1 className="text-[40px] font-semibold leading-[1.04] text-[var(--color-midnight-ink)] sm:text-[56px]">
-            {worksheet.title}
+            {getWorksheetDisplayTitle(worksheet)}
           </h1>
           {worksheet.summary ? (
             <p className="max-w-3xl text-lg leading-[1.62] text-[var(--color-graphite)]">

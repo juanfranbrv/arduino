@@ -15,6 +15,7 @@ import {
   getWorksheetStatusSurfaceClassName,
   validateWorksheetThumbnailFile,
 } from "@/lib/teacher-dashboard";
+import { getWorksheetDisplayTitle } from "@/lib/worksheet-display";
 import { getWorksheetPublicationStatusLabel } from "@/lib/worksheet-status";
 
 const levelOptions = ["iniciacion", "intermedio"] as const;
@@ -68,7 +69,7 @@ export function TeacherCourseStructurePanel() {
   if (sessionPending) {
     return (
       <section className="subtle-card p-5 text-[var(--color-graphite)]">
-        Comprobando sesion...
+        Comprobando sesión...
       </section>
     );
   }
@@ -92,7 +93,7 @@ export function TeacherCourseStructurePanel() {
   if (!worksheets.length) {
     return (
       <section className="subtle-card p-5 text-[var(--color-graphite)]">
-        No hay unidades sincronizadas todavia.
+        No hay unidades sincronizadas todavía.
       </section>
     );
   }
@@ -152,7 +153,7 @@ export function TeacherCourseStructurePanel() {
     const title = draftTitle.trim();
 
     if (!title) {
-      setMessage("El titulo no puede estar vacio.");
+      setMessage("El título no puede estar vacío.");
       return;
     }
 
@@ -204,7 +205,7 @@ export function TeacherCourseStructurePanel() {
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--color-faded-gray)] pb-4">
           <div className="grid gap-2">
             <p className="text-sm text-[var(--color-steel-gray)]">
-              Arrastra las unidades para reordenar el curso. La home y el area
+              Arrastra las unidades para reordenar el curso. La home y el área
               de alumno solo muestran las publicadas.
             </p>
             <h3 className="text-2xl font-semibold text-[var(--color-midnight-ink)]">
@@ -217,18 +218,22 @@ export function TeacherCourseStructurePanel() {
         <div className="subtle-card grid gap-2 p-4 text-sm leading-[1.56] text-[var(--color-graphite)]">
           <p className="inline-flex items-center gap-2">
             <Rocket className="size-4" />
-            Los requisitos se calculan automaticamente: una unidad publicada
+            Los requisitos se calculan automáticamente: una unidad publicada
             exige haber completado las unidades publicadas anteriores.
           </p>
         </div>
 
         <div className="grid gap-3">
-          {orderedWorksheets.map((worksheet) => {
+          {orderedWorksheets.map((worksheet, index) => {
             const isDragging = draggedId === worksheet._id;
             const isDropTarget = dropTargetId === worksheet._id;
             const isPending = pendingWorksheetId === worksheet._id;
             const visibleOrder = orderedWorksheets.map((item) => item._id);
             const coverInputId = `cover-${worksheet._id}`;
+            const displayTitle = getWorksheetDisplayTitle({
+              title: worksheet.title,
+              unitNumber: index + 1,
+            });
 
             return (
               <article
@@ -276,7 +281,7 @@ export function TeacherCourseStructurePanel() {
                   htmlFor={coverInputId}
                   className="group relative min-h-36 w-full cursor-pointer overflow-hidden rounded-[28px] border border-[var(--color-faded-gray)] bg-[var(--color-canvas-white)] lg:h-full lg:min-h-44"
                 >
-                    <span className="sr-only">Cambiar miniatura de {worksheet.title}</span>
+                    <span className="sr-only">Cambiar miniatura de {displayTitle}</span>
                     <Image
                       src={getTeacherWorksheetCoverImage(
                         worksheet.slug,
@@ -325,14 +330,14 @@ export function TeacherCourseStructurePanel() {
                               onChange={(event) => setDraftTitle(event.target.value)}
                               disabled={isPending}
                               className="form-input min-h-10 min-w-0 flex-1 px-3 py-2 text-lg font-semibold text-[var(--color-midnight-ink)]"
-                              aria-label={`Editar titulo de ${worksheet.title}`}
+                              aria-label={`Editar título de ${displayTitle}`}
                               autoFocus
                             />
                             <button
                               type="submit"
                               disabled={isPending}
                               className="grid size-10 shrink-0 place-items-center rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-700 hover:border-emerald-400"
-                              aria-label="Confirmar titulo"
+                              aria-label="Confirmar título"
                             >
                               <Check className="size-4" />
                             </button>
@@ -341,7 +346,7 @@ export function TeacherCourseStructurePanel() {
                               disabled={isPending}
                               onClick={cancelEditingTitle}
                               className="grid size-10 shrink-0 place-items-center rounded-xl border border-[var(--color-faded-gray)] bg-white text-[var(--color-graphite)] hover:border-[var(--color-midnight-ink)]"
-                              aria-label="Cancelar edicion"
+                              aria-label="Cancelar edición"
                             >
                               <X className="size-4" />
                             </button>
@@ -352,7 +357,7 @@ export function TeacherCourseStructurePanel() {
                               href={`/profesor/unidades/${worksheet.slug}`}
                               className="min-w-0 text-xl font-semibold leading-[1.35] text-[var(--color-midnight-ink)] hover:underline"
                             >
-                              {worksheet.title}
+                              {displayTitle}
                             </Link>
                             <button
                               type="button"
@@ -360,7 +365,7 @@ export function TeacherCourseStructurePanel() {
                                 startEditingTitle(worksheet._id, worksheet.title)
                               }
                               className="mt-0.5 grid size-8 shrink-0 place-items-center rounded-xl text-[var(--color-steel-gray)] hover:bg-[var(--color-canvas-white)] hover:text-[var(--color-midnight-ink)]"
-                              aria-label={`Editar titulo de ${worksheet.title}`}
+                              aria-label={`Editar título de ${displayTitle}`}
                             >
                               <Pencil className="size-4" />
                             </button>
@@ -370,7 +375,7 @@ export function TeacherCourseStructurePanel() {
 
                       <button
                         type="button"
-                        aria-label={`Arrastrar ${worksheet.title}`}
+                        aria-label={`Arrastrar ${displayTitle}`}
                         className="grid size-11 shrink-0 cursor-grab place-items-center rounded-full bg-[var(--color-canvas-white)] text-[var(--color-steel-gray)] active:cursor-grabbing"
                       >
                         <GripVertical className="size-5" />

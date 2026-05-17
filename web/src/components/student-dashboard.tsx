@@ -11,9 +11,11 @@ import {
   getWorksheetStudentStatus,
   type ActivityEvaluation,
 } from "@/lib/worksheet-status";
+import { getWorksheetDisplayTitle } from "@/lib/worksheet-display";
 
 type WorksheetCard = {
   slug: string;
+  unitNumber?: number;
   title: string;
   level: string;
   duration: string;
@@ -139,7 +141,7 @@ export function StudentDashboard({
               </span>
             </div>
             <h2 className="text-xl font-medium leading-[1.35] text-[var(--color-midnight-ink)]">
-              {worksheet.title}
+              {getWorksheetDisplayTitle(worksheet)}
             </h2>
             <p className="text-sm leading-[1.56] text-[var(--color-graphite)]">
               {worksheet.summary}

@@ -10,7 +10,7 @@ import {
   WatchOut,
 } from "@/components/worksheet-blocks";
 import { getOrderedActivityStates } from "@/lib/teacher-progress";
-import type { Worksheet } from "@/lib/worksheets";
+import { getWorksheetDisplayTitle, type Worksheet } from "@/lib/worksheets";
 
 const worksheetComponents = {
   Activity,
@@ -55,7 +55,7 @@ export function WorksheetShell({
             </span>
           </div>
           <h1 className="text-[40px] font-semibold leading-[1.04] text-[var(--color-midnight-ink)] sm:text-[56px]">
-            {worksheet.title}
+            {getWorksheetDisplayTitle(worksheet)}
           </h1>
           {worksheet.summary ? (
             <p className="max-w-none text-lg font-semibold leading-[1.62] text-[var(--color-graphite)]">

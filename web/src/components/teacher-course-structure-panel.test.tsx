@@ -49,7 +49,7 @@ vi.mock("convex/react", () => ({
       level: "iniciacion",
       slug: "pulsadores-led",
       status: "draft",
-      title: "Unidad 5 - Pulsador de 4 patas",
+      title: "Pulsador de 4 patas",
     },
   ],
 }));
@@ -58,7 +58,7 @@ describe("TeacherCourseStructurePanel", () => {
   it("renders course unit cards with a large thumbnail column and compact metadata controls", () => {
     const { container } = render(<TeacherCourseStructurePanel />);
 
-    expect(screen.getByRole("link", { name: "Unidad 5 - Pulsador de 4 patas" })).toBeTruthy();
+    expect(screen.getByRole("link", { name: "Unidad 1 - Pulsador de 4 patas" })).toBeTruthy();
 
     const card = container.querySelector("article");
     expect(card?.className).toContain("lg:grid-cols-[14rem_minmax(0,1fr)]");

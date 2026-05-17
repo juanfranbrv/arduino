@@ -11,8 +11,8 @@ describe("CodeBlock", () => {
       </CodeBlock>,
     );
 
-    expect(screen.getByText("Codigo")).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Copiar codigo" })).toBeTruthy();
+    expect(screen.getByText("Código")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Copiar código" })).toBeTruthy();
     expect(screen.queryByText("cpp")).toBeNull();
   });
 });

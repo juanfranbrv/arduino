@@ -16,12 +16,12 @@ export const teacherDashboardTabs: TeacherDashboardTab[] = [
   {
     id: "seguimiento",
     label: "Seguimiento",
-    description: "Control rapido de unidades y actividades por alumno.",
+    description: "Control rápido de unidades y actividades por alumno.",
   },
   {
     id: "grupos",
     label: "Grupos",
-    description: "Alta de grupos y codigos para que los alumnos se unan.",
+    description: "Alta de grupos y códigos para que los alumnos se unan.",
   },
   {
     id: "estructura",
@@ -31,15 +31,17 @@ export const teacherDashboardTabs: TeacherDashboardTab[] = [
   {
     id: "enlaces",
     label: "Enlaces",
-    description: "Accesos directos a los sitios tecnicos del proyecto.",
+    description: "Accesos directos a los sitios técnicos del proyecto.",
   },
 ];
 
 const defaultTeacherDashboardTab: TeacherDashboardTabId = "seguimiento";
 const generatedWorksheetCoverImages: Record<string, string> = {
+  "explorar-el-pack": "/worksheets/explorar-el-pack-cover-v2.png",
+  "leds-paralelo-serie-resistencia": "/worksheets/leds-paralelo-serie-resistencia-cover.png",
   "pulsadores-led": "/worksheets/pulsadores-led-cover.png",
   "zumbador-activo": "/worksheets/zumbador-activo-cover.png",
-  "unidad-08-tilt": "/worksheets/unidad-08-tilt-cover.png",
+  "tilt": "/worksheets/tilt-cover.png",
 };
 
 export function getTeacherDashboardTabFromParam(
@@ -129,7 +131,7 @@ export const teacherDashboardLinks: TeacherDashboardLink[] = [
   {
     label: "Proyecto GitHub",
     href: "https://github.com/juanfranbrv/arduino",
-    description: "Repositorio publico con la carpeta PUBLICO y la app web.",
+    description: "Repositorio público con la carpeta PUBLICO y la app web.",
   },
   {
     label: "Proyecto Vercel",
@@ -139,11 +141,11 @@ export const teacherDashboardLinks: TeacherDashboardLink[] = [
   {
     label: "Convex Dashboard",
     href: "https://dashboard.convex.dev/d/shocking-dogfish-273",
-    description: "Backend compartido para autenticacion, grupos y progreso.",
+    description: "Backend compartido para autenticación, grupos y progreso.",
   },
   {
     label: "Web local",
     href: "http://localhost:3000",
-    description: "Servidor local de desarrollo cuando este arrancado.",
+    description: "Servidor local de desarrollo cuando esté arrancado.",
   },
 ];

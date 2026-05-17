@@ -1,7 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import { getPublishedWorksheetsFromCatalog } from "@/lib/worksheets";
+import {
+  getPublishedWorksheetsFromCatalog,
+  getWorksheetDisplayTitle,
+} from "@/lib/worksheets";
 
 export default async function WorksheetsPage() {
   const worksheets = await getPublishedWorksheetsFromCatalog();
@@ -40,7 +43,7 @@ export default async function WorksheetsPage() {
                 <span className="badge bg-white">{worksheet.activities.length} actividades</span>
               </div>
               <h2 className="text-2xl font-medium leading-[1.35] text-[var(--color-midnight-ink)]">
-                {worksheet.title}
+                {getWorksheetDisplayTitle(worksheet)}
               </h2>
               <p className="text-sm leading-[1.56] text-[var(--color-graphite)]">
                 {worksheet.summary}

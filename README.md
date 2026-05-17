@@ -1,13 +1,13 @@
 # Portal de Clase Arduino
 
-Repositorio publico del portal de clase. Solo esta carpeta debe publicarse en GitHub o desplegarse en Vercel.
+Repositorio público del portal de clase. Solo esta carpeta debe publicarse en GitHub o desplegarse en Vercel.
 
 ## Estructura
 
-- `web/`: aplicacion Next.js para Vercel.
+- `web/`: aplicación Next.js para Vercel.
 - `contenido/fichas/`: unidades MDX publicadas.
 - `contenido/borradores/`: borradores generados por IA antes de publicar.
-- `contenido/imagenes/`: imagenes propias asociadas a unidades.
+- `contenido/imagenes/`: imágenes propias asociadas a unidades.
 - `contenido/presentaciones/`: materiales futuros.
 - `contenido/cuestionarios/`: cuestionarios futuros.
 
@@ -15,11 +15,11 @@ La carpeta `../PRIVADO/` queda fuera de este repositorio y no debe publicarse.
 
 ## Skill De Autor
 
-El skill unico para crear contenido didactico se llama `creador-de-unidades` y vive en `../.agents/skills/creador-de-unidades`.
+El skill único para crear contenido didáctico se llama `creador-de-unidades` y vive en `../.agents/skills/creador-de-unidades`.
 
-Sirve para crear, revisar o publicar unidades de Arduino en `contenido/fichas/`. Aunque la carpeta siga llamandose `fichas` por compatibilidad tecnica, a nivel editorial trabajamos con `unidades`.
+Sirve para crear, revisar o publicar unidades de Arduino en `contenido/fichas/`. Aunque la carpeta siga llamándose `fichas` por compatibilidad técnica, a nivel editorial trabajamos con `unidades`.
 
-### Como invocarlo
+### Cómo invocarlo
 
 Si ya tienes un guion de actividades:
 
@@ -28,7 +28,7 @@ Usa el skill creador-de-unidades.
 Quiero una unidad nueva sobre [tema].
 Slug: [slug]
 Nivel: [nivel]
-Duracion: [duracion]
+Duración: [duración]
 Materiales: [materiales]
 Guion de actividades:
 1. ...
@@ -41,15 +41,15 @@ Si no tienes guion:
 ```text
 Usa el skill creador-de-unidades.
 Quiero una unidad nueva sobre [tema].
-No tengo guion: generalo tu primero.
+No tengo guion: genéralo tú primero.
 ```
 
 ### Flujo Esperado
 
 1. Si no queda claro si hay guion, el skill debe preguntar si ya existe o si debe generarlo.
 2. Si no hay guion, primero propone un borrador corto de actividades.
-3. Cada actividad del borrador debe incluir titulo, objetivo, foco tecnico o de montaje, y que comprobaria el profesor.
-4. Solo despues de revisar ese borrador se redacta la unidad completa en MDX.
+3. Cada actividad del borrador debe incluir título, objetivo, foco técnico o de montaje, y qué comprobaría el profesor.
+4. Solo después de revisar ese borrador se redacta la unidad completa en MDX.
 
 ### Fuentes Prioritarias
 
@@ -67,7 +67,7 @@ npm install
 npm run dev
 ```
 
-## Verificacion
+## Verificación
 
 ```bash
 cd web
@@ -92,7 +92,7 @@ npx convex env set SEED_SECRET <secret>
 npx auth generate --config ./convex/betterAuth/auth.ts --output ./convex/betterAuth/schema.ts
 ```
 
-Despues, configura `NEXT_PUBLIC_CONVEX_URL` y `NEXT_PUBLIC_CONVEX_SITE_URL` en `.env.local` y en Vercel.
+Después, configura `NEXT_PUBLIC_CONVEX_URL` y `NEXT_PUBLIC_CONVEX_SITE_URL` en `.env.local` y en Vercel.
 
 Para cargar las unidades MDX publicadas en Convex:
 
@@ -111,4 +111,4 @@ Flujo inicial recomendado:
 4. Definir `SETUP_TEACHER_SECRET` y `SEED_SECRET` en Convex.
 5. Abrir `/setup-profesor`, entrar con Google y activar la cuenta docente con el secreto.
 6. Crear grupos desde funciones/panel docente.
-7. Abrir `/registro` para que alumnos entren con Google y se unan con codigo de grupo.
+7. Abrir `/registro` para que alumnos entren con Google y se unan con código de grupo.

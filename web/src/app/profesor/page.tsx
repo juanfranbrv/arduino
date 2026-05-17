@@ -35,7 +35,7 @@ export default async function TeacherPage({
             <TeacherGroupsPanel />
           ) : (
             <section className="subtle-card p-5 text-[var(--color-graphite)]">
-              Configura Convex para crear grupos y codigos de acceso.
+              Configura Convex para crear grupos y códigos de acceso.
             </section>
           )
         }
