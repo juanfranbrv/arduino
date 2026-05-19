@@ -1,4 +1,4 @@
-export type TeacherDashboardTabId = "seguimiento" | "grupos" | "estructura" | "enlaces";
+export type TeacherDashboardTabId = "seguimiento" | "mapa" | "grupos" | "estructura" | "enlaces";
 
 export type TeacherDashboardTab = {
   id: TeacherDashboardTabId;
@@ -17,6 +17,11 @@ export const teacherDashboardTabs: TeacherDashboardTab[] = [
     id: "seguimiento",
     label: "Seguimiento",
     description: "Control rápido de unidades y actividades por alumno.",
+  },
+  {
+    id: "mapa",
+    label: "Mapa",
+    description: "Vista del avance de cada alumno a lo largo del curso.",
   },
   {
     id: "grupos",

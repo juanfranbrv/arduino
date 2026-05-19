@@ -149,6 +149,7 @@ export const setActivityStatus = mutation({
     studentId: v.id("students"),
     worksheetId: v.id("worksheets"),
     activityId: v.string(),
+    activityIds: v.optional(v.array(v.string())),
     status: v.union(
       v.literal("pending"),
       v.literal("completed"),
@@ -191,9 +192,12 @@ export const setActivityStatus = mutation({
         activityId: evaluation.activityId,
         status: evaluation.status,
       }));
-    const orderedActivityIds = worksheetActivities
-      .sort((a, b) => a.order - b.order)
-      .map((activity) => activity.activityId);
+    const orderedActivityIds =
+      worksheetActivities.length > 0
+        ? worksheetActivities
+            .sort((a, b) => a.order - b.order)
+            .map((activity) => activity.activityId)
+        : (args.activityIds ?? []);
 
     if (args.status === "pending") {
       const currentEvaluations = allEvaluations.map((evaluation) => ({
@@ -244,5 +248,100 @@ export const setActivityStatus = mutation({
       updatedBy: teacher._id,
       updatedAt: Date.now(),
     });
+  },
+});
+
+export const completeAllActivities = mutation({
+  args: {
+    studentId: v.id("students"),
+    worksheetId: v.id("worksheets"),
+    activityIds: v.optional(v.array(v.string())),
+  },
+  handler: async (ctx, args) => {
+    const teacher = await requireTeacher(ctx);
+    const worksheetActivities = await ctx.db
+      .query("worksheetActivities")
+      .withIndex("by_worksheet", (q) => q.eq("worksheetId", args.worksheetId))
+      .collect();
+
+    const activityIds =
+      worksheetActivities.length > 0
+        ? worksheetActivities
+            .sort((a, b) => a.order - b.order)
+            .map((activity) => activity.activityId)
+        : (args.activityIds ?? []);
+
+    for (const activityId of activityIds) {
+      const existingEvaluation = await ctx.db
+        .query("activityEvaluations")
+        .withIndex("by_student_worksheet_activity", (q) =>
+          q
+            .eq("studentId", args.studentId)
+            .eq("worksheetId", args.worksheetId)
+            .eq("activityId", activityId),
+        )
+        .unique();
+
+      const legacyCompletion = await ctx.db
+        .query("activityCompletions")
+        .withIndex("by_student_worksheet_activity", (q) =>
+          q
+            .eq("studentId", args.studentId)
+            .eq("worksheetId", args.worksheetId)
+            .eq("activityId", activityId),
+        )
+        .unique();
+
+      if (legacyCompletion) {
+        await ctx.db.delete(legacyCompletion._id);
+      }
+
+      if (existingEvaluation) {
+        if (existingEvaluation.status !== "completed") {
+          await ctx.db.patch(existingEvaluation._id, {
+            status: "completed",
+            updatedBy: teacher._id,
+            updatedAt: Date.now(),
+          });
+        }
+      } else {
+        await ctx.db.insert("activityEvaluations", {
+          studentId: args.studentId,
+          worksheetId: args.worksheetId,
+          activityId,
+          status: "completed",
+          updatedBy: teacher._id,
+          updatedAt: Date.now(),
+        });
+      }
+    }
+  },
+});
+
+export const resetWorksheetActivities = mutation({
+  args: {
+    studentId: v.id("students"),
+    worksheetId: v.id("worksheets"),
+  },
+  handler: async (ctx, args) => {
+    await requireTeacher(ctx);
+
+    const evaluations = await ctx.db
+      .query("activityEvaluations")
+      .withIndex("by_student_worksheet", (q) =>
+        q.eq("studentId", args.studentId).eq("worksheetId", args.worksheetId),
+      )
+      .collect();
+    const legacyCompletions = await ctx.db
+      .query("activityCompletions")
+      .withIndex("by_student_worksheet", (q) =>
+        q.eq("studentId", args.studentId).eq("worksheetId", args.worksheetId),
+      )
+      .collect();
+
+    await Promise.all([
+      ...evaluations.map((evaluation) => ctx.db.delete(evaluation._id)),
+      ...legacyCompletions.map((completion) => ctx.db.delete(completion._id)),
+    ]);
   },
 });

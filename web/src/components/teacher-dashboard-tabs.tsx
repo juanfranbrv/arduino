@@ -5,6 +5,7 @@ import {
   ExternalLink,
   Link2,
   Layers3,
+  Map,
   UsersRound,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -20,6 +21,7 @@ import {
 
 const tabIcons = {
   seguimiento: Layers3,
+  mapa: Map,
   grupos: UsersRound,
   estructura: ArrowUpDown,
   enlaces: Link2,
@@ -27,11 +29,13 @@ const tabIcons = {
 
 export function TeacherDashboardTabs({
   groupsPanel,
+  mapPanel,
   progressPanel,
   structurePanel,
   initialTab = "seguimiento",
 }: {
   groupsPanel: ReactNode;
+  mapPanel: ReactNode;
   progressPanel: ReactNode;
   structurePanel: ReactNode;
   initialTab?: TeacherDashboardTabId;
@@ -39,6 +43,16 @@ export function TeacherDashboardTabs({
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<TeacherDashboardTabId>(initialTab);
   const activeTabMeta = teacherDashboardTabs.find((tab) => tab.id === activeTab);
+  const activePanel =
+    activeTab === "seguimiento"
+      ? progressPanel
+      : activeTab === "mapa"
+        ? mapPanel
+        : activeTab === "grupos"
+          ? groupsPanel
+          : activeTab === "estructura"
+            ? structurePanel
+            : <TeacherLinksPanel />;
 
   function selectTab(tab: TeacherDashboardTabId) {
     setActiveTab(tab);
@@ -48,7 +62,7 @@ export function TeacherDashboardTabs({
   return (
     <section className="grid gap-4">
       <div
-        className="surface-card grid gap-2 p-2 sm:grid-cols-2 xl:grid-cols-4"
+        className="surface-card grid gap-2 p-2 sm:grid-cols-2 xl:grid-cols-5"
         role="tablist"
         aria-label="Panel de profesor"
       >
@@ -108,10 +122,9 @@ export function TeacherDashboardTabs({
           </div>
         ) : null}
 
-        {activeTab === "seguimiento" ? progressPanel : null}
-        {activeTab === "grupos" ? groupsPanel : null}
-        {activeTab === "estructura" ? structurePanel : null}
-        {activeTab === "enlaces" ? <TeacherLinksPanel /> : null}
+        <div key={activeTab} className="contents">
+          {activePanel}
+        </div>
       </div>
     </section>
   );

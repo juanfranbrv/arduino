@@ -13,9 +13,10 @@ import {
 } from "./teacher-dashboard";
 
 describe("teacher dashboard navigation", () => {
-  it("exposes the four professor dashboard tabs in priority order", () => {
+  it("exposes the professor dashboard tabs in priority order", () => {
     expect(teacherDashboardTabs.map((tab) => tab.id)).toEqual([
       "seguimiento",
+      "mapa",
       "grupos",
       "estructura",
       "enlaces",

@@ -166,6 +166,150 @@ export const teacherDashboard = query({
   },
 });
 
+export const teacherCourseMap = query({
+  args: {
+    groupId: v.optional(v.id("groups")),
+  },
+  handler: async (ctx, args) => {
+    const teacher = await getCurrentUser(ctx);
+
+    if (!teacher || (teacher.role !== "teacher" && teacher.role !== "admin")) {
+      return {
+        isTeacher: false,
+        groups: [],
+        selectedGroup: null,
+        students: [],
+        worksheets: [],
+        evaluations: [],
+      };
+    }
+
+    const groups = await ctx.db
+      .query("groups")
+      .filter((q) => q.eq(q.field("createdBy"), teacher._id))
+      .collect();
+    const sortedGroups = groups.sort((a, b) => a.name.localeCompare(b.name, "es"));
+    const selectedGroup = args.groupId
+      ? sortedGroups.find((group) => group._id === args.groupId)
+      : sortedGroups[0];
+    const worksheets = (await ctx.db.query("worksheets").collect()).filter(
+      (worksheet) => worksheet.status !== "archived",
+    );
+    const sortedWorksheets = sortWorksheets(worksheets).map((worksheet, index) => ({
+      ...worksheet,
+      position: worksheet.position ?? index,
+    }));
+
+    if (!selectedGroup) {
+      return {
+        isTeacher: true,
+        groups: sortedGroups.map((group) => ({
+          _id: group._id,
+          name: group.name,
+        })),
+        selectedGroup: null,
+        students: [],
+        worksheets: sortedWorksheets.map((worksheet) => ({
+          _id: worksheet._id,
+          slug: worksheet.slug,
+          title: worksheet.title,
+          status: worksheet.status,
+          position: worksheet.position,
+          activityIds: worksheet.activityIds,
+        })),
+        evaluations: [],
+      };
+    }
+
+    const students = await ctx.db
+      .query("students")
+      .withIndex("by_group", (q) => q.eq("groupId", selectedGroup._id))
+      .collect();
+    const sortedStudents = students.sort((a, b) =>
+      a.displayName.localeCompare(b.displayName, "es"),
+    );
+    const evaluations = (
+      await Promise.all(
+        sortedStudents.map((student) =>
+          ctx.db
+            .query("activityEvaluations")
+            .withIndex("by_student_worksheet", (q) => q.eq("studentId", student._id))
+            .collect(),
+        ),
+      )
+    ).flat();
+    const legacyCompletions = (
+      await Promise.all(
+        sortedStudents.map((student) =>
+          ctx.db
+            .query("activityCompletions")
+            .withIndex("by_student_worksheet", (q) => q.eq("studentId", student._id))
+            .collect(),
+        ),
+      )
+    ).flat();
+    const evaluationKeys = new Set(
+      evaluations.map(
+        (evaluation) =>
+          `${evaluation.studentId}:${evaluation.worksheetId}:${evaluation.activityId}`,
+      ),
+    );
+    const mergedEvaluations = [
+      ...evaluations,
+      ...legacyCompletions
+        .filter(
+          (completion) =>
+            !evaluationKeys.has(
+              `${completion.studentId}:${completion.worksheetId}:${completion.activityId}`,
+            ),
+        )
+        .map((completion) => ({
+          _id: completion._id,
+          _creationTime: completion._creationTime,
+          studentId: completion.studentId,
+          worksheetId: completion.worksheetId,
+          activityId: completion.activityId,
+          status: "completed" as const,
+          updatedBy: completion.completedBy,
+          updatedAt: completion.completedAt,
+        })),
+    ];
+    const worksheetIds = new Set(sortedWorksheets.map((worksheet) => worksheet._id));
+
+    return {
+      isTeacher: true,
+      groups: sortedGroups.map((group) => ({
+        _id: group._id,
+        name: group.name,
+      })),
+      selectedGroup: {
+        _id: selectedGroup._id,
+        name: selectedGroup.name,
+      },
+      students: sortedStudents.map((student) => ({
+        _id: student._id,
+        displayName: student.displayName,
+      })),
+      worksheets: sortedWorksheets.map((worksheet) => ({
+        _id: worksheet._id,
+        slug: worksheet.slug,
+        title: worksheet.title,
+        status: worksheet.status,
+        position: worksheet.position,
+        activityIds: worksheet.activityIds,
+      })),
+      evaluations: mergedEvaluations
+        .filter((evaluation) => worksheetIds.has(evaluation.worksheetId))
+        .map((evaluation) => ({
+          studentId: evaluation.studentId,
+          worksheetId: evaluation.worksheetId,
+          activityId: evaluation.activityId,
+          status: evaluation.status,
+        })),
+    };
+  },
+});
+
 export const studentDashboard = query({
   args: {},
   handler: async (ctx) => {

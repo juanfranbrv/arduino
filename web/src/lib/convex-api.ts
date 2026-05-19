@@ -35,6 +35,27 @@ export type ConvexDashboard = {
   }>;
 };
 
+export type CourseMapDashboard = {
+  isTeacher: boolean;
+  groups: Array<{ _id: string; name: string }>;
+  selectedGroup: { _id: string; name: string } | null;
+  students: Array<{ _id: string; displayName: string }>;
+  worksheets: Array<{
+    _id: string;
+    slug: string;
+    title: string;
+    status: "draft" | "published" | "archived";
+    position: number;
+    activityIds: string[];
+  }>;
+  evaluations: Array<{
+    studentId: string;
+    worksheetId: string;
+    activityId: string;
+    status: Exclude<ActivityStatus, "pending">;
+  }>;
+};
+
 export type StudentDashboard = {
   student: { _id: string; displayName: string; groupId: string } | null;
   worksheets: Array<{
@@ -88,6 +109,11 @@ export const convexApi = {
       { groupId?: string; worksheetId?: string },
       ConvexDashboard
     >("classroom:teacherDashboard"),
+    teacherCourseMap: makeFunctionReference<
+      "query",
+      { groupId?: string },
+      CourseMapDashboard
+    >("classroom:teacherCourseMap"),
     studentDashboard: makeFunctionReference<
       "query",
       Record<string, never>,
@@ -112,10 +138,28 @@ export const convexApi = {
         studentId: string;
         worksheetId: string;
         activityId: string;
+        activityIds?: string[];
         status: ActivityStatus;
       },
       string | null
     >("progress:setActivityStatus"),
+    completeAllActivities: makeFunctionReference<
+      "mutation",
+      {
+        studentId: string;
+        worksheetId: string;
+        activityIds?: string[];
+      },
+      void
+    >("progress:completeAllActivities"),
+    resetWorksheetActivities: makeFunctionReference<
+      "mutation",
+      {
+        studentId: string;
+        worksheetId: string;
+      },
+      void
+    >("progress:resetWorksheetActivities"),
   },
   groups: {
     listForTeacher: makeFunctionReference<"query", Record<string, never>, TeacherGroup[]>(

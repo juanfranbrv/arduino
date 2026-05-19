@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useMutation, useQuery } from "convex/react";
-import { CheckCircle2, ChevronDown, Lock, UserRound, X, XCircle } from "lucide-react";
+import { CheckCircle2, CheckCheck, ChevronDown, Lock, UserRound, X, XCircle } from "lucide-react";
 
 import { authClient } from "@/lib/auth-client";
 import { convexApi } from "@/lib/convex-api";
@@ -13,13 +13,26 @@ import {
 import {
   getLastResolvedActivityId,
   getOrderedActivityStates,
+  resolveTeacherDashboardActivities,
+  type LocalTeacherProgressWorksheet,
   type OrderedActivityEvaluation,
 } from "@/lib/teacher-progress";
+import { getWorksheetDisplayTitle } from "@/lib/worksheet-display";
 
-export function TeacherProgressConvexPanel() {
+export function TeacherProgressConvexPanel({
+  initialGroupId = null,
+  initialStudentId = null,
+  initialWorksheetId = null,
+  localWorksheets = [],
+}: {
+  initialGroupId?: string | null;
+  initialStudentId?: string | null;
+  initialWorksheetId?: string | null;
+  localWorksheets?: LocalTeacherProgressWorksheet[];
+}) {
   const { data: session, isPending: sessionPending } = authClient.useSession();
-  const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
-  const [selectedWorksheetId, setSelectedWorksheetId] = useState<string | null>(null);
+  const [selectedGroupId, setSelectedGroupId] = useState<string | null>(initialGroupId);
+  const [selectedWorksheetId, setSelectedWorksheetId] = useState<string | null>(initialWorksheetId);
   const dashboardArgs = useMemo(
     () =>
       session?.user
@@ -35,7 +48,8 @@ export function TeacherProgressConvexPanel() {
     dashboardArgs,
   );
   const setActivityStatus = useMutation(convexApi.progress.setActivityStatus);
-  const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
+  const completeAllActivities = useMutation(convexApi.progress.completeAllActivities);
+  const [selectedStudentId, setSelectedStudentId] = useState<string | null>(initialStudentId);
   const [pendingActivityId, setPendingActivityId] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [isStudentPickerOpen, setIsStudentPickerOpen] = useState(false);
@@ -78,6 +92,21 @@ export function TeacherProgressConvexPanel() {
 
   const selectedStudent =
     dashboard?.students.find((student) => student._id === effectiveStudentId) ?? null;
+  const dashboardActivities = useMemo(
+    () =>
+      dashboard
+        ? resolveTeacherDashboardActivities({
+            remoteActivities: dashboard.activities,
+            selectedWorksheet: dashboard.selectedWorksheet,
+            localWorksheets,
+          })
+        : [],
+    [dashboard, localWorksheets],
+  );
+  const dashboardActivityIds = useMemo(
+    () => dashboardActivities.map((activity) => activity.activityId),
+    [dashboardActivities],
+  );
   const selectedStudentEvaluations = useMemo(
     () => (selectedStudent ? evaluationsByStudent.get(selectedStudent._id) ?? [] : []),
     [evaluationsByStudent, selectedStudent],
@@ -86,21 +115,21 @@ export function TeacherProgressConvexPanel() {
     () =>
       dashboard
         ? getOrderedActivityStates(
-            dashboard.activities.map((activity) => activity.activityId),
+            dashboardActivityIds,
             selectedStudentEvaluations,
           )
         : { states: new Map(), currentActivityId: null },
-    [dashboard, selectedStudentEvaluations],
+    [dashboard, dashboardActivityIds, selectedStudentEvaluations],
   );
   const lastResolvedActivityId = useMemo(
     () =>
       dashboard
         ? getLastResolvedActivityId(
-            dashboard.activities.map((activity) => activity.activityId),
+            dashboardActivityIds,
             selectedStudentEvaluations,
           )
         : null,
-    [dashboard, selectedStudentEvaluations],
+    [dashboard, dashboardActivityIds, selectedStudentEvaluations],
   );
 
   if (sessionPending) {
@@ -162,6 +191,7 @@ export function TeacherProgressConvexPanel() {
         studentId: selectedStudent._id,
         worksheetId: currentWorksheet._id,
         activityId,
+        activityIds: dashboardActivityIds,
         status,
       });
       setMessage(
@@ -178,10 +208,38 @@ export function TeacherProgressConvexPanel() {
     }
   }
 
+  async function handleCompleteAll() {
+    const currentWorksheet = dashboard?.selectedWorksheet;
+
+    if (!selectedStudent || !currentWorksheet) {
+      return;
+    }
+
+    setPendingActivityId("all");
+    setMessage(null);
+
+    try {
+      await completeAllActivities({
+        studentId: selectedStudent._id,
+        worksheetId: currentWorksheet._id,
+        activityIds: dashboardActivityIds,
+      });
+      setMessage(
+        `${selectedStudent.displayName}: todas las actividades marcadas como completadas.`,
+      );
+    } catch (error) {
+      setMessage(
+        error instanceof Error ? error.message : "No se han podido completar todas las actividades.",
+      );
+    } finally {
+      setPendingActivityId(null);
+    }
+  }
+
   return (
     <section className="grid gap-4">
       <section className="surface-card grid gap-4 p-4 sm:p-5">
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="grid gap-3 xl:grid-cols-[21.5rem_minmax(0,1fr)] xl:gap-9">
           <label className="form-label">
             Grupo
             <select
@@ -207,9 +265,12 @@ export function TeacherProgressConvexPanel() {
               value={effectiveWorksheetId ?? ""}
               onChange={(event) => setSelectedWorksheetId(event.target.value)}
             >
-              {dashboard.worksheets.map((worksheet) => (
+              {dashboard.worksheets.map((worksheet, index) => (
                 <option key={worksheet._id} value={worksheet._id}>
-                  {worksheet.title} · {getWorksheetPublicationStatusLabel(worksheet.status)}
+                  {getWorksheetDisplayTitle({
+                    title: worksheet.title,
+                    unitNumber: index + 1,
+                  })} · {getWorksheetPublicationStatusLabel(worksheet.status)}
                 </option>
               ))}
             </select>
@@ -228,11 +289,11 @@ export function TeacherProgressConvexPanel() {
               {dashboard.students.map((student) => {
                 const studentEvaluations = evaluationsByStudent.get(student._id) ?? [];
                 const progress = getOrderedActivityStates(
-                  dashboard.activities.map((activity) => activity.activityId),
+                  dashboardActivityIds,
                   studentEvaluations,
                 );
                 const resolvedCount = studentEvaluations.length;
-                const currentActivity = dashboard.activities.find(
+                const currentActivity = dashboardActivities.find(
                   (activity) => activity.activityId === progress.currentActivityId,
                 );
 
@@ -257,12 +318,12 @@ export function TeacherProgressConvexPanel() {
                             {student.displayName}
                           </p>
                           <p className="text-sm text-[var(--color-graphite)]">
-                            {resolvedCount}/{dashboard.activities.length} actividades resueltas
+                            {resolvedCount}/{dashboardActivities.length} actividades resueltas
                           </p>
                         </div>
                       </div>
                       <span className="badge bg-white">
-                        {currentActivity ? `Actual: ${currentActivity.order + 1}` : "Unidad cerrada"}
+                        {currentActivity ? `Actual: ${currentActivity.order + 1}` : "Unidad completada"}
                       </span>
                     </div>
                   </button>
@@ -276,13 +337,28 @@ export function TeacherProgressConvexPanel() {
               <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--color-faded-gray)] pb-4">
                 <div>
                   <p className="text-sm text-[var(--color-steel-gray)]">
-                    {dashboard.selectedWorksheet.title}
+                    {getWorksheetDisplayTitle({
+                      title: dashboard.selectedWorksheet.title,
+                      unitNumber:
+                        dashboard.worksheets.findIndex(
+                          (w) => w._id === dashboard.selectedWorksheet?._id,
+                        ) + 1,
+                    })}
                   </p>
                   <h2 className="text-2xl font-semibold text-[var(--color-midnight-ink)]">
                     {selectedStudent.displayName}
                   </h2>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    className="btn-secondary gap-2"
+                    disabled={pendingActivityId !== null}
+                    onClick={handleCompleteAll}
+                  >
+                    <CheckCheck className="size-4" />
+                    {pendingActivityId === "all" ? "Guardando..." : "Completar todas"}
+                  </button>
                   <span className="badge bg-white">
                     {getWorksheetPublicationStatusLabel(
                       dashboard.selectedWorksheet.status,
@@ -297,13 +373,13 @@ export function TeacherProgressConvexPanel() {
                     <ChevronDown className="size-4" />
                   </button>
                   <span className="badge bg-white">
-                    {dashboard.activities.length} actividades
+                    {dashboardActivities.length} actividades
                   </span>
                 </div>
               </div>
 
               <div className="grid gap-3">
-                {dashboard.activities.map((activity) => {
+                {dashboardActivities.map((activity) => {
                   const state = selectedStudentProgress.states.get(activity.activityId) ?? "locked";
                   const isCurrent = state === "pending";
                   const isCompleted = state === "completed";
@@ -363,7 +439,7 @@ export function TeacherProgressConvexPanel() {
                           <button
                             type="button"
                             className="btn-primary"
-                            disabled={pendingActivityId === activity.activityId}
+                            disabled={pendingActivityId !== null}
                             onClick={() => updateActivity(activity.activityId, "completed")}
                           >
                             <CheckCircle2 className="size-4" />
@@ -372,7 +448,7 @@ export function TeacherProgressConvexPanel() {
                           <button
                             type="button"
                             className="btn-secondary"
-                            disabled={pendingActivityId === activity.activityId}
+                            disabled={pendingActivityId !== null}
                             onClick={() => updateActivity(activity.activityId, "closed_incomplete")}
                           >
                             <XCircle className="size-4" />
@@ -384,7 +460,7 @@ export function TeacherProgressConvexPanel() {
                           <button
                             type="button"
                             className="btn-secondary"
-                            disabled={pendingActivityId === activity.activityId}
+                            disabled={pendingActivityId !== null}
                             onClick={() => updateActivity(activity.activityId, "pending")}
                           >
                             {pendingActivityId === activity.activityId ? "Guardando..." : "Reabrir"}
@@ -453,11 +529,11 @@ export function TeacherProgressConvexPanel() {
               {dashboard.students.map((student) => {
                 const studentEvaluations = evaluationsByStudent.get(student._id) ?? [];
                 const progress = getOrderedActivityStates(
-                  dashboard.activities.map((activity) => activity.activityId),
+                  dashboardActivityIds,
                   studentEvaluations,
                 );
                 const resolvedCount = studentEvaluations.length;
-                const currentActivity = dashboard.activities.find(
+                const currentActivity = dashboardActivities.find(
                   (activity) => activity.activityId === progress.currentActivityId,
                 );
 
@@ -485,12 +561,12 @@ export function TeacherProgressConvexPanel() {
                             {student.displayName}
                           </p>
                           <p className="text-sm text-[var(--color-graphite)]">
-                            {resolvedCount}/{dashboard.activities.length} actividades resueltas
+                            {resolvedCount}/{dashboardActivities.length} actividades resueltas
                           </p>
                         </div>
                       </div>
                       <span className="badge bg-[var(--color-canvas-white)]">
-                        {currentActivity ? `Actual: ${currentActivity.order + 1}` : "Unidad cerrada"}
+                        {currentActivity ? `Actual: ${currentActivity.order + 1}` : "Unidad completada"}
                       </span>
                     </div>
                   </button>

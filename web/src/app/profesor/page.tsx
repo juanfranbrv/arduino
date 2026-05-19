@@ -1,4 +1,5 @@
 import { TeacherCourseStructurePanel } from "@/components/teacher-course-structure-panel";
+import { TeacherCourseMapPanel } from "@/components/teacher-course-map-panel";
 import { TeacherDashboardTabs } from "@/components/teacher-dashboard-tabs";
 import { TeacherProgressPanel } from "@/components/teacher-progress-panel";
 import { TeacherProgressConvexPanel } from "@/components/teacher-progress-convex-panel";
@@ -10,12 +11,22 @@ import { getAllWorksheets, getPublishedWorksheets } from "@/lib/worksheets";
 export default async function TeacherPage({
   searchParams,
 }: {
-  searchParams?: Promise<{ tab?: string }>;
+  searchParams?: Promise<{
+    groupId?: string;
+    studentId?: string;
+    tab?: string;
+    worksheetId?: string;
+  }>;
 }) {
   const resolvedSearchParams = searchParams ? await searchParams : {};
   const worksheet = getPublishedWorksheets()[0];
   const localWorksheets = getAllWorksheets().map((worksheet) => ({
     activityIds: worksheet.activities.map((activity) => activity.id),
+    activities: worksheet.activities.map((activity) => ({
+      id: activity.id,
+      title: activity.title,
+      validation: activity.validation,
+    })),
     coverImage: worksheet.coverImage,
     level: worksheet.level,
     slug: worksheet.slug,
@@ -49,12 +60,26 @@ export default async function TeacherPage({
         }
         progressPanel={
           convexEnabled ? (
-            <TeacherProgressConvexPanel />
+            <TeacherProgressConvexPanel
+              initialGroupId={resolvedSearchParams.groupId ?? null}
+              initialStudentId={resolvedSearchParams.studentId ?? null}
+              initialWorksheetId={resolvedSearchParams.worksheetId ?? null}
+              localWorksheets={localWorksheets}
+            />
           ) : worksheet ? (
             <TeacherProgressPanel students={demoStudents} worksheet={worksheet} />
           ) : (
             <section className="subtle-card p-5 text-[var(--color-graphite)]">
               Publica al menos una ficha para activar el seguimiento.
+            </section>
+          )
+        }
+        mapPanel={
+          convexEnabled ? (
+            <TeacherCourseMapPanel localWorksheets={localWorksheets} />
+          ) : (
+            <section className="subtle-card p-5 text-[var(--color-graphite)]">
+              Configura Convex para ver el mapa del curso por grupo.
             </section>
           )
         }
