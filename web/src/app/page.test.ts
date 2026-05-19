@@ -56,4 +56,10 @@ describe("home worksheet cards", () => {
   it("keeps the Arduino section CTAs at the standard button height", () => {
     expect(pageSource).toContain('className="flex flex-wrap items-start gap-3"');
   });
+
+  it("shows the WhatsApp contact number next to the phone number", () => {
+    expect(pageSource).toContain("WhatsappIcon");
+    expect(pageSource).toContain('href="https://wa.me/34601169728"');
+    expect(pageSource).toContain("601 16 97 28");
+  });
 });

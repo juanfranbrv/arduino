@@ -5,7 +5,7 @@ import { TeacherProgressConvexPanel } from "@/components/teacher-progress-convex
 import { TeacherGroupsPanel } from "@/components/teacher-groups-panel";
 import { demoStudents } from "@/lib/demo-classroom";
 import { getTeacherDashboardTabFromParam } from "@/lib/teacher-dashboard";
-import { getPublishedWorksheets } from "@/lib/worksheets";
+import { getAllWorksheets, getPublishedWorksheets } from "@/lib/worksheets";
 
 export default async function TeacherPage({
   searchParams,
@@ -14,6 +14,14 @@ export default async function TeacherPage({
 }) {
   const resolvedSearchParams = searchParams ? await searchParams : {};
   const worksheet = getPublishedWorksheets()[0];
+  const localWorksheets = getAllWorksheets().map((worksheet) => ({
+    activityIds: worksheet.activities.map((activity) => activity.id),
+    coverImage: worksheet.coverImage,
+    level: worksheet.level,
+    slug: worksheet.slug,
+    status: worksheet.status,
+    title: worksheet.title,
+  }));
   const convexEnabled = Boolean(process.env.NEXT_PUBLIC_CONVEX_URL);
   const initialTab = getTeacherDashboardTabFromParam(
     resolvedSearchParams.tab ?? null,
@@ -52,7 +60,7 @@ export default async function TeacherPage({
         }
         structurePanel={
           convexEnabled ? (
-            <TeacherCourseStructurePanel />
+            <TeacherCourseStructurePanel localWorksheets={localWorksheets} />
           ) : (
             <section className="subtle-card p-5 text-[var(--color-graphite)]">
               Configura Convex para gestionar el orden y el estado de las unidades.

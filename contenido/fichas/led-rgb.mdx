@@ -1,13 +1,424 @@
 ---
 unitNumber: 3
-title: Led RGB
+title: LED RGB
 slug: led-rgb
 level: iniciacion
-duration: 55 min
-status: draft
-prerequisites: []
-summary: Unidad pendiente de desarrollo.
-coverImage: /worksheet-placeholder.svg
-preview: []
-materials: []
+duration: 90 min
+status: published
+prerequisites:
+  - leds-paralelo-serie-resistencia
+summary: "Control de un LED RGB como tres LED dentro de un mismo componente: mezcla de colores, tres resistencias, bucles y botones para mostrar estados."
+coverImage: /worksheets/led-rgb-cover.png
+preview:
+  - Un LED alimentado a 5V en el simulador para discutir de dónde sale su color.
+  - LED RGB conectado a los pines PWM 9, 10 y 11 para crear rojo, verde, azul, amarillo, magenta, cian y blanco.
+  - Uso de bucles, variables y botones para convertir el RGB en un indicador de estado.
+materials:
+  - Arduino Uno o Elegoo Mega
+  - Protoboard
+  - LED de 5 mm para simulador
+  - LED RGB de 4 patas
+  - 3 resistencias de 220 ohm
+  - 3 pulsadores
+  - Cables dupont
 ---
+
+Un LED RGB concentra tres LED dentro del mismo encapsulado: rojo, verde y azul. Cada color se controla por una pata distinta y los tres comparten una pata común. Al encender varios canales a la vez aparece una mezcla de luz: rojo y verde producen amarillo; rojo y azul, magenta; verde y azul, cian; los tres juntos producen blanco.
+
+En el kit Elegoo se trabaja como si el RGB fueran tres LED independientes. Por eso cada canal necesita su propia resistencia de `220 ohm`. La pata común puede ser de dos tipos: en un RGB de cátodo común va a `GND`; en uno de ánodo común va a `5V` y la lógica queda invertida.
+
+![Cableado del LED RGB de la lección 4 de Elegoo](/fichas/led-rgb/leccion-04-cableado-rgb.png)
+
+<KeyConcept title="Tres canales, un solo indicador">
+Un LED RGB es útil para mostrar estados de un sistema: verde para correcto, amarillo para aviso, rojo para problema. La misma idea aparece después con sensores de temperatura, luz, distancia o inclinación.
+</KeyConcept>
+
+### Pines PWM y brillo
+
+Algunos pines digitales de Arduino tienen el símbolo `~`. Esos pines pueden usar PWM, que significa modulación por ancho de pulso. No entregan un voltaje intermedio real: cambian muy rápido entre `0V` y `5V`, aproximadamente cientos de veces por segundo.
+
+Si el pin está a `5V` poco tiempo y a `0V` casi todo el ciclo, el LED parece tenue. Si está a `5V` la mitad del tiempo, parece tener un brillo medio. Si está a `5V` casi todo el ciclo, parece muy brillante. El ojo no ve los parpadeos porque ocurren muy deprisa; percibe un brillo promedio.
+
+En Arduino se controla con `analogWrite(pin, valor)`, donde `valor` va de `0` a `255`:
+
+- `analogWrite(pin, 0)` mantiene el LED apagado.
+- `analogWrite(pin, 127)` lo mantiene encendido aproximadamente la mitad del tiempo.
+- `analogWrite(pin, 255)` lo mantiene encendido casi todo el tiempo.
+
+![Infografía PWM y brillo de un LED](/fichas/led-rgb/pwm-brillo-led.png)
+
+En esta unidad el LED RGB se conecta a los pines `9`, `10` y `11`, que son PWM. Para crear colores básicos usaremos `HIGH` y `LOW`, pero esos mismos pines permiten después regular la intensidad de cada canal con `analogWrite()`.
+
+<Activity id="act-01" title="Encender un LED a 5V en el simulador" validation="En Tinkercad, el alumno monta un LED con resistencia entre 5V y GND, observa que aparece blanco si el componente elegido es blanco y explica que el color lo determina el LED, no el pin de 5V." environment="simulador">
+
+Monta un circuito básico en el simulador:
+
+```text
+5V -> resistencia 220 ohm -> LED -> GND
+```
+
+El Arduino solo actúa como fuente de alimentación. No hace falta código.
+
+Pasos:
+
+1. Coloca un Arduino y una protoboard en Tinkercad.
+2. Lleva `5V` al carril positivo y `GND` al carril negativo.
+3. Coloca un LED de 5 mm.
+4. Conecta una resistencia de `220 ohm` en serie con el LED.
+5. Inicia la simulación.
+
+Si el LED sale blanco, la explicación no está en el programa: ese componente del simulador está configurado como LED blanco. Un LED normal tiene un color físico concreto. Al alimentarlo correctamente con `5V`, resistencia y polaridad correcta, emite su propio color.
+
+<KeyConcept title="5V no significa blanco">
+El pin `5V` solo entrega tensión. El color depende del tipo de LED. En un LED RGB, el blanco aparece cuando rojo, verde y azul se encienden a la vez.
+</KeyConcept>
+
+<OptionalChallenge>
+Cambia el color del LED en las propiedades de Tinkercad y repite la simulación. El montaje eléctrico no cambia, pero el color sí.
+</OptionalChallenge>
+
+</Activity>
+
+<Activity id="act-02" title="Montar un LED RGB en los pines 9, 10 y 11" validation="En el simulador, el LED RGB queda conectado con una resistencia por canal y responde a los pines 9, 10 y 11 mostrando rojo, verde y azul por separado." environment="simulador">
+
+Ahora monta el RGB como tres LED dentro del mismo componente. Usa un LED RGB de cátodo común si el simulador lo permite.
+
+Conexiones:
+
+![Montaje de un LED RGB en simulador](/fichas/led-rgb/led-5v-simulador.png)
+
+```text
+Pata común del RGB -> GND
+Canal rojo  -> resistencia 220 ohm -> pin 9
+Canal verde -> resistencia 220 ohm -> pin 10
+Canal azul  -> resistencia 220 ohm -> pin 11
+```
+
+Cada canal lleva su propia resistencia. No compartas una sola resistencia para los tres colores.
+
+Código de prueba:
+
+```cpp
+// Ficha 04 - Actividad 2: probar los tres canales del LED RGB
+
+const int PIN_ROJO  = 9;
+const int PIN_VERDE = 10;
+const int PIN_AZUL  = 11;
+
+void setup() {
+  pinMode(PIN_ROJO, OUTPUT);
+  pinMode(PIN_VERDE, OUTPUT);
+  pinMode(PIN_AZUL, OUTPUT);
+}
+
+void loop() {
+  digitalWrite(PIN_ROJO, HIGH);
+  digitalWrite(PIN_VERDE, LOW);
+  digitalWrite(PIN_AZUL, LOW);
+  delay(1000);
+
+  digitalWrite(PIN_ROJO, LOW);
+  digitalWrite(PIN_VERDE, HIGH);
+  digitalWrite(PIN_AZUL, LOW);
+  delay(1000);
+
+  digitalWrite(PIN_ROJO, LOW);
+  digitalWrite(PIN_VERDE, LOW);
+  digitalWrite(PIN_AZUL, HIGH);
+  delay(1000);
+}
+```
+
+Si al pedir rojo aparece azul, no es un fallo de Arduino: los cables de los canales están intercambiados. Corrige el cableado o cambia las constantes del programa.
+
+<WatchOut>
+La pata común del RGB suele ser la más larga. Si el componente es de ánodo común, la pata común va a `5V` y los colores se encienden escribiendo `LOW`, no `HIGH`.
+</WatchOut>
+
+</Activity>
+
+<Activity id="act-03" title="Montar el LED RGB en la placa Arduino" validation="En la protoboard real, el LED RGB queda conectado con una resistencia por canal y reproduce rojo, verde y azul con el código de prueba." environment="placa">
+
+Repite el circuito anterior en la placa real. Mantén la misma asignación de pines para que el código del simulador sirva también en Arduino.
+
+Conexiones:
+
+```text
+Pata común del RGB -> GND
+Canal rojo  -> resistencia 220 ohm -> pin 9
+Canal verde -> resistencia 220 ohm -> pin 10
+Canal azul  -> resistencia 220 ohm -> pin 11
+```
+
+Pasos:
+
+1. Desconecta el USB antes de montar.
+2. Coloca el LED RGB en la protoboard dejando cada pata en una fila distinta.
+3. Identifica la pata común. Si es un RGB de cátodo común, conéctala a `GND`.
+4. Coloca una resistencia de `220 ohm` en cada canal: rojo, verde y azul.
+5. Conecta las resistencias a los pines `9`, `10` y `11`.
+6. Conecta el USB, sube el código de prueba de la actividad 2 y observa los tres colores.
+
+Si un color no coincide con el comentario del programa, intercambia el cable de ese canal o corrige la constante correspondiente. Lo importante es que cada color interno responda por separado y que no haya ningún canal sin resistencia.
+
+<WatchOut>
+No conectes las tres patas de color directamente a los pines. Cada canal del RGB es un LED independiente y necesita su propia resistencia.
+</WatchOut>
+
+</Activity>
+
+<Activity id="act-04" title="Programar siete colores básicos" validation="El LED RGB muestra en orden rojo, verde, azul, amarillo, magenta, cian y blanco usando combinaciones de los tres canales." environment="placa">
+
+Con los tres canales funcionando, crea una función para no repetir tantas líneas. En esta actividad los valores son digitales: `HIGH` significa canal encendido y `LOW` significa canal apagado.
+
+```cpp
+// Ficha 04 - Actividad 4: siete colores con un LED RGB
+
+const int PIN_ROJO  = 9;
+const int PIN_VERDE = 10;
+const int PIN_AZUL  = 11;
+
+void setup() {
+  pinMode(PIN_ROJO, OUTPUT);
+  pinMode(PIN_VERDE, OUTPUT);
+  pinMode(PIN_AZUL, OUTPUT);
+}
+
+void color(int rojo, int verde, int azul) {
+  digitalWrite(PIN_ROJO, rojo);
+  digitalWrite(PIN_VERDE, verde);
+  digitalWrite(PIN_AZUL, azul);
+}
+
+void loop() {
+  color(HIGH, LOW,  LOW);  delay(1000); // rojo
+  color(LOW,  HIGH, LOW);  delay(1000); // verde
+  color(LOW,  LOW,  HIGH); delay(1000); // azul
+
+  color(HIGH, HIGH, LOW);  delay(1000); // amarillo
+  color(HIGH, LOW,  HIGH); delay(1000); // magenta
+  color(LOW,  HIGH, HIGH); delay(1000); // cian
+  color(HIGH, HIGH, HIGH); delay(1000); // blanco
+}
+```
+
+La mezcla es aditiva: se suman luces. Por eso rojo más verde no da marrón como en pintura, sino amarillo.
+
+<KeyConcept title="Blanco en RGB">
+El blanco aparece cuando los tres canales emiten luz a la vez. En una pantalla ocurre lo mismo a escala microscópica: cada píxel combina rojo, verde y azul.
+</KeyConcept>
+
+</Activity>
+
+<Activity id="act-05" title="Crear una transición suave con bucles" validation="El LED RGB cambia suavemente de rojo a verde, de verde a azul y de azul a rojo usando bucles y analogWrite." environment="placa">
+
+Ahora los pines PWM se aprovechan de verdad. En lugar de saltar de un color a otro, el programa cambia poco a poco la intensidad de cada canal con `analogWrite()`.
+
+```cpp
+// Ficha 04 - Actividad 5: Transición suave de rojo a verde
+
+const int PIN_R = 9, PIN_G = 10, PIN_B = 11;
+
+void setup() {
+  pinMode(PIN_R, OUTPUT);
+  pinMode(PIN_G, OUTPUT);
+  pinMode(PIN_B, OUTPUT);
+}
+
+void loop() {
+  // Rojo -> Verde
+  for (int i = 0; i <= 255; i++) {
+    analogWrite(PIN_R, 255 - i);   // el rojo se apaga
+    analogWrite(PIN_G, i);         // el verde se enciende
+    analogWrite(PIN_B, 0);
+    delay(15);
+  }
+
+  // Verde -> Azul
+  for (int i = 0; i <= 255; i++) {
+    analogWrite(PIN_R, 0);
+    analogWrite(PIN_G, 255 - i);
+    analogWrite(PIN_B, i);
+    delay(15);
+  }
+
+  // Azul -> Rojo
+  for (int i = 0; i <= 255; i++) {
+    analogWrite(PIN_R, i);
+    analogWrite(PIN_G, 0);
+    analogWrite(PIN_B, 255 - i);
+    delay(15);
+  }
+}
+```
+
+Cada bucle mueve dos canales a la vez: uno baja de `255` a `0` y otro sube de `0` a `255`. Así aparece una transición continua entre colores.
+
+<OptionalChallenge>
+Cambia `delay(15)` por `delay(5)` y después por `delay(40)`. Compara cómo cambia la velocidad de la transición.
+</OptionalChallenge>
+
+</Activity>
+
+<Activity id="act-06" title="Mostrar un estado con verde, amarillo y rojo" validation="Al cambiar la variable de prueba a 0, 50 o 100, el LED RGB muestra verde, amarillo o rojo respectivamente." environment="placa">
+
+Un RGB sirve como indicador. En próximas unidades una variable podrá venir de un sensor; aquí se escribe a mano para probar la lógica.
+
+Regla:
+
+- `valor = 0` muestra verde.
+- `valor = 50` muestra amarillo.
+- `valor = 100` muestra rojo.
+
+```cpp
+// Ficha 04 - Actividad 6: indicador verde, amarillo y rojo
+
+const int PIN_ROJO  = 9;
+const int PIN_VERDE = 10;
+const int PIN_AZUL  = 11;
+
+int valor = 0; // prueba con 0, 50 y 100
+
+void setup() {
+  pinMode(PIN_ROJO, OUTPUT);
+  pinMode(PIN_VERDE, OUTPUT);
+  pinMode(PIN_AZUL, OUTPUT);
+}
+
+void color(int rojo, int verde, int azul) {
+  digitalWrite(PIN_ROJO, rojo);
+  digitalWrite(PIN_VERDE, verde);
+  digitalWrite(PIN_AZUL, azul);
+}
+
+void loop() {
+  if (valor == 0) {
+    color(LOW, HIGH, LOW);    // verde
+  } else if (valor == 50) {
+    color(HIGH, HIGH, LOW);   // amarillo
+  } else if (valor == 100) {
+    color(HIGH, LOW, LOW);    // rojo
+  } else {
+    color(LOW, LOW, LOW);     // valor no previsto
+  }
+}
+```
+
+Cambia la línea `int valor = 0;` por `int valor = 50;` y después por `int valor = 100;`. Sube el programa cada vez y comprueba el color.
+
+<KeyConcept title="Una variable puede representar una lectura">
+Hoy `valor` se escribe a mano. Más adelante puede venir de un sensor. El RGB convierte ese número en una señal visual rápida.
+</KeyConcept>
+
+<OptionalChallenge>
+Cambia las condiciones para que el programa acepte rangos: verde de `0` a `40`, amarillo de `41` a `70` y rojo de `71` a `100`.
+</OptionalChallenge>
+
+</Activity>
+
+<Activity id="act-07" title="Elegir color con tres botones" validation="Tres pulsadores controlan el RGB: un botón muestra rojo, otro verde y otro amarillo; al soltar todos, el LED queda apagado." environment="simulador">
+
+Añade tres pulsadores para elegir el color manualmente. Usa `INPUT_PULLUP`: cada botón conecta su pin a `GND` al pulsar.
+
+Conexiones de botones:
+
+```text
+Botón rojo     -> pin 2 y GND
+Botón verde    -> pin 4 y GND
+Botón amarillo -> pin 6 y GND
+```
+
+El RGB conserva sus conexiones:
+
+```text
+Rojo  -> pin 9
+Verde -> pin 10
+Azul  -> pin 11
+Común -> GND
+```
+
+```cpp
+// Ficha 04 - Actividad 7: tres botones para elegir color
+
+const int PIN_ROJO  = 9;
+const int PIN_VERDE = 10;
+const int PIN_AZUL  = 11;
+
+const int BOTON_ROJO     = 2;
+const int BOTON_VERDE    = 4;
+const int BOTON_AMARILLO = 6;
+
+void setup() {
+  pinMode(PIN_ROJO, OUTPUT);
+  pinMode(PIN_VERDE, OUTPUT);
+  pinMode(PIN_AZUL, OUTPUT);
+
+  pinMode(BOTON_ROJO, INPUT_PULLUP);
+  pinMode(BOTON_VERDE, INPUT_PULLUP);
+  pinMode(BOTON_AMARILLO, INPUT_PULLUP);
+}
+
+void color(int rojo, int verde, int azul) {
+  digitalWrite(PIN_ROJO, rojo);
+  digitalWrite(PIN_VERDE, verde);
+  digitalWrite(PIN_AZUL, azul);
+}
+
+void loop() {
+  if (digitalRead(BOTON_ROJO) == LOW) {
+    color(HIGH, LOW, LOW);
+  } else if (digitalRead(BOTON_VERDE) == LOW) {
+    color(LOW, HIGH, LOW);
+  } else if (digitalRead(BOTON_AMARILLO) == LOW) {
+    color(HIGH, HIGH, LOW);
+  } else {
+    color(LOW, LOW, LOW);
+  }
+}
+```
+
+El orden importa: si se pulsan varios botones a la vez, gana el primer caso que aparece en el `if`.
+
+<OptionalChallenge>
+Modifica el programa para que al pulsar los tres botones a la vez aparezca blanco.
+</OptionalChallenge>
+
+</Activity>
+
+<Activity id="act-08" title="Montar los tres botones en la placa Arduino" validation="En la placa real, tres pulsadores conectados a los pines 2, 4 y 6 controlan el RGB: rojo, verde y amarillo." environment="placa">
+
+Lleva el circuito de la actividad 7 a la protoboard real. El LED RGB ya estaba montado en los pines `9`, `10` y `11`; ahora añades tres pulsadores para elegir el color.
+
+Conexiones de botones:
+
+```text
+Botón rojo     -> pin 2 y GND
+Botón verde    -> pin 4 y GND
+Botón amarillo -> pin 6 y GND
+```
+
+El RGB conserva sus conexiones:
+
+```text
+Rojo  -> pin 9
+Verde -> pin 10
+Azul  -> pin 11
+Común -> GND
+```
+
+Pasos:
+
+1. Desconecta el USB.
+2. Mantén el LED RGB y sus tres resistencias como en la actividad 3.
+3. Coloca tres pulsadores en la protoboard, atravesando la ranura central.
+4. Conecta un lado de cada pulsador a `GND`.
+5. Conecta el otro lado a los pines `2`, `4` y `6`.
+6. Sube el código de la actividad 7 y prueba los botones uno a uno.
+
+Con `INPUT_PULLUP`, el botón se lee al revés: `LOW` significa pulsado. Si un botón no responde, revisa que sus patas estén en lados opuestos de la protoboard y que comparta `GND` con Arduino.
+
+<OptionalChallenge>
+Marca los tres botones con cinta o etiquetas pequeñas: rojo, verde y amarillo. Así será más fácil comprobar si el programa responde al botón correcto.
+</OptionalChallenge>
+
+</Activity>

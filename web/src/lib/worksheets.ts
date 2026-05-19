@@ -14,6 +14,7 @@ export type WorksheetActivity = {
   id: string;
   title: string;
   validation: string;
+  environment?: "simulador" | "placa";
 };
 
 export type Worksheet = {
@@ -201,11 +202,21 @@ function extractActivities(body: string): WorksheetActivity[] {
   return Array.from(activityTags).map((tag) => {
     const props = parseProps(tag[1]);
 
-    return {
+    const environment =
+      props.environment === "simulador" || props.environment === "placa"
+        ? props.environment
+        : undefined;
+    const activity: WorksheetActivity = {
       id: props.id ?? "",
       title: props.title ?? "",
       validation: props.validation ?? "",
     };
+
+    if (environment) {
+      activity.environment = environment;
+    }
+
+    return activity;
   });
 }
 

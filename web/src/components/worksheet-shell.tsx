@@ -73,6 +73,11 @@ export function WorksheetShell({
                   id={String(props.id)}
                   title={String(props.title)}
                   validation={String(props.validation)}
+                  environment={
+                    props.environment === "simulador" || props.environment === "placa"
+                      ? props.environment
+                      : undefined
+                  }
                   status={displayStates.states.get(String(props.id)) ?? "locked"}
                   studentView
                 >

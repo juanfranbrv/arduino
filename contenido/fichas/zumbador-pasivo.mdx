@@ -6,8 +6,201 @@ level: iniciacion
 duration: 55 min
 status: draft
 prerequisites: []
-summary: Unidad pendiente de desarrollo.
-coverImage: /worksheet-placeholder.svg
-preview: []
-materials: []
+summary: "Un zumbador pasivo no suena por si solo con una tension fija: necesita que Arduino genere una frecuencia. Esa diferencia permite crear tonos, melodias sencillas y sirenas programadas."
+coverImage: /worksheets/zumbador-pasivo-cover.png
+preview:
+  - Melodia sencilla con un zumbador pasivo usando tone().
+  - Sonido controlado por un pulsador.
+  - Sirena de policia con dos LED y boton de encendido.
+materials:
+  - Arduino Uno o Elegoo Mega
+  - Protoboard
+  - Zumbador pasivo
+  - 2 LED
+  - 2 resistencias de 220 ohm
+  - Pulsador
+  - Cables dupont
 ---
+
+![Infografia sobre zumbador activo y pasivo](/fichas/zumbador-activo/zumbador-activo-infografia.png)
+
+Un zumbador pasivo se parece mucho por fuera a un zumbador activo, pero por dentro se comporta de otra forma. El activo lleva un circuito que genera el sonido por si mismo; el pasivo necesita que Arduino le envie una senal que sube y baja muchas veces por segundo.
+
+Eso cambia la forma de usarlo. Si conectas un zumbador pasivo directamente entre `5V` y `GND`, no toca una melodia: como mucho puede hacer un clic o un sonido muy debil al conectar. Para obtener notas hay que conectarlo a un pin digital y usar `tone(pin, frecuencia)`.
+
+<KeyConcept title="Frecuencia significa nota">
+Una nota grave usa una frecuencia baja. Una nota aguda usa una frecuencia alta. Con `tone()` Arduino genera esa vibracion y el zumbador pasivo la convierte en sonido.
+</KeyConcept>
+
+<Activity id="act-01" title="Tocar Cumpleanos feliz con tone()" validation="El zumbador reproduce una melodia reconocible de Cumpleanos feliz al cargar el programa." environment="placa">
+
+Monta el zumbador pasivo en la protoboard:
+
+- pata `+` del zumbador al pin `8`
+- pata `-` del zumbador a `GND`
+
+La placa Arduino se alimenta por USB y trabaja a `5V`, pero el zumbador no va directo a `5V`: el pin `8` genera las notas.
+
+Sube este programa:
+
+```cpp
+// Ficha 06 - Actividad 1: Cumpleanos feliz con zumbador pasivo
+
+const int PIN_BUZZER = 8;
+
+const int DO4 = 262;
+const int RE4 = 294;
+const int MI4 = 330;
+const int FA4 = 349;
+const int SOL4 = 392;
+const int LA4 = 440;
+const int SI4 = 494;
+const int DO5 = 523;
+
+int melodia[] = {
+  DO4, DO4, RE4, DO4, FA4, MI4,
+  DO4, DO4, RE4, DO4, SOL4, FA4,
+  DO4, DO4, DO5, LA4, FA4, MI4, RE4,
+  SI4, SI4, LA4, FA4, SOL4, FA4
+};
+
+int duraciones[] = {
+  4, 4, 2, 2, 2, 1,
+  4, 4, 2, 2, 2, 1,
+  4, 4, 2, 2, 2, 2, 1,
+  4, 4, 2, 2, 2, 1
+};
+
+void setup() {
+  for (int i = 0; i < 25; i++) {
+    int duracionNota = 1000 / duraciones[i];
+    tone(PIN_BUZZER, melodia[i], duracionNota);
+    delay(duracionNota * 1.35);
+    noTone(PIN_BUZZER);
+  }
+}
+
+void loop() {
+  // La melodia se toca una vez al iniciar.
+}
+```
+
+Si quieres repetir la cancion, pulsa el boton `RESET` de la placa o mueve el bloque del `for` al `loop()`.
+
+<WatchOut>
+Si el zumbador no suena, revisa que no sea activo. En esta actividad interesa el pasivo, porque permite generar notas diferentes.
+</WatchOut>
+
+</Activity>
+
+<Activity id="act-02" title="Hacer sonar el zumbador al pulsar un boton" validation="El zumbador solo emite un tono mientras el pulsador esta presionado." environment="placa">
+
+Mantén el zumbador en el pin `8` y añade un pulsador:
+
+- un lado del pulsador al pin `2`
+- el otro lado del pulsador a `GND`
+
+El programa usa `INPUT_PULLUP`, asi que no hace falta resistencia externa para el boton.
+
+```cpp
+// Ficha 06 - Actividad 2: Sonido sencillo con pulsador
+
+const int PIN_BUZZER = 8;
+const int PIN_BOTON = 2;
+
+void setup() {
+  pinMode(PIN_BOTON, INPUT_PULLUP);
+}
+
+void loop() {
+  if (digitalRead(PIN_BOTON) == LOW) {
+    tone(PIN_BUZZER, 880);   // La 4, un tono agudo
+  } else {
+    noTone(PIN_BUZZER);
+  }
+}
+```
+
+Con `INPUT_PULLUP`, el boton funciona al reves de lo que parece al principio:
+
+- suelto lee `HIGH`
+- pulsado lee `LOW`
+
+<OptionalChallenge>
+Cambia `880` por `440`, `660` o `1200` y compara como cambia el sonido.
+</OptionalChallenge>
+
+</Activity>
+
+<Activity id="act-03" title="Construir una sirena de policia con dos LED" validation="Un boton activa y desactiva la sirena; cuando esta activa, el tono cambia y los dos LED alternan rojo y azul." environment="placa">
+
+Mantén:
+
+- zumbador pasivo en el pin `8`
+- pulsador entre pin `2` y `GND`
+
+Añade dos LED con sus resistencias:
+
+- anodo del LED rojo al pin `10` pasando por una resistencia de `220 ohm`
+- catodo del LED rojo a `GND`
+- anodo del LED azul al pin `11` pasando por una resistencia de `220 ohm`
+- catodo del LED azul a `GND`
+
+Sube este programa:
+
+```cpp
+// Ficha 06 - Actividad 3: Sirena de policia con boton
+
+const int PIN_BUZZER = 8;
+const int PIN_BOTON = 2;
+const int PIN_LED_ROJO = 10;
+const int PIN_LED_AZUL = 11;
+
+bool sirenaActiva = false;
+bool ultimoBoton = HIGH;
+
+void setup() {
+  pinMode(PIN_BOTON, INPUT_PULLUP);
+  pinMode(PIN_LED_ROJO, OUTPUT);
+  pinMode(PIN_LED_AZUL, OUTPUT);
+}
+
+void loop() {
+  bool boton = digitalRead(PIN_BOTON);
+
+  if (ultimoBoton == HIGH && boton == LOW) {
+    sirenaActiva = !sirenaActiva;
+    delay(200); // pausa pequena para evitar rebotes del pulsador
+  }
+
+  ultimoBoton = boton;
+
+  if (sirenaActiva) {
+    digitalWrite(PIN_LED_ROJO, HIGH);
+    digitalWrite(PIN_LED_AZUL, LOW);
+    tone(PIN_BUZZER, 700);
+    delay(250);
+
+    digitalWrite(PIN_LED_ROJO, LOW);
+    digitalWrite(PIN_LED_AZUL, HIGH);
+    tone(PIN_BUZZER, 1200);
+    delay(250);
+  } else {
+    noTone(PIN_BUZZER);
+    digitalWrite(PIN_LED_ROJO, LOW);
+    digitalWrite(PIN_LED_AZUL, LOW);
+  }
+}
+```
+
+El boton no tiene que mantenerse pulsado. Una pulsacion enciende la sirena y otra pulsacion la apaga.
+
+<KeyConcept title="Un estado se guarda en una variable">
+La variable `sirenaActiva` recuerda si el sistema esta encendido o apagado. El boton no alimenta directamente la sirena: solo cambia el valor de esa variable.
+</KeyConcept>
+
+<OptionalChallenge>
+Haz que el sonido suba poco a poco de `700` a `1200` usando un bucle `for`, y despues baje de `1200` a `700`.
+</OptionalChallenge>
+
+</Activity>

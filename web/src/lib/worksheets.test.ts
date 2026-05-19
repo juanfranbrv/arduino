@@ -23,7 +23,7 @@ materials:
 
 # LED intermitente
 
-<Activity id="act-01" title="Monta el circuito" validation="El LED queda conectado con resistencia." />
+<Activity id="act-01" title="Monta el circuito" validation="El LED queda conectado con resistencia." environment="placa" />
 
 Texto entre medias.
 
@@ -31,6 +31,7 @@ Texto entre medias.
   id="act-02"
   title="Carga el programa"
   validation="El LED parpadea cada segundo."
+  environment="simulador"
 />
 `;
 
@@ -49,11 +50,13 @@ Texto entre medias.
         id: "act-01",
         title: "Monta el circuito",
         validation: "El LED queda conectado con resistencia.",
+        environment: "placa",
       },
       {
         id: "act-02",
         title: "Carga el programa",
         validation: "El LED parpadea cada segundo.",
+        environment: "simulador",
       },
     ]);
   });
@@ -162,10 +165,10 @@ describe("local worksheet catalog", () => {
       },
       {
         unitNumber: 3,
-        title: "Led RGB",
+        title: "LED RGB",
         slug: "led-rgb",
-        activities: 0,
-        status: "draft",
+        activities: 8,
+        status: "published",
       },
       {
         unitNumber: 4,
@@ -185,7 +188,7 @@ describe("local worksheet catalog", () => {
         unitNumber: 6,
         title: "Zumbador pasivo",
         slug: "zumbador-pasivo",
-        activities: 0,
+        activities: 3,
         status: "draft",
       },
       {

@@ -26,7 +26,7 @@ materials:
 
 Arduino combina electrónica y programación en una placa pequeña que puede leer señales del mundo físico y controlar salidas. En esta primera unidad se prepara el entorno de trabajo y se hace el primer recorrido completo: reconocer componentes, cargar un programa y montar un LED externo protegido por una resistencia.
 
-<Activity id="act-01" title="Explorar el kit de Arduino" validation="El alumno identifica en su mesa la placa Arduino, la protoboard, varios LED, resistencias y cables dupont.">
+<Activity id="act-01" title="Explorar el kit de Arduino" validation="El alumno identifica en su mesa la placa Arduino, la protoboard, varios LED, resistencias y cables dupont." environment="placa">
 
 ![Kit completo Elegoo Mega 2560](https://eu.elegoo.com/cdn/shop/files/elegoo-mega-2560-the-most-complete-starter-kit-compatible-with-arduino-ide-arduino-stem-kits-elegoo-shop-371228_7fe4d541-4105-4866-ad0a-b0a1ce34bb79.jpg?crop=center&v=1710985648&width=1220)
 
@@ -38,7 +38,7 @@ Haz una comprobación rápida con el profesor: señala cada pieza y di para qué
 
 </Activity>
 
-<Activity id="act-02" title="Preparar el Arduino IDE" validation="El Arduino IDE se abre correctamente y muestra una placa y un puerto seleccionados en el menu Herramientas.">
+<Activity id="act-02" title="Preparar el Arduino IDE" validation="El Arduino IDE se abre correctamente y muestra una placa y un puerto seleccionados en el menu Herramientas." environment="placa">
 
 Para programar Arduino se usa el Arduino IDE. Es el programa desde el que se escribe el código, se compila y se envía a la placa por USB.
 
@@ -59,7 +59,7 @@ Cuando el IDE detecta la placa, el equipo queda listo para subir programas.
 
 </Activity>
 
-<Activity id="act-03" title="Cargar Blink en el LED integrado" validation="El LED integrado marcado como L parpadea con un ritmo visible después de subir el programa.">
+<Activity id="act-03" title="Cargar Blink en el LED integrado" validation="El LED integrado marcado como L parpadea con un ritmo visible después de subir el programa." environment="placa">
 
 Blink es el primer programa clásico de Arduino. Hace parpadear el LED integrado de la placa, normalmente marcado con la letra `L` y conectado internamente al pin digital `13`.
 
@@ -106,7 +106,7 @@ Abre el ejemplo oficial desde `Archivo > Ejemplos > 01.Basics > Blink` y compár
 
 </Activity>
 
-<Activity id="act-04" title="Crear un circuito en Tinkercad" validation="El alumno crea en Tinkercad un LED conectado sin resistencia, observa el fallo en la simulación y después corrige el circuito añadiendo una resistencia en serie.">
+<Activity id="act-04" title="Crear un circuito en Tinkercad" validation="El alumno crea en Tinkercad un LED conectado sin resistencia, observa el fallo en la simulación y después corrige el circuito añadiendo una resistencia en serie." environment="simulador">
 
 Tinkercad permite simular circuitos desde el navegador. Es útil para probar conexiones antes de montarlas en la protoboard real y para detectar errores sin riesgo de dañar componentes.
 
@@ -143,7 +143,7 @@ Tinkercad ayuda a ensayar ideas y revisar conexiones. Después, el mismo circuit
 
 </Activity>
 
-<Activity id="act-05" title="Encender un LED externo con resistencia" validation="En Tinkercad, el LED externo se enciende al conectar 5V, resistencia, LED y GND en serie; la resistencia está ajustada a 220 ohm.">
+<Activity id="act-05" title="Encender un LED externo con resistencia" validation="En Tinkercad, el LED externo se enciende al conectar 5V, resistencia, LED y GND en serie; la resistencia está ajustada a 220 ohm." environment="simulador">
 
 El LED integrado ya está preparado en la placa. Ahora el circuito usa un LED externo con una resistencia. La resistencia es obligatoria porque limita la corriente y protege el LED.
 

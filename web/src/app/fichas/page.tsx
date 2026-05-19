@@ -48,9 +48,6 @@ export default async function WorksheetsPage() {
               <p className="text-sm leading-[1.56] text-[var(--color-graphite)]">
                 {worksheet.summary}
               </p>
-              <p className="text-sm text-[var(--color-graphite)]">
-                Materiales: {worksheet.materials.join(", ")}
-              </p>
             </div>
           </Link>
         ))}

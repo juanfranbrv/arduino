@@ -105,7 +105,19 @@ export function getWorksheetStatusSurfaceClassName(
   }
 }
 
-export function getTeacherWorksheetCoverImage(slug: string, coverImage?: string) {
+export function getTeacherWorksheetCoverImage(
+  slug: string,
+  coverImage?: string,
+  options: { preferCoverImage?: boolean } = {},
+) {
+  if (
+    options.preferCoverImage &&
+    coverImage &&
+    coverImage !== "/worksheet-placeholder.svg"
+  ) {
+    return coverImage;
+  }
+
   return (
     generatedWorksheetCoverImages[slug] ??
     coverImage ??

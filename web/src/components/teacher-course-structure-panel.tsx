@@ -7,7 +7,7 @@ import { useMutation, useQuery } from "convex/react";
 import { Check, GripVertical, ImagePlus, Pencil, Rocket, X } from "lucide-react";
 
 import { authClient } from "@/lib/auth-client";
-import { convexApi } from "@/lib/convex-api";
+import { convexApi, type TeacherWorksheet } from "@/lib/convex-api";
 import {
   buildReorderedIds,
   getTeacherWorksheetCoverImage,
@@ -21,7 +21,20 @@ import { getWorksheetPublicationStatusLabel } from "@/lib/worksheet-status";
 const levelOptions = ["iniciacion", "intermedio"] as const;
 const statusOptions = ["draft", "published"] as const;
 
-export function TeacherCourseStructurePanel() {
+export type LocalTeacherWorksheetMetadata = Pick<
+  TeacherWorksheet,
+  "slug" | "title" | "coverImage" | "level" | "status" | "activityIds"
+>;
+
+type VisibleTeacherWorksheet = TeacherWorksheet & {
+  isLocalOnly?: boolean;
+};
+
+export function TeacherCourseStructurePanel({
+  localWorksheets = [],
+}: {
+  localWorksheets?: LocalTeacherWorksheetMetadata[];
+}) {
   const { data: session, isPending: sessionPending } = authClient.useSession();
   const worksheets = useQuery(
     convexApi.worksheets.listForTeacher,
@@ -40,23 +53,66 @@ export function TeacherCourseStructurePanel() {
   const [editingWorksheetId, setEditingWorksheetId] = useState<string | null>(null);
   const [draftTitle, setDraftTitle] = useState("");
   const [message, setMessage] = useState<string | null>(null);
+  const [dashboardEditsById, setDashboardEditsById] = useState<
+    Record<string, { level?: string; status?: "draft" | "published" | "archived"; title?: string }>
+  >({});
+
+  const localWorksheetBySlug = useMemo(
+    () => new Map(localWorksheets.map((worksheet) => [worksheet.slug, worksheet])),
+    [localWorksheets],
+  );
 
   const orderedWorksheets = useMemo(() => {
     if (!worksheets) {
       return [];
     }
 
-    const fallbackOrder = worksheets.map((worksheet) => worksheet._id);
+    const mergedWorksheets: VisibleTeacherWorksheet[] = worksheets.map((worksheet) => {
+      const localWorksheet = localWorksheetBySlug.get(worksheet.slug);
+
+      if (!localWorksheet) {
+        return {
+          ...worksheet,
+          ...dashboardEditsById[worksheet._id],
+        };
+      }
+
+      return {
+        ...worksheet,
+        activityIds: localWorksheet.activityIds,
+        coverImage: localWorksheet.coverImage,
+        ...dashboardEditsById[worksheet._id],
+      };
+    });
+    const remoteSlugs = new Set(worksheets.map((worksheet) => worksheet.slug));
+    const localOnlyWorksheets: VisibleTeacherWorksheet[] = localWorksheets
+      .filter((worksheet) => !remoteSlugs.has(worksheet.slug))
+      .map((worksheet, index) => ({
+        _id: `local-${worksheet.slug}`,
+        activityIds: worksheet.activityIds,
+        coverImage: worksheet.coverImage,
+        duration: "",
+        isLocalOnly: true,
+        level: worksheet.level,
+        position: worksheets.length + index,
+        prerequisites: [],
+        slug: worksheet.slug,
+        status: worksheet.status,
+        title: worksheet.title,
+      }));
+    const visibleWorksheets = [...mergedWorksheets, ...localOnlyWorksheets];
+
+    const fallbackOrder = visibleWorksheets.map((worksheet) => worksheet._id);
     const effectiveOrder =
-      localOrder.length === worksheets.length &&
+      localOrder.length === visibleWorksheets.length &&
       localOrder.every((worksheetId) =>
-        worksheets.some((worksheet) => worksheet._id === worksheetId),
+        visibleWorksheets.some((worksheet) => worksheet._id === worksheetId),
       )
         ? localOrder
         : fallbackOrder;
 
     const worksheetById = new Map(
-      worksheets.map((worksheet) => [worksheet._id, worksheet]),
+      visibleWorksheets.map((worksheet) => [worksheet._id, worksheet]),
     );
 
     return effectiveOrder
@@ -64,7 +120,11 @@ export function TeacherCourseStructurePanel() {
       .filter(
         (worksheet): worksheet is NonNullable<typeof worksheet> => Boolean(worksheet),
       );
-  }, [localOrder, worksheets]);
+  }, [dashboardEditsById, localOrder, localWorksheetBySlug, localWorksheets, worksheets]);
+
+  const publishedWorksheetCount = orderedWorksheets.filter(
+    (worksheet) => worksheet.status === "published",
+  ).length;
 
   if (sessionPending) {
     return (
@@ -90,7 +150,7 @@ export function TeacherCourseStructurePanel() {
     );
   }
 
-  if (!worksheets.length) {
+  if (!orderedWorksheets.length) {
     return (
       <section className="subtle-card p-5 text-[var(--color-graphite)]">
         No hay unidades sincronizadas todavía.
@@ -126,6 +186,13 @@ export function TeacherCourseStructurePanel() {
 
     try {
       await updateWorksheetMetadata({ worksheetId, ...changes });
+      setDashboardEditsById((previous) => ({
+        ...previous,
+        [worksheetId]: {
+          ...previous[worksheetId],
+          ...changes,
+        },
+      }));
       setMessage("Unidad actualizada.");
       return true;
     } catch (error) {
@@ -212,7 +279,9 @@ export function TeacherCourseStructurePanel() {
               Estructura del curso
             </h3>
           </div>
-          <span className="badge bg-white">{worksheets.length} unidades</span>
+          <span className="badge bg-white">
+            {publishedWorksheetCount} publicadas / {orderedWorksheets.length} unidades
+          </span>
         </div>
 
         <div className="subtle-card grid gap-2 p-4 text-sm leading-[1.56] text-[var(--color-graphite)]">
@@ -228,6 +297,7 @@ export function TeacherCourseStructurePanel() {
             const isDragging = draggedId === worksheet._id;
             const isDropTarget = dropTargetId === worksheet._id;
             const isPending = pendingWorksheetId === worksheet._id;
+            const isLocalOnly = Boolean(worksheet.isLocalOnly);
             const visibleOrder = orderedWorksheets.map((item) => item._id);
             const coverInputId = `cover-${worksheet._id}`;
             const displayTitle = getWorksheetDisplayTitle({
@@ -238,22 +308,26 @@ export function TeacherCourseStructurePanel() {
             return (
               <article
                 key={worksheet._id}
-                draggable={!isPending}
-                onDragStart={() => setDraggedId(worksheet._id)}
+                draggable={!isPending && !isLocalOnly}
+                onDragStart={() => {
+                  if (!isLocalOnly) {
+                    setDraggedId(worksheet._id);
+                  }
+                }}
                 onDragEnd={() => {
                   setDraggedId(null);
                   setDropTargetId(null);
                 }}
                 onDragOver={(event) => {
                   event.preventDefault();
-                  if (draggedId && draggedId !== worksheet._id) {
+                  if (!isLocalOnly && draggedId && draggedId !== worksheet._id) {
                     setDropTargetId(worksheet._id);
                   }
                 }}
                 onDrop={(event) => {
                   event.preventDefault();
 
-                  if (!draggedId || draggedId === worksheet._id) {
+                  if (isLocalOnly || !draggedId || draggedId === worksheet._id) {
                     return;
                   }
 
@@ -286,6 +360,7 @@ export function TeacherCourseStructurePanel() {
                       src={getTeacherWorksheetCoverImage(
                         worksheet.slug,
                         worksheet.coverImage,
+                        { preferCoverImage: Boolean(localWorksheetBySlug.get(worksheet.slug)) },
                       )}
                       alt=""
                       fill
@@ -300,7 +375,7 @@ export function TeacherCourseStructurePanel() {
                       id={coverInputId}
                       type="file"
                       accept="image/*"
-                      disabled={isPending}
+                      disabled={isPending || isLocalOnly}
                       className="sr-only"
                       onChange={(event) => {
                         const file = event.target.files?.[0];
@@ -364,6 +439,7 @@ export function TeacherCourseStructurePanel() {
                               onClick={() =>
                                 startEditingTitle(worksheet._id, worksheet.title)
                               }
+                              disabled={isLocalOnly}
                               className="mt-0.5 grid size-8 shrink-0 place-items-center rounded-xl text-[var(--color-steel-gray)] hover:bg-[var(--color-canvas-white)] hover:text-[var(--color-midnight-ink)]"
                               aria-label={`Editar título de ${displayTitle}`}
                             >
@@ -376,6 +452,7 @@ export function TeacherCourseStructurePanel() {
                       <button
                         type="button"
                         aria-label={`Arrastrar ${displayTitle}`}
+                        disabled={isLocalOnly}
                         className="grid size-11 shrink-0 cursor-grab place-items-center rounded-full bg-[var(--color-canvas-white)] text-[var(--color-steel-gray)] active:cursor-grabbing"
                       >
                         <GripVertical className="size-5" />
@@ -393,6 +470,11 @@ export function TeacherCourseStructurePanel() {
                       >
                         {getWorksheetPublicationStatusLabel(worksheet.status)}
                       </span>
+                      {isLocalOnly ? (
+                        <span className="badge bg-amber-100 text-amber-800">
+                          Pendiente de sincronizar
+                        </span>
+                      ) : null}
                     </div>
                   </div>
 
@@ -405,7 +487,7 @@ export function TeacherCourseStructurePanel() {
                       <select
                         className="form-input"
                         value={worksheet.status === "archived" ? "draft" : worksheet.status}
-                        disabled={isPending}
+                        disabled={isPending || isLocalOnly}
                         onChange={(event) =>
                           void updateMetadata(worksheet._id, {
                             status: event.target.value as "draft" | "published",
@@ -425,7 +507,7 @@ export function TeacherCourseStructurePanel() {
                       <select
                         className="form-input"
                         value={worksheet.level}
-                        disabled={isPending}
+                        disabled={isPending || isLocalOnly}
                         onChange={(event) =>
                           void updateMetadata(worksheet._id, {
                             level: event.target.value,

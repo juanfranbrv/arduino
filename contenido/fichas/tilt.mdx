@@ -35,7 +35,7 @@ En esta ficha el sensor se usa de dos formas: primero como parte de un circuito 
 El comportamiento exacto depende de cómo está colocado el sensor. Antes de fijarlo en la protoboard, prueba qué posición consideras "estable" y cuál consideras "inclinado". Si funciona al revés, gira el sensor o invierte la condición del programa.
 </WatchOut>
 
-<Activity id="act-01" title="Montar un aviso verde sin programación" validation="El LED verde permanece encendido cuando el sensor esta en la posición estable y se apaga al inclinarlo.">
+<Activity id="act-01" title="Montar un aviso verde sin programación" validation="El LED verde permanece encendido cuando el sensor esta en la posición estable y se apaga al inclinarlo." environment="placa">
 
 Esta primera actividad es puro circuito. Arduino solo entrega alimentación con `5V` y `GND`; no hay código.
 
@@ -58,7 +58,7 @@ Cambia el orden del sensor, la resistencia y el LED dentro del circuito en serie
 
 </Activity>
 
-<Activity id="act-02" title="Activar LED rojo y zumbador al inclinar" validation="Al inclinar el sensor, el LED rojo se enciende y el zumbador hace pitidos intermitentes; en posicion estable, ambos quedan apagados.">
+<Activity id="act-02" title="Activar LED rojo y zumbador al inclinar" validation="Al inclinar el sensor, el LED rojo se enciende y el zumbador hace pitidos intermitentes; en posicion estable, ambos quedan apagados." environment="placa">
 
 Ahora Arduino lee el sensor como entrada digital. Usa `INPUT_PULLUP`, igual que con un pulsador: el sensor conecta el pin a `GND` cuando está cerrado.
 
@@ -114,7 +114,7 @@ Si la alarma suena cuando el sensor está estable, cambia `bool inclinado = lect
 
 </Activity>
 
-<Activity id="act-03" title="Mostrar estable o inclinado con dos LED" validation="El LED verde indica posicion estable; al inclinar el sensor se apaga el verde, se enciende el rojo y suena el zumbador.">
+<Activity id="act-03" title="Mostrar estable o inclinado con dos LED" validation="El LED verde indica posicion estable; al inclinar el sensor se apaga el verde, se enciende el rojo y suena el zumbador." environment="placa">
 
 Este montaje separa claramente los dos estados:
 
@@ -170,7 +170,7 @@ Cambia los tiempos del pitido para que la alarma sea más rápida. Prueba `delay
 
 </Activity>
 
-<Activity id="act-04" title="Crear un testigo de movimiento" validation="El LED verde se apaga al inclinar el sensor y el LED azul queda encendido aunque el sensor vuelva a la posición estable.">
+<Activity id="act-04" title="Crear un testigo de movimiento" validation="El LED verde se apaga al inclinar el sensor y el LED azul queda encendido aunque el sensor vuelva a la posición estable." environment="placa">
 
 Una alarma real no solo avisa en el momento. También puede dejar una marca de que algo ha pasado. En esta actividad el LED azul funciona como testigo: si el montaje se inclina una vez, queda encendido.
 

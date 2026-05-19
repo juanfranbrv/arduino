@@ -1,13 +1,32 @@
 import type { ReactNode } from "react";
+import Image from "next/image";
 
 import { getActivityStatusLabel, type ActivityStatus } from "@/lib/worksheet-status";
 
 export type ActivityVisualStatus = ActivityStatus | "locked";
+export type ActivityEnvironment = "simulador" | "placa";
+
+const activityEnvironmentMeta: Record<
+  ActivityEnvironment,
+  { alt: string; label: string; src: string }
+> = {
+  simulador: {
+    alt: "Actividad con simulador Tinkercad",
+    label: "Simulador",
+    src: "/activity-environments/tinkercad.jpg",
+  },
+  placa: {
+    alt: "Actividad con placa Arduino",
+    label: "Placa",
+    src: "/activity-environments/arduino-uno.png",
+  },
+};
 
 export function Activity({
   id,
   title,
   validation,
+  environment,
   status = "pending",
   studentView = false,
   children,
@@ -15,6 +34,7 @@ export function Activity({
   id: string;
   title: string;
   validation: string;
+  environment?: ActivityEnvironment;
   status?: ActivityVisualStatus;
   studentView?: boolean;
   children?: ReactNode;
@@ -29,6 +49,7 @@ export function Activity({
       : locked
         ? "Bloqueada"
         : getActivityStatusLabel(status);
+  const environmentMeta = environment ? activityEnvironmentMeta[environment] : null;
 
   return (
     <section
@@ -46,10 +67,25 @@ export function Activity({
     >
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="text-lg font-bold uppercase text-[var(--color-midnight-ink)] print:text-[var(--color-graphite)]">
-            Actividad {activityNumber}
-          </p>
-          <h3 className="text-[34px] font-semibold leading-[1.16] text-[var(--color-midnight-ink)]">
+          <div className="mb-2 flex flex-wrap items-center gap-3">
+            <p className="text-2xl font-bold uppercase leading-none text-[var(--color-midnight-ink)] print:text-[var(--color-graphite)]">
+              Actividad {activityNumber}
+            </p>
+            {environmentMeta ? (
+              <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white/85 px-3 py-1.5 text-xs font-bold uppercase tracking-[0.08em] text-slate-600 shadow-sm">
+                <Image
+                  src={environmentMeta.src}
+                  alt={environmentMeta.alt}
+                  width={32}
+                  height={32}
+                  unoptimized
+                  className="h-8 w-8 rounded-full object-cover"
+                />
+                <span className="hidden sm:inline">{environmentMeta.label}</span>
+              </span>
+            ) : null}
+          </div>
+          <h3 className="text-[34px] font-semibold leading-[1.16] text-[var(--color-midnight-ink)] sm:text-[38px]">
             {title}
           </h3>
         </div>

@@ -1,5 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
+import { WhatsappIcon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { ArrowUpRight, Phone } from "lucide-react";
 
 import { AcademyContactForm } from "@/components/academy-contact-form";
@@ -183,6 +185,15 @@ export default async function Home() {
               >
                 <Phone className="size-4" />
                 96 149 39 01
+              </a>
+              <a
+                className="inline-flex items-center gap-2 text-sm font-medium text-[var(--color-midnight-ink)]"
+                href="https://wa.me/34601169728"
+                target="_blank"
+                rel="noreferrer"
+              >
+                <HugeiconsIcon icon={WhatsappIcon} size={16} strokeWidth={1.8} />
+                601 16 97 28
               </a>
             </div>
           </div>

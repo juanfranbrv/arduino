@@ -25,7 +25,7 @@ Los pulsadores del kit tienen 4 patas, pero eléctricamente funcionan como 2 con
 
 ![Infografía del pulsador de 4 patas](/fichas/pulsadores-led/pulsador-4-patas-infografia.png)
 
-<Activity id="act-01" title="Montar un circuito puro con pulsador" validation="Entender que un pulsador puede abrir y cerrar un circuito sin programación: el LED se enciende al pulsar y se apaga al soltar.">
+<Activity id="act-01" title="Montar un circuito puro con pulsador" validation="Entender que un pulsador puede abrir y cerrar un circuito sin programación: el LED se enciende al pulsar y se apaga al soltar." environment="placa">
 
 En esta primera actividad no vas a programar. Monta un circuito eléctrico simple: `5V`, pulsador, resistencia y LED.
 
@@ -39,7 +39,7 @@ Cambia el orden de pulsador, resistencia y LED dentro del circuito en serie. Com
 
 </Activity>
 
-<Activity id="act-02" title="Leer un pulsador en el monitor serie" validation="Comprobar que Arduino puede leer un botón y mostrar en el monitor serie un valor estable que cambia al pulsar y soltar.">
+<Activity id="act-02" title="Leer un pulsador en el monitor serie" validation="Comprobar que Arduino puede leer un botón y mostrar en el monitor serie un valor estable que cambia al pulsar y soltar." environment="placa">
 
 Ahora Arduino va a leer el pulsador. Conecta un lado del pulsador al pin `8` y el otro lado a `GND`.
 
@@ -91,7 +91,7 @@ Cambia el programa para que escriba `PULSADO` y `SUELTO` en vez de `0` y `1`.
 
 </Activity>
 
-<Activity id="act-03" title="Encender el LED y dejarlo encendido" validation="Usar una entrada digital para activar una salida y observar que HIGH deja el LED encendido hasta que el programa escriba otro estado.">
+<Activity id="act-03" title="Encender el LED y dejarlo encendido" validation="Usar una entrada digital para activar una salida y observar que HIGH deja el LED encendido hasta que el programa escriba otro estado." environment="placa">
 
 Vas a usar el pulsador para encender un LED. La diferencia importante es que el LED se queda encendido.
 
@@ -131,7 +131,7 @@ Añade monitor serie para que el programa escriba `LED encendido` cuando detecte
 
 </Activity>
 
-<Activity id="act-04" title="Encender el LED solo mientras se pulsa" validation="Usar if y else para controlar los dos casos: LED encendido mientras el botón está pulsado y apagado al soltarlo.">
+<Activity id="act-04" title="Encender el LED solo mientras se pulsa" validation="Usar if y else para controlar los dos casos: LED encendido mientras el botón está pulsado y apagado al soltarlo." environment="placa">
 
 Ahora el LED solo debe estar encendido mientras mantienes pulsado el botón. Para eso necesitas decir qué ocurre en los dos casos: pulsado y suelto.
 
@@ -171,7 +171,7 @@ Invierte el comportamiento: el LED debe estar encendido cuando el botón está s
 
 </Activity>
 
-<Activity id="act-05" title="Controlar un LED con dos botones" validation="Separar dos órdenes de control: un botón enciende el LED y otro botón lo apaga.">
+<Activity id="act-05" title="Controlar un LED con dos botones" validation="Separar dos órdenes de control: un botón enciende el LED y otro botón lo apaga." environment="placa">
 
 Vas a usar dos botones como si fueran mandos separados: uno para encender y otro para apagar.
 
@@ -219,7 +219,7 @@ Antes de subir el código, léelo. Si no entiendes una línea, pregunta. La IA e
 
 </Activity>
 
-<Activity id="act-06" title="Crear un botón con memoria" validation="Crear un interruptor con un solo botón detectando el cambio de suelto a pulsado y recordando el estado del LED.">
+<Activity id="act-06" title="Crear un botón con memoria" validation="Crear un interruptor con un solo botón detectando el cambio de suelto a pulsado y recordando el estado del LED." environment="placa">
 
 Un solo botón puede funcionar como interruptor. Para conseguirlo, el programa necesita recordar si el LED está encendido y detectar el instante exacto en que el botón pasa de suelto a pulsado.
 
