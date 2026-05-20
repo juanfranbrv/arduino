@@ -70,6 +70,7 @@ input:focus-visible {
 .btn-primary,
 .btn-secondary {
   display: inline-flex;
+  max-width: 100%;
   min-height: 44px;
   align-items: center;
   justify-content: center;
@@ -122,6 +123,7 @@ input:focus-visible {
 
 .badge {
   display: inline-flex;
+  max-width: 100%;
   align-items: center;
   border-radius: var(--radius-control);
   background: var(--color-canvas-white);
@@ -129,6 +131,7 @@ input:focus-visible {
   color: var(--color-graphite);
   font-size: 12px;
   line-height: 1.5;
+  overflow-wrap: anywhere;
 }
 
 .surface-card {
@@ -180,6 +183,8 @@ input:focus-visible {
 }
 
 .form-input {
+  width: 100%;
+  min-width: 0;
   min-height: 48px;
   border: 1px solid var(--color-faded-gray);
   border-radius: 14px;

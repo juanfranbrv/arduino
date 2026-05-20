@@ -1,13 +1,390 @@
 ---
-unitNumber: 25
+unitNumber: 8
 title: Fotocélula LDR
 slug: fotocelula-ldr
 level: iniciacion
-duration: 55 min
+duration: 150 min
 status: draft
-prerequisites: []
-summary: Unidad pendiente de desarrollo.
-coverImage: /worksheet-placeholder.svg
-preview: []
-materials: []
+prerequisites:
+  - leds-paralelo-serie-resistencia
+  - monitor-serie
+  - pulsadores-led
+summary: "El LDR permite que Arduino mida luz. La unidad empieza con un divisor de tensión sin código y termina con una escala de LEDs controlada por rangos."
+coverImage: /worksheets/fotocelula-ldr-cover-v3.png
+preview:
+  - Medición de un divisor de tensión con LDR y resistencia de 10k.
+  - Lectura de valores analógicos en el monitor serie.
+  - Luz automática, alarma de cajón y vúmetro lumínico con if y else if.
+materials:
+  - Arduino Uno o Elegoo Mega
+  - Protoboard
+  - LDR o fotocélula
+  - Resistencia de 10k ohm
+  - 4 LEDs
+  - 4 resistencias de 220 ohm
+  - Cables dupont
+  - Multímetro
+  - Linterna
 ---
+
+Una fotocélula LDR es una resistencia sensible a la luz. Su nombre viene de *Light Dependent Resistor*: resistencia que depende de la luz. Cuando recibe mucha luz, su resistencia baja y la corriente encuentra un camino más fácil. Cuando está en sombra, su resistencia sube y se opone más al paso de la corriente.
+
+El LDR sirve para que un circuito detecte cambios de iluminación: una farola automática, una alarma que nota si se abre una caja, un robot que busca zonas iluminadas o un medidor visual de luz.
+
+Para que Arduino pueda usar un LDR, no basta con conectarlo solo. Arduino no pregunta “¿cuánta resistencia hay?”; lo que sabe medir en el pin `A0` es un voltaje. Por eso se coloca el LDR en serie con una resistencia normal de `10kΩ`. Entre las dos piezas queda un punto intermedio: cuando cambia la luz, cambia la resistencia del LDR, y ese punto intermedio se mueve hacia más voltaje o hacia menos voltaje. Ese montaje se llama divisor de tensión porque reparte los `5V` entre dos resistencias. La lectura de `A0` es simplemente ese voltaje cambiante convertido en un número.
+
+![Infografía del LDR y divisor de tensión](/fichas/fotocelula-ldr/ldr-divisor-tension.png)
+
+<Activity id="act-01" title="Medir cómo ve el LDR" validation="El voltaje del punto central del divisor cambia al tapar el LDR y al iluminarlo con una linterna." environment="simulador">
+
+El primer montaje no usa código. Arduino solo alimenta la protoboard con `5V` y `GND`. La lectura importante se hace con el multímetro.
+
+### Esquema de conexión
+
+- Conecta `5V` de Arduino al raíl positivo de la protoboard.
+- Conecta `GND` de Arduino al raíl negativo.
+- Coloca el LDR entre el raíl de `5V` y una fila libre de la protoboard. Esa fila será el punto de medida.
+- Coloca una resistencia de `10kΩ` entre el punto de medida y `GND`.
+- Conecta el cable rojo del multímetro al punto de medida.
+- Conecta el cable negro del multímetro a `GND`.
+
+La conexión queda así: `5V -> LDR -> punto de medida -> resistencia 10kΩ -> GND`.
+
+### Pasos en Tinkercad
+
+1. Crea un circuito nuevo con Arduino Uno y una protoboard.
+2. Lleva `5V` y `GND` de Arduino a los raíles de alimentación.
+3. Busca `Photoresistor` o `LDR` y colócalo en la protoboard.
+4. Añade una resistencia y cambia su valor a `10 kΩ`.
+5. Conecta el LDR y la resistencia en serie como divisor de tensión.
+6. Añade el multímetro, ponlo en modo voltaje y mide entre el punto central y `GND`.
+7. Inicia la simulación. Cambia el nivel de luz del LDR y anota el voltaje con luz normal, linterna y oscuridad.
+
+<KeyConcept title="Divisor de tensión">
+Un divisor de tensión reparte los `5V` entre dos resistencias. Como el LDR cambia su resistencia con la luz, el voltaje del punto central también cambia.
+</KeyConcept>
+
+### Solución de problemas comunes
+
+- Si el multímetro marca `0V` todo el tiempo, comprueba que el cable negro está en `GND` y el rojo en el punto central, no en el raíl negativo.
+- Si marca siempre cerca de `5V`, revisa que la resistencia de `10kΩ` sí llega a `GND`.
+- Si el voltaje no cambia al mover la luz del LDR, verifica que el LDR no está conectado por error en la misma fila que la resistencia sin formar serie.
+- Si el montaje real no coincide con Tinkercad, revisa que los raíles de la protoboard estén alimentados desde Arduino.
+
+</Activity>
+
+<Activity id="act-02" title="Leer la luz en el monitor serie" validation="El monitor serie muestra valores entre 0 y 1023 que cambian claramente con luz normal, linterna y oscuridad." environment="simulador">
+
+El mismo divisor de tensión ahora se conecta a Arduino. El punto central se une al pin `A0`, que puede leer voltajes intermedios y convertirlos en números entre `0` y `1023`.
+
+### Esquema de conexión
+
+- Mantén el divisor de tensión de la actividad anterior.
+- Conecta el punto de medida al pin `A0`.
+- Mantén `5V` y `GND` alimentando los raíles.
+- No conectes todavía ningún LED.
+
+### Pasos en Tinkercad
+
+1. Abre el circuito de la actividad anterior.
+2. Añade un cable desde el punto central del divisor hasta `A0`.
+3. Abre el editor de código y cambia a modo texto.
+4. Copia el programa.
+5. Inicia la simulación y abre el monitor serie.
+6. Anota tres valores: luz normal, luz máxima con linterna y oscuridad tapando el LDR.
+
+```cpp
+// Unidad 8 - Actividad 2: leer una fotocelula LDR en A0
+
+const int PIN_LDR = A0;
+
+void setup() {
+  // Abre la comunicacion con el monitor serie.
+  Serial.begin(9600);
+}
+
+void loop() {
+  // analogRead convierte el voltaje de A0 en un numero de 0 a 1023.
+  int luz = analogRead(PIN_LDR);
+
+  // Envia la lectura al monitor serie.
+  Serial.println(luz);
+
+  // Pequeña pausa para poder leer los numeros sin que pasen demasiado rapido.
+  delay(200);
+}
+```
+
+<WatchOut>
+Según el orden del LDR y la resistencia, el número puede subir con la luz o bajar con la luz. Lo importante es observarlo y anotar el comportamiento real de tu montaje.
+</WatchOut>
+
+### Tabla de calibración
+
+| Situación | Valor leído |
+| --- | --- |
+| Luz normal del aula | |
+| LDR iluminado con linterna | |
+| LDR tapado con el dedo | |
+
+### Solución de problemas comunes
+
+- Si el monitor serie no muestra nada, comprueba que la simulación está iniciada y que el monitor serie está abierto.
+- Si los números son siempre `0`, revisa la conexión entre el punto central y `A0`.
+- Si los números son siempre `1023`, busca un cable que conecte `A0` directamente con `5V`.
+- Si los números saltan demasiado, espera un segundo después de tapar o iluminar el LDR antes de apuntar el valor.
+
+</Activity>
+
+<Activity id="act-03" title="Controlar brillo sin programar" validation="El LED se ilumina más en oscuridad y se apaga o queda muy tenue con mucha luz, sin usar ningún pin digital de Arduino." environment="simulador">
+
+Este reto usa electrónica pura. Arduino sigue funcionando solo como fuente de alimentación. El LED no se controla con código: responde al voltaje que genera el divisor.
+
+La idea es montar el divisor en el orden adecuado para que el punto de salida tenga más voltaje cuando hay oscuridad. Si el comportamiento sale al revés, intercambia la posición del LDR y la resistencia fija.
+
+### Esquema de conexión
+
+- Conecta `5V` al raíl positivo y `GND` al raíl negativo.
+- Coloca la resistencia de `10kΩ` entre `5V` y el punto de salida.
+- Coloca el LDR entre el punto de salida y `GND`.
+- Desde el punto de salida conecta el ánodo del LED, la pata larga.
+- Conecta el cátodo del LED, la pata corta, a una resistencia de `220Ω`.
+- Lleva la otra pata de la resistencia de `220Ω` a `GND`.
+
+La conexión de control queda así: `5V -> resistencia 10kΩ -> punto de salida -> LDR -> GND`. El LED se alimenta desde el punto de salida hacia `GND`.
+
+### Pasos en Tinkercad
+
+1. Duplica el circuito de la actividad 1 o crea uno nuevo.
+2. Cambia el orden del divisor: resistencia fija arriba, LDR abajo.
+3. Añade un LED con su resistencia de `220Ω`.
+4. Conecta el LED desde el punto de salida hacia `GND`.
+5. Inicia la simulación.
+6. Baja la luz del LDR: el LED debe ganar brillo.
+7. Sube la luz del LDR: el LED debe apagarse o quedar muy débil.
+
+<KeyConcept title="La posición importa">
+El mismo LDR puede producir una señal directa o inversa. No ha cambiado el componente; ha cambiado desde qué lado del divisor se toma la señal.
+</KeyConcept>
+
+### Solución de problemas comunes
+
+- Si el LED no se enciende nunca, comprueba su polaridad: pata larga hacia el punto de salida y pata corta hacia la resistencia de `220Ω`.
+- Si el LED brilla al revés, intercambia el LDR y la resistencia de `10kΩ`.
+- Si el LED queda siempre muy débil, confirma que la resistencia del LED es `220Ω`, no `10kΩ`.
+- Si el LED está conectado directamente entre `5V` y `GND`, desmonta y vuelve a ponerlo desde el punto de salida. El objetivo es que dependa del divisor.
+
+</Activity>
+
+<Activity id="act-04" title="Programar una luz nocturna" validation="El LED digital se enciende al tapar el LDR y se apaga cuando el LDR recibe luz suficiente." environment="simulador">
+
+Ahora el LDR es una entrada y el LED es una salida digital. El valor anotado en la actividad 2 sirve para elegir un umbral: un número que separa luz suficiente de oscuridad.
+
+### Esquema de conexión
+
+- Mantén el divisor `5V -> LDR -> punto central -> resistencia 10kΩ -> GND`.
+- Conecta el punto central a `A0`.
+- Conecta un LED al pin digital `8`:
+  - Pin `8` a resistencia de `220Ω`.
+  - Resistencia al ánodo del LED, pata larga.
+  - Cátodo del LED, pata corta, a `GND`.
+
+### Pasos en Tinkercad
+
+1. Recupera el circuito de lectura del LDR.
+2. Añade un LED con resistencia al pin `8`.
+3. Escribe un umbral entre el valor de luz normal y el valor de oscuridad.
+4. Copia el programa.
+5. Simula el cambio de luz y ajusta `UMBRAL_OSCURIDAD` hasta que el encendido sea claro.
+
+```cpp
+// Unidad 8 - Actividad 4: luz automatica nocturna
+
+const int PIN_LDR = A0;
+const int PIN_LED = 8;
+
+// Cambia este numero con tus datos de calibracion.
+// En este montaje, valores mas bajos indican menos luz.
+const int UMBRAL_OSCURIDAD = 400;
+
+void setup() {
+  pinMode(PIN_LED, OUTPUT);
+}
+
+void loop() {
+  int luz = analogRead(PIN_LDR);
+
+  // Si la lectura cae por debajo del umbral, lo tratamos como oscuridad.
+  if (luz < UMBRAL_OSCURIDAD) {
+    digitalWrite(PIN_LED, HIGH);
+  } else {
+    digitalWrite(PIN_LED, LOW);
+  }
+
+  delay(100);
+}
+```
+
+<WatchOut>
+Si tu montaje da valores más altos en oscuridad, cambia la condición a `luz > UMBRAL_OSCURIDAD`. La tabla de calibración manda más que la teoría.
+</WatchOut>
+
+### Solución de problemas comunes
+
+- Si el LED se enciende con luz y se apaga en oscuridad, invierte la condición del `if`.
+- Si el LED nunca cambia, el umbral está demasiado alto o demasiado bajo. Elige un número entre las dos lecturas reales.
+- Si el LED no enciende aunque el programa parece correcto, revisa la polaridad del LED y la resistencia de `220Ω`.
+- Si Arduino no detecta cambios, vuelve a probar la actividad 2 y confirma que `A0` está conectado al punto central del divisor.
+
+</Activity>
+
+<Activity id="act-05" title="Crear una alarma de cajón" validation="Al simular que se abre el cajón aumentando la luz del LDR, el LED parpadea rápidamente como alarma." environment="simulador">
+
+El circuito representa un cajón cerrado. Dentro hay oscuridad. Cuando se abre, entra luz de golpe y Arduino activa una alerta.
+
+Se usa el mismo montaje que en la actividad 4, pero la lógica cambia: ahora la alarma se activa con mucha luz, no con oscuridad.
+
+### Esquema de conexión
+
+- Mantén el divisor LDR conectado a `A0`.
+- Mantén el LED con resistencia conectado al pin `8`.
+- Si el profesor lo permite, el LED puede sustituirse por un zumbador activo conectado igual: positivo al pin `8` y negativo a `GND`.
+
+### Pasos en Tinkercad
+
+1. Usa el circuito de la luz nocturna.
+2. Mira los valores de la actividad 2 y elige un umbral de apertura.
+3. El umbral debe estar cerca del valor de luz alta, no del valor de oscuridad.
+4. Copia el programa.
+5. Simula el cajón cerrado bajando la luz del LDR.
+6. Sube la luz del LDR: la alarma debe parpadear rápidamente.
+
+```cpp
+// Unidad 8 - Actividad 5: alarma de cajon anti-chismosos
+
+const int PIN_LDR = A0;
+const int PIN_ALARMA = 8;
+
+// Cambia este valor con tu calibracion.
+// En este montaje, valores altos indican que entra mucha luz.
+const int UMBRAL_APERTURA = 700;
+
+void setup() {
+  pinMode(PIN_ALARMA, OUTPUT);
+}
+
+void loop() {
+  int luz = analogRead(PIN_LDR);
+
+  if (luz > UMBRAL_APERTURA) {
+    // Alarma: parpadeo rapido.
+    digitalWrite(PIN_ALARMA, HIGH);
+    delay(100);
+    digitalWrite(PIN_ALARMA, LOW);
+    delay(100);
+  } else {
+    // Cajon cerrado: alarma apagada.
+    digitalWrite(PIN_ALARMA, LOW);
+    delay(100);
+  }
+}
+```
+
+<KeyConcept title="Lógica inversa">
+La luz nocturna reacciona a poca luz. La alarma de cajón reacciona a mucha luz. El circuito puede ser el mismo; cambia la condición que decide.
+</KeyConcept>
+
+### Solución de problemas comunes
+
+- Si la alarma parpadea con el cajón cerrado, baja o sube el umbral según tus lecturas reales hasta que quede apagada en oscuridad.
+- Si no parpadea nunca, comprueba que `UMBRAL_APERTURA` está por debajo del valor que obtienes con linterna o mucha luz.
+- Si el parpadeo es demasiado lento o rápido, modifica los dos `delay(100)`.
+- Si usas zumbador y no suena, revisa la polaridad y confirma que es un zumbador activo.
+
+</Activity>
+
+<Activity id="act-06" title="Construir un vúmetro lumínico" validation="Una fila de 3 o 4 LEDs representa el nivel de luz: a más luz, más LEDs encendidos." environment="simulador">
+
+El proyecto final convierte la lectura analógica del LDR en una escala visual. Cada LED representa un rango de luz. El programa no necesita calcular porcentajes: basta con comparar la lectura con varios umbrales ordenados.
+
+### Esquema de conexión
+
+- Mantén el divisor LDR conectado a `A0`.
+- Conecta cuatro LEDs independientes:
+  - Pin `5` a resistencia de `220Ω`, LED 1 y `GND`.
+  - Pin `6` a resistencia de `220Ω`, LED 2 y `GND`.
+  - Pin `7` a resistencia de `220Ω`, LED 3 y `GND`.
+  - Pin `8` a resistencia de `220Ω`, LED 4 y `GND`.
+- En cada LED, la pata larga va hacia la resistencia que viene del pin y la pata corta va a `GND`.
+
+### Pasos en Tinkercad
+
+1. Ordena los cuatro LEDs en fila en la protoboard.
+2. Usa una resistencia de `220Ω` por cada LED.
+3. Conecta todos los cátodos a `GND`, cada uno desde su propia fila.
+4. Conecta el LDR a `A0` igual que antes.
+5. Copia el programa.
+6. Cambia lentamente el nivel de luz del LDR y comprueba que la fila sube y baja por etapas.
+
+```cpp
+// Unidad 8 - Actividad 6: vumetro luminico con 4 LEDs
+
+const int PIN_LDR = A0;
+
+const int LED_1 = 5;
+const int LED_2 = 6;
+const int LED_3 = 7;
+const int LED_4 = 8;
+
+void setup() {
+  pinMode(LED_1, OUTPUT);
+  pinMode(LED_2, OUTPUT);
+  pinMode(LED_3, OUTPUT);
+  pinMode(LED_4, OUTPUT);
+}
+
+void loop() {
+  int luz = analogRead(PIN_LDR);
+
+  if (luz < 250) {
+    // Poca luz: solo el primer LED.
+    digitalWrite(LED_1, HIGH);
+    digitalWrite(LED_2, LOW);
+    digitalWrite(LED_3, LOW);
+    digitalWrite(LED_4, LOW);
+  } else if (luz < 500) {
+    // Luz media-baja: dos LEDs.
+    digitalWrite(LED_1, HIGH);
+    digitalWrite(LED_2, HIGH);
+    digitalWrite(LED_3, LOW);
+    digitalWrite(LED_4, LOW);
+  } else if (luz < 750) {
+    // Luz media-alta: tres LEDs.
+    digitalWrite(LED_1, HIGH);
+    digitalWrite(LED_2, HIGH);
+    digitalWrite(LED_3, HIGH);
+    digitalWrite(LED_4, LOW);
+  } else {
+    // Mucha luz: todos los LEDs encendidos.
+    digitalWrite(LED_1, HIGH);
+    digitalWrite(LED_2, HIGH);
+    digitalWrite(LED_3, HIGH);
+    digitalWrite(LED_4, HIGH);
+  }
+
+  delay(100);
+}
+```
+
+<WatchOut>
+Los límites `250`, `500` y `750` son valores de partida. Si tu aula nunca llega a esos rangos, usa tus lecturas de calibración para repartir mejor las etapas.
+</WatchOut>
+
+### Solución de problemas comunes
+
+- Si un LED concreto no se enciende nunca, prueba ese LED y su resistencia por separado; puede estar girado o conectado a otro pin.
+- Si todos los LEDs hacen lo mismo, revisa que cada resistencia va a un pin distinto y no a la misma fila de la protoboard.
+- Si la escala va al revés, tu divisor entrega valores altos en oscuridad. Puedes invertir los rangos o intercambiar el LDR y la resistencia fija.
+- Si el circuito se ve confuso, usa cables del mismo color para `GND` y otro color para las señales de los pines `5`, `6`, `7` y `8`.
+
+</Activity>

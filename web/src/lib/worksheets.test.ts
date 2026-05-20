@@ -115,10 +115,10 @@ describe("getWorksheetDisplayTitle", () => {
   it("derives the visible unit number without storing it in the title", () => {
     expect(
       getWorksheetDisplayTitle({
-        title: "Servo",
+        title: "Fotocélula LDR",
         unitNumber: 8,
       }),
-    ).toBe("Unidad 8 - Servo");
+    ).toBe("Unidad 8 - Fotocélula LDR");
   });
 });
 
@@ -203,15 +203,15 @@ describe("local worksheet catalog", () => {
     expect(worksheetSummaries.slice(7)).toEqual([
       expect.objectContaining({
         unitNumber: 8,
-        title: "Servo",
-        slug: "servo",
-        activities: 0,
+        title: "Fotocélula LDR",
+        slug: "fotocelula-ldr",
+        activities: 6,
         status: "draft",
       }),
       expect.objectContaining({
         unitNumber: 9,
-        title: "Módulo sensor ultrasónico",
-        slug: "sensor-ultrasonico",
+        title: "Servo",
+        slug: "servo",
         activities: 0,
         status: "draft",
       }),
@@ -322,8 +322,8 @@ describe("local worksheet catalog", () => {
       }),
       expect.objectContaining({
         unitNumber: 25,
-        title: "Fotocélula LDR",
-        slug: "fotocelula-ldr",
+        title: "Módulo sensor ultrasónico",
+        slug: "sensor-ultrasonico",
         activities: 0,
         status: "draft",
       }),

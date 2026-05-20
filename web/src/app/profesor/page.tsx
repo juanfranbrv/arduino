@@ -39,10 +39,10 @@ export default async function TeacherPage({
   );
 
   return (
-    <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-5 py-6 sm:px-8">
+    <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-4 py-6 sm:px-8">
       <header className="grid gap-2">
         <p className="eyebrow">Arduino 1</p>
-        <h1 className="text-[40px] font-semibold leading-[1.04] text-[var(--color-midnight-ink)]">
+        <h1 className="text-[36px] font-semibold leading-[1.06] text-[var(--color-midnight-ink)] sm:text-[40px] sm:leading-[1.04]">
           Seguimiento en clase
         </h1>
       </header>

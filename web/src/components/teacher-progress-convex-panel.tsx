@@ -237,13 +237,16 @@ export function TeacherProgressConvexPanel({
   }
 
   return (
-    <section className="grid gap-4">
-      <section className="surface-card grid gap-4 p-4 sm:p-5">
-        <div className="grid gap-3 xl:grid-cols-[21.5rem_minmax(0,1fr)] xl:gap-9">
-          <label className="form-label">
+    <section className="grid min-w-0 gap-4">
+      <section className="surface-card grid min-w-0 gap-4 p-4 sm:p-5">
+        <div
+          className="grid min-w-0 gap-3 xl:grid-cols-[21.5rem_minmax(0,1fr)] xl:gap-9"
+          data-testid="teacher-progress-filters"
+        >
+          <label className="form-label min-w-0">
             Grupo
             <select
-              className="form-input"
+              className="form-input min-w-0 w-full"
               value={effectiveGroupId ?? ""}
               onChange={(event) => {
                 setSelectedGroupId(event.target.value);
@@ -258,10 +261,10 @@ export function TeacherProgressConvexPanel({
             </select>
           </label>
 
-          <label className="form-label">
+          <label className="form-label min-w-0">
             Unidad
             <select
-              className="form-input"
+              className="form-input min-w-0 w-full"
               value={effectiveWorksheetId ?? ""}
               onChange={(event) => setSelectedWorksheetId(event.target.value)}
             >
@@ -275,6 +278,21 @@ export function TeacherProgressConvexPanel({
               ))}
             </select>
           </label>
+
+          {selectedStudent ? (
+            <div className="form-label min-w-0 xl:hidden">
+              Alumno
+              <button
+                type="button"
+                className="btn-secondary w-full justify-between gap-3"
+                onClick={() => setIsStudentPickerOpen(true)}
+                aria-label="Alumno"
+              >
+                <span className="min-w-0 truncate">{selectedStudent.displayName}</span>
+                <ChevronDown className="size-4 shrink-0" />
+              </button>
+            </div>
+          ) : null}
         </div>
       </section>
 
@@ -283,7 +301,7 @@ export function TeacherProgressConvexPanel({
           Este grupo no tiene alumnos todavía.
         </p>
       ) : (
-        <div className="grid gap-4 xl:grid-cols-[24rem_minmax(0,1fr)] xl:items-start">
+        <div className="grid min-w-0 gap-4 xl:grid-cols-[24rem_minmax(0,1fr)] xl:items-start">
           <section className="hidden surface-card gap-3 p-4 sm:p-5 xl:sticky xl:top-4 xl:grid xl:max-h-[calc(100vh-8rem)] xl:overflow-auto">
             <div className="grid gap-2">
               {dashboard.students.map((student) => {
@@ -333,9 +351,12 @@ export function TeacherProgressConvexPanel({
           </section>
 
           {selectedStudent && dashboard.selectedWorksheet ? (
-            <section className="surface-card grid gap-4 p-4 sm:p-5">
-              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--color-faded-gray)] pb-4">
-                <div>
+            <section className="surface-card grid min-w-0 gap-4 p-4 sm:p-5">
+              <div
+                className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--color-faded-gray)] pb-4"
+                data-testid="teacher-student-header"
+              >
+                <div className="min-w-0">
                   <p className="text-sm text-[var(--color-steel-gray)]">
                     {getWorksheetDisplayTitle({
                       title: dashboard.selectedWorksheet.title,
@@ -345,7 +366,7 @@ export function TeacherProgressConvexPanel({
                         ) + 1,
                     })}
                   </p>
-                  <h2 className="text-2xl font-semibold text-[var(--color-midnight-ink)]">
+                  <h2 className="break-words text-2xl font-semibold text-[var(--color-midnight-ink)]">
                     {selectedStudent.displayName}
                   </h2>
                 </div>
@@ -364,21 +385,13 @@ export function TeacherProgressConvexPanel({
                       dashboard.selectedWorksheet.status,
                     )}
                   </span>
-                  <button
-                    type="button"
-                    className="btn-secondary xl:hidden"
-                    onClick={() => setIsStudentPickerOpen(true)}
-                  >
-                    Alumno
-                    <ChevronDown className="size-4" />
-                  </button>
                   <span className="badge bg-white">
                     {dashboardActivities.length} actividades
                   </span>
                 </div>
               </div>
 
-              <div className="grid gap-3">
+              <div className="grid min-w-0 gap-3">
                 {dashboardActivities.map((activity) => {
                   const state = selectedStudentProgress.states.get(activity.activityId) ?? "locked";
                   const isCurrent = state === "pending";
@@ -392,7 +405,7 @@ export function TeacherProgressConvexPanel({
                   return (
                     <div
                       key={activity.activityId}
-                      className={`grid gap-3 rounded-[28px] border p-4 ${
+                      className={`grid min-w-0 gap-3 rounded-[24px] border p-4 sm:rounded-[28px] ${
                         isCompleted
                           ? "border-emerald-200 bg-emerald-50/80"
                           : isOmitted
@@ -401,9 +414,10 @@ export function TeacherProgressConvexPanel({
                               ? "border-slate-100 bg-slate-50/70"
                               : "border-[var(--color-midnight-ink)] bg-white"
                       }`}
+                      data-testid="teacher-activity-card"
                     >
                       <div className="flex flex-wrap items-start justify-between gap-3">
-                        <div className="grid gap-1">
+                        <div className="grid min-w-0 gap-1">
                           <strong className="text-lg text-[var(--color-midnight-ink)]">
                             Actividad {activity.order + 1}
                           </strong>

@@ -60,9 +60,9 @@ export function TeacherDashboardTabs({
   }
 
   return (
-    <section className="grid gap-4">
+    <section className="grid min-w-0 gap-4">
       <div
-        className="surface-card grid gap-2 p-2 sm:grid-cols-2 xl:grid-cols-5"
+        className="surface-card grid min-w-0 gap-2 overflow-hidden p-2 sm:grid-cols-2 xl:grid-cols-5"
         role="tablist"
         aria-label="Panel de profesor"
       >
@@ -79,7 +79,7 @@ export function TeacherDashboardTabs({
               aria-controls={`teacher-tab-${tab.id}`}
               id={`teacher-tab-button-${tab.id}`}
               onClick={() => selectTab(tab.id)}
-              className={`flex min-h-16 items-center gap-3 rounded-[28px] px-4 text-left transition ${
+              className={`flex min-h-16 min-w-0 items-center gap-3 rounded-[24px] px-3 text-left transition sm:rounded-[28px] sm:px-4 ${
                 selected
                   ? "bg-white text-[var(--color-midnight-ink)]"
                   : "text-[var(--color-graphite)] hover:bg-[var(--color-canvas-white)]"
@@ -94,8 +94,8 @@ export function TeacherDashboardTabs({
               >
                 <Icon className="size-5" />
               </span>
-              <span className="grid gap-0.5">
-                <span className="font-semibold">{tab.label}</span>
+              <span className="grid min-w-0 gap-0.5">
+                <span className="truncate font-semibold">{tab.label}</span>
                 <span className="hidden text-xs leading-5 text-[var(--color-steel-gray)] md:block">
                   {tab.description}
                 </span>
@@ -109,13 +109,13 @@ export function TeacherDashboardTabs({
         id={`teacher-tab-${activeTab}`}
         role="tabpanel"
         aria-labelledby={`teacher-tab-button-${activeTab}`}
-        className="grid gap-4"
+        className="grid min-w-0 gap-4"
       >
         {activeTabMeta ? (
           <div className="flex flex-wrap items-end justify-between gap-3">
-            <div>
+            <div className="min-w-0" data-testid="teacher-tab-panel-heading">
               <p className="eyebrow">{activeTabMeta.label}</p>
-              <h2 className="mt-1 text-2xl font-semibold text-[var(--color-midnight-ink)]">
+              <h2 className="mt-1 break-words text-xl font-semibold leading-[1.25] text-[var(--color-midnight-ink)] sm:text-2xl">
                 {activeTabMeta.description}
               </h2>
             </div>
