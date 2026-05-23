@@ -10,4 +10,10 @@ describe("public worksheets listing", () => {
     expect(pageSource).not.toContain("Materiales:");
     expect(pageSource).not.toContain("worksheet.materials.join");
   });
+
+  it("sends authenticated readers directly to the student worksheet", () => {
+    expect(pageSource).toContain("isAuthenticated");
+    expect(pageSource).toContain('"/alumno/fichas" : "/fichas"');
+    expect(pageSource).toContain("`${worksheetHrefPrefix}/${worksheet.slug}`");
+  });
 });

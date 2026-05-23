@@ -1,13 +1,17 @@
 import Image from "next/image";
 import Link from "next/link";
 
+import { isAuthenticated } from "@/lib/auth-server";
 import {
   getPublishedWorksheetsFromCatalog,
   getWorksheetDisplayTitle,
 } from "@/lib/worksheets";
 
+export const dynamic = "force-dynamic";
+
 export default async function WorksheetsPage() {
   const worksheets = await getPublishedWorksheetsFromCatalog();
+  const worksheetHrefPrefix = (await isAuthenticated()) ? "/alumno/fichas" : "/fichas";
 
   return (
     <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-8 px-5 py-12 sm:px-8">
@@ -24,7 +28,7 @@ export default async function WorksheetsPage() {
         {worksheets.map((worksheet) => (
           <Link
             key={worksheet.slug}
-            href={`/fichas/${worksheet.slug}`}
+            href={`${worksheetHrefPrefix}/${worksheet.slug}`}
             className="surface-card flex h-full flex-col overflow-hidden bg-white"
           >
             <div className="relative aspect-[16/9] bg-[var(--color-canvas-white)]">

@@ -8,7 +8,13 @@ import {
 } from "@/lib/worksheets";
 import type { Worksheet } from "@/lib/worksheets";
 
-export function WorksheetPreviewShell({ worksheet }: { worksheet: Worksheet }) {
+export function WorksheetPreviewShell({
+  worksheet,
+  continueHref = "/login",
+}: {
+  worksheet: Worksheet;
+  continueHref?: string;
+}) {
   const prerequisites = getWorksheetPrerequisites(worksheet);
 
   return (
@@ -117,7 +123,7 @@ export function WorksheetPreviewShell({ worksheet }: { worksheet: Worksheet }) {
               </p>
             </div>
           </div>
-          <Link className="btn-primary shrink-0" href="/login">
+          <Link className="btn-primary shrink-0" href={continueHref}>
             Entrar
           </Link>
         </aside>

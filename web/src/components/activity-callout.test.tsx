@@ -32,11 +32,15 @@ describe("Activity", () => {
     );
 
     const marker = screen.getByLabelText("Actividad con simulador Tinkercad");
+    const tinkercadLink = screen.getByRole("link", {
+      name: /https:\/\/www\.tinkercad\.com/i,
+    });
     const activityLabel = screen.getByText("Actividad 1");
     const environmentCapsule = marker.parentElement;
 
     expect(marker).toBeTruthy();
     expect(marker.getAttribute("data-src")).toBe("/activity-environments/tinkercad.jpg");
+    expect(tinkercadLink.getAttribute("href")).toBe("https://www.tinkercad.com");
     expect(activityLabel.className).toContain("text-2xl");
     expect(environmentCapsule?.className).toContain("px-3");
     expect(marker.className).toContain("h-8");

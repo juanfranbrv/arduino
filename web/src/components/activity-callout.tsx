@@ -8,10 +8,11 @@ export type ActivityEnvironment = "simulador" | "placa";
 
 const activityEnvironmentMeta: Record<
   ActivityEnvironment,
-  { alt: string; label: string; src: string }
+  { alt: string; href?: string; label: string; src: string }
 > = {
   simulador: {
     alt: "Actividad con simulador Tinkercad",
+    href: "https://www.tinkercad.com",
     label: "Simulador",
     src: "/activity-environments/tinkercad.jpg",
   },
@@ -82,6 +83,16 @@ export function Activity({
                   className="h-8 w-8 rounded-full object-cover"
                 />
                 <span className="hidden sm:inline">{environmentMeta.label}</span>
+                {environmentMeta.href ? (
+                  <a
+                    href={environmentMeta.href}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="rounded-full bg-sky-50 px-2 py-1 font-mono text-[10px] normal-case tracking-normal text-sky-700 underline-offset-2 hover:text-sky-900 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500"
+                  >
+                    {environmentMeta.href}
+                  </a>
+                ) : null}
               </span>
             ) : null}
           </div>

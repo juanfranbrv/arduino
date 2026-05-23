@@ -205,7 +205,7 @@ describe("local worksheet catalog", () => {
         unitNumber: 8,
         title: "Fotocélula LDR",
         slug: "fotocelula-ldr",
-        activities: 6,
+        activities: 8,
         status: "draft",
       }),
       expect.objectContaining({
