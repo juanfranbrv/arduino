@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import { Activity } from "./activity-callout";
+import { Activity, EnvironmentStep } from "./activity-callout";
 
 vi.mock("next/image", () => ({
   default: ({ alt, src, ...props }: {
@@ -61,5 +61,22 @@ describe("Activity", () => {
 
     expect(marker).toBeTruthy();
     expect(marker.getAttribute("data-src")).toBe("/activity-environments/arduino-uno.png");
+  });
+
+  it("shows inline environment steps inside an activity body", () => {
+    render(
+      <EnvironmentStep environment="simulador" title="Primero en Tinkercad">
+        <p>Prueba el circuito antes de montarlo.</p>
+      </EnvironmentStep>,
+    );
+
+    const marker = screen.getByLabelText("Actividad con simulador Tinkercad");
+    const tinkercadLink = screen.getByRole("link", {
+      name: /https:\/\/www\.tinkercad\.com/i,
+    });
+
+    expect(screen.getByText("Primero en Tinkercad")).toBeTruthy();
+    expect(marker.getAttribute("data-src")).toBe("/activity-environments/tinkercad.jpg");
+    expect(tinkercadLink.getAttribute("href")).toBe("https://www.tinkercad.com");
   });
 });

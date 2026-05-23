@@ -1,7 +1,11 @@
 import { MDXRemote } from "next-mdx-remote/rsc";
 import Link from "next/link";
 
-import { Activity, type ActivityVisualStatus } from "@/components/activity-callout";
+import {
+  Activity,
+  EnvironmentStep,
+  type ActivityVisualStatus,
+} from "@/components/activity-callout";
 import { ActivityCompletionHighlighter } from "@/components/activity-completion-highlighter";
 import { CodeBlock } from "@/components/code-block";
 import { PrintButton } from "@/components/print-button";
@@ -114,6 +118,7 @@ export function StudentWorksheetShell({
                   KeyConcept,
                   WatchOut,
                   OptionalChallenge,
+                  EnvironmentStep,
                   pre: CodeBlock,
                 }}
               />

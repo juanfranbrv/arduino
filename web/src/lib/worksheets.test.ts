@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   calculateWorksheetProgress,
   getAllWorksheets,
+  getPublishedWorksheets,
   getWorksheetDisplayTitle,
   isWorksheetUnlocked,
   parseWorksheetSource,
@@ -123,6 +124,12 @@ describe("getWorksheetDisplayTitle", () => {
 });
 
 describe("local worksheet catalog", () => {
+  it("lists published worksheets with the most recently published unit first", () => {
+    expect(getPublishedWorksheets().map((worksheet) => worksheet.unitNumber)).toEqual([
+      7, 4, 3, 2, 1,
+    ]);
+  });
+
   it("contains stable Arduino unit slugs in course order", () => {
     const worksheets = getAllWorksheets();
     const worksheetSummaries = worksheets.map((worksheet) => ({
@@ -210,9 +217,9 @@ describe("local worksheet catalog", () => {
       }),
       expect.objectContaining({
         unitNumber: 9,
-        title: "Servo",
+        title: "Servo SG90",
         slug: "servo",
-        activities: 0,
+        activities: 5,
         status: "draft",
       }),
       expect.objectContaining({

@@ -101,7 +101,7 @@ export function isWorksheetUnlocked(
 export function getPublishedWorksheets(): Worksheet[] {
   return readWorksheets()
     .filter((worksheet) => worksheet.status === "published")
-    .sort(compareWorksheets);
+    .sort(compareWorksheetsDescending);
 }
 
 export function getPublishedWorksheet(slug: string): Worksheet | null {
@@ -121,7 +121,9 @@ export async function getPublishedWorksheetsFromCatalog(): Promise<Worksheet[]> 
   const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
 
   if (!convexUrl) {
-    return localWorksheets.filter((worksheet) => worksheet.status === "published");
+    return localWorksheets
+      .filter((worksheet) => worksheet.status === "published")
+      .sort(compareWorksheetsDescending);
   }
 
   try {
@@ -145,9 +147,12 @@ export async function getPublishedWorksheetsFromCatalog(): Promise<Worksheet[]> 
           prerequisites: worksheet.prerequisites,
         };
       })
-      .filter((worksheet): worksheet is Worksheet => Boolean(worksheet));
+      .filter((worksheet): worksheet is Worksheet => Boolean(worksheet))
+      .sort(compareWorksheetsDescending);
   } catch {
-    return localWorksheets.filter((worksheet) => worksheet.status === "published");
+    return localWorksheets
+      .filter((worksheet) => worksheet.status === "published")
+      .sort(compareWorksheetsDescending);
   }
 }
 
@@ -192,6 +197,14 @@ function compareWorksheets(a: Worksheet, b: Worksheet) {
   return (
     (a.unitNumber ?? Number.MAX_SAFE_INTEGER) -
       (b.unitNumber ?? Number.MAX_SAFE_INTEGER) ||
+    a.slug.localeCompare(b.slug, "es")
+  );
+}
+
+function compareWorksheetsDescending(a: Worksheet, b: Worksheet) {
+  return (
+    (b.unitNumber ?? Number.MIN_SAFE_INTEGER) -
+      (a.unitNumber ?? Number.MIN_SAFE_INTEGER) ||
     a.slug.localeCompare(b.slug, "es")
   );
 }

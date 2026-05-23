@@ -1,13 +1,380 @@
 ---
 unitNumber: 9
-title: Servo
+title: Servo SG90
 slug: servo
 level: iniciacion
-duration: 55 min
+duration: 240 min
 status: draft
-prerequisites: []
-summary: Unidad pendiente de desarrollo.
+prerequisites:
+  - fotocelula-ldr
+  - pulsadores-led
+summary: "El servo SG90 convierte una orden de Arduino en una posición concreta. La unidad empieza con movimiento básico y termina con una actividad integradora de Dino Bot que usa un LDR como ojo y el servo como dedo."
 coverImage: /worksheets/servo-cover-v4.png
-preview: []
-materials: []
+preview:
+  - Servo SG90 como motor de posición, no como motor de giro continuo.
+  - Control con Servo.h, botones, LED y zumbador.
+  - "Proyecto Dino Bot: LDR sobre la pantalla y servo pulsando la tecla espacio."
+materials:
+  - Arduino Uno o Elegoo Mega
+  - Servo SG90
+  - Protoboard
+  - Cables dupont
+  - Portapilas o fuente de 4.5V a 5V
+  - Pulsador
+  - LDR o fotocélula
+  - Resistencia de 10k ohm
+  - LED
+  - Resistencia de 220 ohm
+  - Zumbador activo
+  - Cinta adhesiva
+  - Lápiz, palito o pieza de plástico ligera
 ---
+
+Un servo SG90 es un motor pequeño que no gira libremente como un ventilador. Su trabajo es colocarse en una posición concreta. Arduino no le dice solo "enciéndete"; le dice algo más parecido a "ponte a 0 grados", "ponte a 90 grados" o "ponte a 180 grados".
+
+Por eso el servo es útil en mecanismos: barreras, cerraduras pequeñas, brazos, compuertas, dedos mecánicos, indicadores y robots que necesitan mover una pieza hasta un ángulo determinado.
+
+El SG90 tiene tres cables. El rojo alimenta el servo con `5V`, el marrón o negro va a `GND`, y el naranja o amarillo recibe la señal. Esa señal no es un voltaje fijo: son pulsos repetidos que Arduino genera muchas veces por segundo. La librería `Servo.h` nos evita calcular esos pulsos a mano y nos permite escribir directamente ángulos.
+
+![Servo SG90](/worksheets/servo-cover-v4.png)
+
+<Activity id="act-01" title="Probar el servo sin programación" validation="El alumno identifica los tres cables del servo y observa que, sin señal de control precisa, el movimiento no es estable ni útil." environment="placa">
+
+Antes de programar, el servo se observa como componente eléctrico. El objetivo no es controlarlo bien, sino entender que necesita alimentación y una señal.
+
+Usa una pila o fuente de `4.5V` a `5V`. Conecta el cable rojo a positivo y el marrón o negro a negativo. Después toca el cable de señal, naranja o amarillo, con positivo o negativo durante un instante.
+
+<WatchOut>
+Esta prueba debe ser breve. Sin pulsos de control, el servo puede moverse de forma brusca, irse a un extremo, quedarse zumbando o intentar corregirse. Si vibra o fuerza, desconecta la alimentación.
+</WatchOut>
+
+<KeyConcept title="Motor de posición">
+Un motor normal gira mientras recibe energía. Un servo intenta colocarse en una posición. Si no recibe una señal clara, no sabe qué posición debe buscar.
+</KeyConcept>
+
+### Comprobación
+
+- El alumno señala `VCC`, `GND` y señal en el servo.
+- El servo no se trata como un ventilador de giro continuo.
+- El grupo puede explicar por qué Arduino será necesario para darle órdenes precisas.
+
+</Activity>
+
+<Activity id="act-02" title="Mover el servo por grados" validation="El servo se coloca en 0°, 90° y 180° en simulador y después reproduce esas posiciones en la placa sin forzar el brazo.">
+
+Arduino controla el servo enviando pulsos por un pin digital. La librería `Servo.h` permite escribir ángulos directamente, sin calcular los pulsos a mano.
+
+<KeyConcept title="Una librería es un manual extra">
+`Servo.h` es como darle a Arduino un manual de instrucciones para hablar el idioma de los servos. Gracias a ella podemos escribir `write(90)` en vez de construir la señal eléctrica completa.
+</KeyConcept>
+
+<EnvironmentStep environment="simulador" title="Primero en Tinkercad">
+
+Usa el pin `9` para la señal del servo. Prueba primero las posiciones básicas.
+
+```cpp
+// Unidad 9 - Actividad 2: posiciones basicas del servo
+
+#include <Servo.h>
+
+Servo servo;
+
+void setup() {
+  servo.attach(9);
+}
+
+void loop() {
+  servo.write(0);
+  delay(1000);
+
+  servo.write(90);
+  delay(1000);
+
+  servo.write(180);
+  delay(1000);
+}
+```
+
+Cambia `90` por `45` o `120` para comprobar que el servo puede colocarse en ángulos intermedios.
+
+</EnvironmentStep>
+
+<EnvironmentStep environment="placa" title="Después en la placa">
+
+Reproduce el montaje que ya funciona en el simulador. Comprueba visualmente que los tres cables coinciden con alimentación, tierra y señal.
+
+<WatchOut>
+El SG90 consume bastante corriente cuando se mueve. Un solo servo suele funcionar desde `5V` de Arduino en clase, pero varios servos o un servo haciendo fuerza pueden reiniciar la placa. En proyectos grandes se usa alimentación externa y se comparte siempre `GND` con Arduino.
+</WatchOut>
+
+Si el servo zumba mucho en un extremo, reduce el ángulo máximo, por ejemplo de `180` a `160`.
+
+</EnvironmentStep>
+
+</Activity>
+
+<Activity id="act-03" title="Controlar el servo con un botón" validation="Al pulsar el botón el servo pasa a 90° y al soltarlo vuelve a 0°, primero en simulador y luego en placa.">
+
+El servo puede responder a una entrada. Un pulsador funciona como orden: si está pulsado, el mecanismo se abre; si está suelto, vuelve a reposo.
+
+<EnvironmentStep environment="simulador" title="Primero en Tinkercad">
+
+Usa `INPUT_PULLUP` para el botón. Eso significa que el botón se lee como `LOW` cuando está pulsado.
+
+```cpp
+// Unidad 9 - Actividad 3: un boton controla un servo
+
+#include <Servo.h>
+
+const int PIN_BOTON = 2;
+const int PIN_SERVO = 9;
+
+Servo servo;
+
+void setup() {
+  pinMode(PIN_BOTON, INPUT_PULLUP);
+  servo.attach(PIN_SERVO);
+  servo.write(0);
+}
+
+void loop() {
+  if (digitalRead(PIN_BOTON) == LOW) {
+    servo.write(90);
+  } else {
+    servo.write(0);
+  }
+
+  delay(20);
+}
+```
+
+Comprueba los dos estados: pulsado `90°`, suelto `0°`.
+
+</EnvironmentStep>
+
+<EnvironmentStep environment="placa" title="Después en la placa">
+
+Prueba el mismo programa en el montaje físico. Coloca un palito o una pieza ligera en el brazo del servo y ajusta el ángulo si el mecanismo golpea demasiado o se queda corto.
+
+<KeyConcept title="Entrada y salida">
+El pulsador es una entrada: informa a Arduino. El servo es una salida: actúa en el mundo físico. Esa combinación ya es un mecanismo programable.
+</KeyConcept>
+
+</EnvironmentStep>
+
+</Activity>
+
+<Activity id="act-04" title="Sincronizar barrera y aviso" validation="El botón activa a la vez el servo y un LED o zumbador, primero en simulador y luego en placa.">
+
+Una misma condición puede controlar varias salidas. El botón activa movimiento y señal de aviso a la vez: el servo levanta una barrera y el LED o zumbador indica que el sistema está activo.
+
+<EnvironmentStep environment="simulador" title="Primero en Tinkercad">
+
+```cpp
+// Unidad 9 - Actividad 4: servo + aviso
+
+#include <Servo.h>
+
+const int PIN_BOTON = 2;
+const int PIN_SERVO = 9;
+const int PIN_AVISO = 8;
+
+Servo servo;
+
+void setup() {
+  pinMode(PIN_BOTON, INPUT_PULLUP);
+  pinMode(PIN_AVISO, OUTPUT);
+  servo.attach(PIN_SERVO);
+  servo.write(0);
+}
+
+void loop() {
+  if (digitalRead(PIN_BOTON) == LOW) {
+    servo.write(90);
+    digitalWrite(PIN_AVISO, HIGH);
+  } else {
+    servo.write(0);
+    digitalWrite(PIN_AVISO, LOW);
+  }
+
+  delay(20);
+}
+```
+
+Puedes probarlo con LED, con zumbador activo o con ambos.
+
+</EnvironmentStep>
+
+<EnvironmentStep environment="placa" title="Después en la placa">
+
+Comprueba que el botón activa a la vez el servo y el aviso. Si la barrera necesita menos recorrido, cambia `90` por un ángulo menor.
+
+<WatchOut>
+Un servo no debe luchar contra una pieza bloqueada. Si suena forzado o vibra sin moverse, reduce el ángulo o cambia la posición física del brazo.
+</WatchOut>
+
+</EnvironmentStep>
+
+</Activity>
+
+## Proyecto Dino Bot
+
+<Activity id="act-05" title="Construir el Dino Bot" validation="El sistema usa el LDR como ojo y el servo como dedo: detecta un cambio de luz, calibra el umbral y ejecuta una pulsación corta sin forzar el teclado.">
+
+El Dino Bot convierte Arduino en un pequeño jugador automático. Todo el proyecto se trabaja como una sola actividad larga, separada en fases: entender el papel de cada componente, sincronizar sensor y movimiento, calibrar el umbral y montar el sistema final.
+
+No es visión artificial con cámara, pero introduce la misma idea básica: convertir una señal visual en una decisión y después en una acción física.
+
+### Fase 1: separar el ojo y el dedo
+
+Antes de unirlo todo, analiza las dos mitades del proyecto. El LDR mide luz y produce un número. El servo mueve un brazo y puede presionar un objeto.
+
+- El LDR será el ojo del sistema.
+- El servo será el dedo.
+- Arduino será el cerebro que decide cuándo mover el dedo.
+
+<KeyConcept title="De número a movimiento">
+El monitor serie muestra un número. El servo convierte una decisión basada en ese número en una acción física. Esa traducción es la base de muchos robots sencillos.
+</KeyConcept>
+
+### Fase 2: sincronizar LDR y servo
+
+El primer disparo usa el divisor de tensión del LDR y el servo. Cuando la lectura baja de un umbral, Arduino interpreta que ha visto un obstáculo oscuro y mueve el servo.
+
+<EnvironmentStep environment="simulador" title="Primero en Tinkercad">
+
+```cpp
+// Unidad 9 - Actividad 5: LDR dispara un servo
+
+#include <Servo.h>
+
+const int PIN_LDR = A0;
+const int PIN_SERVO = 9;
+
+const int UMBRAL_OBSTACULO = 450;
+const int ANGULO_REPOSO = 0;
+const int ANGULO_PULSAR = 30;
+
+Servo servo;
+
+void setup() {
+  Serial.begin(9600);
+  servo.attach(PIN_SERVO);
+  servo.write(ANGULO_REPOSO);
+}
+
+void loop() {
+  int luz = analogRead(PIN_LDR);
+  Serial.println(luz);
+
+  if (luz < UMBRAL_OBSTACULO) {
+    servo.write(ANGULO_PULSAR);
+    delay(180);
+    servo.write(ANGULO_REPOSO);
+    delay(250);
+  }
+
+  delay(20);
+}
+```
+
+</EnvironmentStep>
+
+<EnvironmentStep environment="placa" title="Después en la placa">
+
+Monta el sistema sobre una superficie plana. Cambia `ANGULO_PULSAR` poco a poco: `20`, `25`, `30`, `35`. Quédate con el ángulo más bajo que consigue tocar un lápiz, una pieza de plástico o una tecla de prueba.
+
+<WatchOut>
+El servo no debe girar `180°` para pulsar una tecla. Solo necesita el ángulo justo para hacer presión. Si gira demasiado, puede golpear la carcasa o forzar el teclado.
+</WatchOut>
+
+</EnvironmentStep>
+
+### Fase 3: calibrar la detección
+
+La calibración evita que el Dino Bot salte siempre. El umbral debe quedar entre el valor de fondo normal y el valor del obstáculo.
+
+<EnvironmentStep environment="simulador" title="Primero en Tinkercad">
+
+| Situación simulada | Valor del LDR |
+| --- | --- |
+| Pantalla clara / fondo | |
+| Obstáculo oscuro pasando | |
+| Sombra parcial | |
+
+Después de medir, cambia `UMBRAL_OBSTACULO`. Si el servo dispara todo el tiempo, el umbral está demasiado alto o demasiado bajo según el orden de tu divisor. Si no dispara nunca, el umbral no está cruzando el rango real.
+
+</EnvironmentStep>
+
+<EnvironmentStep environment="placa" title="Después en la placa">
+
+Coloca el LDR sobre la zona de la pantalla donde aparecerá el obstáculo. Fíjalo con cinta adhesiva sin taparlo, mira el monitor serie y ajusta el umbral con lecturas reales de pantalla en reposo y obstáculo pasando.
+
+<KeyConcept title="Calibrar es medir antes de decidir">
+Un umbral no se adivina. Se elige mirando datos. Primero se mide, después se programa la condición.
+</KeyConcept>
+
+</EnvironmentStep>
+
+### Fase 4: montar el Dino Bot final
+
+El montaje final une todo: LDR sobre la pantalla y servo colocado sobre la tecla espacio o sobre una pieza ligera que la presiona. La meta no es hacer fuerza, sino pulsar lo justo.
+
+<EnvironmentStep environment="simulador" title="Primero en Tinkercad">
+
+```cpp
+// Unidad 9 - Actividad 5: logica final Dino Bot
+
+#include <Servo.h>
+
+const int PIN_LDR = A0;
+const int PIN_SERVO = 9;
+
+const int UMBRAL_OBSTACULO = 450;
+const int ANGULO_REPOSO = 0;
+const int ANGULO_PULSAR = 30;
+const int TIEMPO_PULSO = 160;
+const int PAUSA_ENTRE_SALTOS = 350;
+
+Servo servo;
+
+void setup() {
+  Serial.begin(9600);
+  servo.attach(PIN_SERVO);
+  servo.write(ANGULO_REPOSO);
+}
+
+void loop() {
+  int luz = analogRead(PIN_LDR);
+  Serial.println(luz);
+
+  if (luz < UMBRAL_OBSTACULO) {
+    servo.write(ANGULO_PULSAR);
+    delay(TIEMPO_PULSO);
+    servo.write(ANGULO_REPOSO);
+    delay(PAUSA_ENTRE_SALTOS);
+  }
+
+  delay(20);
+}
+```
+
+Ajustes útiles: `ANGULO_PULSAR`, `TIEMPO_PULSO` y `PAUSA_ENTRE_SALTOS`.
+
+</EnvironmentStep>
+
+<EnvironmentStep environment="placa" title="Después en la placa">
+
+Coloca el LDR con cinta adhesiva en la zona donde aparece el obstáculo. Sitúa el servo de forma que el brazo pueda pulsar sin rozar continuamente. Empieza con `ANGULO_PULSAR = 20` y sube poco a poco hasta que la pulsación funcione.
+
+<WatchOut>
+No pegues el servo presionando ya la tecla. El brazo debe tocar solo durante el pulso. Si queda haciendo fuerza constante, puedes dañar el teclado o el propio servo.
+</WatchOut>
+
+</EnvironmentStep>
+
+<KeyConcept title="Hacking útil">
+El Dino Bot muestra una idea potente: un sensor observa el mundo, Arduino toma una decisión y un actuador interviene físicamente. Ese patrón sirve para juegos, mecanismos, robots y ayudas automáticas.
+</KeyConcept>
+
+</Activity>

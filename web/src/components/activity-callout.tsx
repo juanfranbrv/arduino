@@ -124,3 +124,45 @@ export function Activity({
     </section>
   );
 }
+
+export function EnvironmentStep({
+  environment,
+  title,
+  children,
+}: {
+  environment: ActivityEnvironment;
+  title: string;
+  children?: ReactNode;
+}) {
+  const environmentMeta = activityEnvironmentMeta[environment];
+
+  return (
+    <section className="environment-step">
+      <div className="environment-step__header">
+        <span className="environment-step__badge">
+          <Image
+            src={environmentMeta.src}
+            alt={environmentMeta.alt}
+            width={32}
+            height={32}
+            unoptimized
+            className="h-8 w-8 rounded-full object-cover"
+          />
+          <span>{environmentMeta.label}</span>
+          {environmentMeta.href ? (
+            <a
+              href={environmentMeta.href}
+              target="_blank"
+              rel="noreferrer"
+              className="environment-step__link"
+            >
+              {environmentMeta.href}
+            </a>
+          ) : null}
+        </span>
+        <h4>{title}</h4>
+      </div>
+      {children ? <div className="environment-step__body">{children}</div> : null}
+    </section>
+  );
+}

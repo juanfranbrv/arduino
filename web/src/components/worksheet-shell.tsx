@@ -1,7 +1,7 @@
 import { MDXRemote } from "next-mdx-remote/rsc";
 import Link from "next/link";
 
-import { Activity } from "@/components/activity-callout";
+import { Activity, EnvironmentStep } from "@/components/activity-callout";
 import { CodeBlock } from "@/components/code-block";
 import { PrintButton } from "@/components/print-button";
 import {
@@ -14,6 +14,7 @@ import { getWorksheetDisplayTitle, type Worksheet } from "@/lib/worksheets";
 
 const worksheetComponents = {
   Activity,
+  EnvironmentStep,
   KeyConcept,
   WatchOut,
   OptionalChallenge,
