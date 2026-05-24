@@ -1,13 +1,391 @@
 ---
-unitNumber: 24
+unitNumber: 4
 title: El Monitor Serie
 slug: monitor-serie
 level: iniciacion
-duration: 55 min
+duration: 90 min
 status: draft
-prerequisites: []
-summary: Unidad pendiente de desarrollo.
-coverImage: /worksheet-placeholder.svg
-preview: []
-materials: []
+prerequisites:
+  - explorar-el-pack
+summary: "Uso del Monitor Serie para imprimir mensajes, repetir lecturas, leer datos escritos desde el ordenador, decidir con condiciones y controlar un LED con comandos."
+coverImage: /worksheets/monitor-serie-cover.png
+preview:
+  - Primeros mensajes enviados desde Arduino al ordenador.
+  - Lectura de números y texto desde el Monitor Serie.
+  - Detección de un circuito abierto o cerrado con A0 y resistencia pull-down.
+  - Control de un LED mediante órdenes escritas en el Monitor Serie.
+materials:
+  - Arduino Uno o Elegoo Mega
+  - Cable USB
+  - Ordenador con Arduino IDE
+  - Protoboard
+  - LED
+  - Resistencia de 220 ohm
+  - Resistencia de 10k ohm
+  - Cables dupont
 ---
+
+El Monitor Serie es la ventana por la que Arduino escribe datos en el ordenador y recibe texto escrito desde el teclado. Sirve para comprobar que un programa está funcionando, ver valores de sensores, depurar errores y dar órdenes sencillas a la placa sin montar botones.
+
+Para usarlo, el programa inicia la comunicación con `Serial.begin(9600)` y el Monitor Serie del Arduino IDE debe estar configurado a `9600 baudios`.
+
+### Chuleta del puerto serie
+
+<div className="overflow-hidden rounded-lg border border-violet-200 bg-white/70 shadow-sm">
+  <table className="w-full border-collapse text-base leading-7">
+    <thead>
+      <tr className="bg-violet-50 text-left text-violet-950">
+        <th className="w-2/5 border-b border-violet-200 px-5 py-4 font-semibold">Instrucción</th>
+        <th className="border-b border-violet-200 px-5 py-4 font-semibold">Qué hace</th>
+      </tr>
+    </thead>
+    <tbody className="divide-y divide-violet-100">
+      <tr>
+        <td className="px-5 py-4 align-top"><code>Serial.begin(9600)</code></td>
+        <td className="px-5 py-4">Abre la comunicación serie a 9600 baudios. Debe estar en <code>setup()</code>.</td>
+      </tr>
+      <tr className="bg-violet-50/40">
+        <td className="px-5 py-4 align-top"><code>Serial.print(dato)</code></td>
+        <td className="px-5 py-4">Escribe un dato en el Monitor Serie sin cambiar de línea.</td>
+      </tr>
+      <tr>
+        <td className="px-5 py-4 align-top"><code>Serial.println(dato)</code></td>
+        <td className="px-5 py-4">Escribe un dato y salta a la línea siguiente.</td>
+      </tr>
+      <tr className="bg-violet-50/40">
+        <td className="px-5 py-4 align-top"><code>Serial.available()</code></td>
+        <td className="px-5 py-4">Indica si el ordenador ha enviado datos y Arduino puede leerlos.</td>
+      </tr>
+      <tr>
+        <td className="px-5 py-4 align-top"><code>Serial.parseInt()</code></td>
+        <td className="px-5 py-4">Lee un número entero escrito en el Monitor Serie.</td>
+      </tr>
+      <tr className="bg-violet-50/40">
+        <td className="px-5 py-4 align-top"><code>Serial.read()</code></td>
+        <td className="px-5 py-4">Lee un solo carácter recibido, por ejemplo <code>'A'</code> o <code>'1'</code>.</td>
+      </tr>
+      <tr>
+        <td className="px-5 py-4 align-top"><code>Serial.readStringUntil('\n')</code></td>
+        <td className="px-5 py-4">Lee texto completo hasta encontrar un salto de línea.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<Activity id="act-01" title="Imprimir hola mundo" validation="El Monitor Serie muestra una sola línea con el texto hola mundo después de reiniciar o subir el programa." environment="placa">
+
+Conecta Arduino por USB, sube el programa y abre el Monitor Serie. Comprueba que la velocidad marcada abajo es `9600 baudios`.
+
+### Tarea 1
+
+Primero imprime el mensaje desde `setup()`.
+
+```cpp
+// Unidad 4 - Actividad 1: imprimir hola mundo
+
+void setup() {
+  Serial.begin(9600);
+  Serial.println("hola mundo");
+}
+
+void loop() {
+}
+```
+
+`setup()` se ejecuta una vez. Por eso el mensaje aparece una vez cada vez que la placa arranca.
+
+### Tarea 2
+
+Ahora mueve el mismo mensaje a `loop()` y vuelve a subir el programa.
+
+```cpp
+// Unidad 4 - Actividad 1: mover hola mundo al loop
+
+void setup() {
+  Serial.begin(9600);
+}
+
+void loop() {
+  Serial.println("hola mundo");
+}
+```
+
+`loop()` se repite continuamente. Por eso el Monitor Serie empieza a llenarse con el mismo mensaje una y otra vez.
+
+<WatchOut>
+Este programa no tiene pausa. Sirve para observar la diferencia entre `setup()` y `loop()`, pero escribe demasiado rápido para trabajar con comodidad.
+</WatchOut>
+
+</Activity>
+
+<Activity id="act-02" title="Imprimir el mensaje cada segundo" validation="El Monitor Serie muestra hola mundo una vez por segundo, sin llenar la pantalla de golpe." environment="placa">
+
+Modifica el programa anterior moviendo el mensaje al `loop()`. Como `loop()` se repite continuamente, hace falta una pausa para controlar el ritmo.
+
+```cpp
+// Unidad 4 - Actividad 2: imprimir cada segundo
+
+void setup() {
+  Serial.begin(9600);
+}
+
+void loop() {
+  Serial.println("hola mundo");
+  delay(1000);
+}
+```
+
+`delay(1000)` detiene el programa durante 1000 milisegundos, es decir, 1 segundo.
+
+<OptionalChallenge>
+Cambia el texto y el tiempo de espera. Prueba `delay(500)` y `delay(2000)`.
+</OptionalChallenge>
+
+</Activity>
+
+<Activity id="act-03" title="Imprimir un contador" validation="El Monitor Serie muestra una secuencia creciente: 0, 1, 2, 3... con una nueva línea cada segundo." environment="placa">
+
+Un contador necesita una variable que conserve su valor entre vueltas del `loop()`. En cada repetición se imprime y después se incrementa.
+
+```cpp
+// Unidad 4 - Actividad 3: contador cada segundo
+
+int contador = 0;
+
+void setup() {
+  Serial.begin(9600);
+}
+
+void loop() {
+  Serial.println(contador);
+  contador = contador + 1;
+  delay(1000);
+}
+```
+
+La variable `contador` empieza en `0`. Cada vuelta suma `1`.
+
+<OptionalChallenge>
+Haz que el contador avance de 2 en 2.
+</OptionalChallenge>
+
+</Activity>
+
+<Activity id="act-04" title="Leer un valor e imprimir el doble" validation="Al escribir un número en el Monitor Serie y pulsar enviar, Arduino responde con el doble de ese número." environment="placa">
+
+El Monitor Serie también puede enviar datos a Arduino. Escribe un número en la caja de entrada y pulsa `Enviar`.
+
+```cpp
+// Unidad 4 - Actividad 4: leer un número e imprimir el doble
+
+void setup() {
+  Serial.begin(9600);
+  Serial.println("Escribe un número y pulsa Enviar.");
+}
+
+void loop() {
+  if (Serial.available() > 0) {
+    int valor = Serial.parseInt();
+    int doble = valor * 2;
+
+    Serial.print("El doble de ");
+    Serial.print(valor);
+    Serial.print(" es ");
+    Serial.println(doble);
+  }
+}
+```
+
+<WatchOut>
+Si no llega ningun dato, `Serial.available()` vale `0` y el programa no intenta leer.
+</WatchOut>
+
+</Activity>
+
+<Activity id="act-05" title="Comprobar una contraseña" validation="Al escribir la contraseña correcta aparece Acceso permitido; con otro texto aparece Acceso denegado." environment="placa">
+
+El Monitor Serie puede leer texto. En esta actividad Arduino compara lo escrito con una contraseña guardada en el programa.
+
+Configura el final de línea del Monitor Serie como `Nueva línea` para que `readStringUntil('\n')` sepa dónde termina el texto.
+
+```cpp
+// Unidad 4 - Actividad 5: comprobar una contraseña
+
+String claveCorrecta = "arduino";
+
+void setup() {
+  Serial.begin(9600);
+  Serial.println("Escribe la contraseña:");
+}
+
+void loop() {
+  if (Serial.available() > 0) {
+    String intento = Serial.readStringUntil('\n');
+    intento.trim();
+
+    if (intento == claveCorrecta) {
+      Serial.println("Acceso permitido");
+    } else {
+      Serial.println("Acceso denegado");
+    }
+  }
+}
+```
+
+`trim()` elimina espacios y saltos de línea sobrantes. Sin esa limpieza, una contraseña aparentemente correcta puede fallar por caracteres invisibles al final.
+
+<OptionalChallenge>
+Cambia la contraseña y añade un contador de intentos.
+</OptionalChallenge>
+
+</Activity>
+
+<Activity id="act-06" title="Detectar circuito abierto o cerrado con A0" validation="Al cerrar el circuito del LED, el Monitor Serie muestra Circuito cerrado - LED encendido; al abrirlo, muestra Circuito abierto - LED apagado de forma estable." environment="placa">
+
+Monta un circuito básico que enciende un LED desde `5V`:
+
+```text
+5V -> interruptor o cable suelto -> resistencia 220 ohm -> LED -> GND
+```
+
+Conecta el pin `A0` al punto que quieres observar, por ejemplo al nodo que queda después del interruptor y antes de la resistencia del LED. Añade una resistencia de `10k ohm` entre ese mismo punto y `GND`.
+
+```text
+Punto de lectura -> A0
+Punto de lectura -> resistencia 10k ohm -> GND
+```
+
+### Qué está midiendo Arduino
+
+Esta actividad sirve para comprobar una idea importante: Arduino no "ve" si el LED está encendido como lo ve una persona. Arduino solo puede leer señales eléctricas. En este caso, el pin `A0` mide si en un punto del circuito hay tensión o no.
+
+El pin `A0` es una entrada analógica. Eso significa que no lee solamente `encendido` o `apagado`, sino un valor intermedio. Arduino transforma la tensión entre `0V` y `5V` en un número:
+
+```text
+0V  -> lectura cercana a 0
+5V  -> lectura cercana a 1023
+```
+
+Si el punto conectado a `A0` tiene una tensión positiva clara, el programa puede interpretar que el circuito está cerrado. Si el punto conectado a `A0` está cerca de `0V`, el programa puede interpretar que el circuito está abierto.
+
+### Cuando el circuito está cerrado
+
+Cuando el circuito se cierra, la corriente puede circular desde `5V`, atravesar la resistencia, pasar por el LED y volver a `GND`. El LED se enciende porque tiene un camino completo.
+
+Si `A0` está conectado al punto correcto del circuito, también detecta que allí hay tensión. Esa tensión puede ser cercana a `5V` si el cable de lectura está después del interruptor y antes de la resistencia, o puede ser menor si se mide cerca del LED. Un LED normal suele tener una caída de tensión de aproximadamente `1.8V` a `2.2V`, según el color y el modelo.
+
+No hace falta que `A0` lea exactamente `1023`. Lo importante es que lea un valor claramente mayor que cero. Por eso el programa usa un umbral: si la lectura supera cierto número, considera que el circuito está cerrado.
+
+### Cuando el circuito está abierto
+
+Cuando el circuito se abre, la corriente ya no tiene un camino completo. El LED se apaga.
+
+El problema aparece si el cable conectado a `A0` queda sin una referencia clara. Si ese punto no está unido ni a `5V` ni a `GND`, el pin queda flotando. Un pin flotante no tiene un estado fiable. Puede comportarse como una pequeña antena y captar ruido eléctrico del ambiente, de los cables cercanos, del ordenador o incluso de la mano al acercarse.
+
+Cuando eso ocurre, el Monitor Serie puede mostrar valores raros: números que suben y bajan aunque nadie haya cerrado el circuito. No significa que Arduino esté roto. Significa que la entrada está intentando medir un punto que no tiene una tensión bien definida.
+
+### La resistencia pull-down
+
+La resistencia de `10k ohm` soluciona ese problema. Se conecta entre el punto de lectura y `GND`. Su trabajo es sencillo: cuando no llega tensión positiva desde `5V`, la resistencia lleva suavemente ese punto hacia `0V`.
+
+Se llama pull-down porque "tira hacia abajo" la lectura, hacia tierra. No es un cable directo a `GND`, porque entonces podría hacer un cortocircuito cuando el circuito se cierre. Es una resistencia grande, así que deja una referencia estable sin interferir demasiado en el funcionamiento del LED.
+
+El comportamiento queda así:
+
+- Circuito cerrado: la tensión positiva domina y `A0` lee un valor alto.
+- Circuito abierto: la resistencia pull-down lleva `A0` a `0V` y la lectura queda cerca de `0`.
+
+### Qué decide el programa
+
+El programa no necesita saber toda la electricidad exacta del circuito. Solo compara la lectura con un umbral.
+
+```text
+Si A0 lee más que el umbral -> circuito cerrado
+Si A0 lee menos que el umbral -> circuito abierto
+```
+
+En esta ficha el umbral es `200`. Como Arduino lee de `0` a `1023`, ese valor deja margen para ignorar pequeños ruidos. Una lectura de `20`, `40` o `80` no debería contar como circuito cerrado. Una lectura claramente superior, por ejemplo `300`, `600` o `900`, sí indica que hay tensión suficiente en el punto medido.
+
+El Monitor Serie ayuda a ver las dos cosas a la vez: el número leído por `A0` y la decisión que toma el programa.
+
+```cpp
+// Unidad 4 - Actividad 6: detectar circuito abierto o cerrado con A0
+
+const int PIN_LECTURA = A0;
+const int UMBRAL = 200;
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(PIN_LECTURA, INPUT);
+}
+
+void loop() {
+  int lectura = analogRead(PIN_LECTURA);
+
+  Serial.print("A0 = ");
+  Serial.print(lectura);
+  Serial.print(" -> ");
+
+  if (lectura > UMBRAL) {
+    Serial.println("Circuito cerrado - LED encendido");
+  } else {
+    Serial.println("Circuito abierto - LED apagado");
+  }
+
+  delay(300);
+}
+```
+
+Arduino convierte la tensión de `A0` en un número entre `0` y `1023`. El umbral `200` equivale aproximadamente a `1V`. Si el punto de lectura recibe una tensión claramente positiva, el programa lo interpreta como circuito cerrado.
+
+<WatchOut>
+No conectes `5V` directamente a `GND`. El LED siempre debe llevar una resistencia de `220 ohm` en serie.
+</WatchOut>
+
+</Activity>
+
+<Activity id="act-07" title="Controlar un LED desde el Monitor Serie" validation="Al escribir ON el LED se enciende; al escribir OFF el LED se apaga; el Monitor Serie confirma cada orden." environment="placa">
+
+Monta un LED controlado por el pin `10`:
+
+```text
+Pin 10 -> resistencia 220 ohm -> LED -> GND
+```
+
+El programa espera órdenes escritas en el Monitor Serie. Usa `ON` para encender y `OFF` para apagar.
+
+```cpp
+// Unidad 4 - Actividad 7: encender y apagar un LED por Monitor Serie
+
+const int PIN_LED = 10;
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(PIN_LED, OUTPUT);
+  Serial.println("Escribe ON para encender o OFF para apagar.");
+}
+
+void loop() {
+  if (Serial.available() > 0) {
+    String orden = Serial.readStringUntil('\n');
+    orden.trim();
+    orden.toUpperCase();
+
+    if (orden == "ON") {
+      digitalWrite(PIN_LED, HIGH);
+      Serial.println("LED encendido");
+    } else if (orden == "OFF") {
+      digitalWrite(PIN_LED, LOW);
+      Serial.println("LED apagado");
+    } else {
+      Serial.println("Orden no reconocida");
+    }
+  }
+}
+```
+
+<OptionalChallenge>
+Acepta también las palabras `ENCENDER` y `APAGAR`.
+</OptionalChallenge>
+
+</Activity>
